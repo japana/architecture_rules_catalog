@@ -1,7 +1,7 @@
 ruleSetId: "clean-code"
 locale: "en"
 name: "Clean Code"
-description: "Generic rule set for readability, maintainability, testability and controlled complexity."
+description: "Rule set for readability, maintainability, testability and controlled complexity with operational review guidance."
 category: "CodeQuality"
 compatibility: "Language-agnostic"
 tags:
@@ -18,6 +18,15 @@ rules:
     keywords:
       - "intent-revealing"
       - "clarity"
+    aiGuidance:
+      reviewQuestions:
+        - "Can a reader infer business intent from the main identifiers without extra comments?"
+        - "Do abbreviations hide meaning that should be spelled out in domain terms?"
+      positiveExamples:
+        - "A method named calculateNetInvoiceTotal makes the business outcome explicit."
+      negativeExamples:
+        - "A method named calcVal or handleData obscures intent."
+      remediation: "Rename identifiers toward domain vocabulary and remove abbreviations that are not team-standard."
   - id: "AR-202"
     title: "Functions Stay Small And Focused"
     content: "Methods and functions should serve one clear purpose and avoid mixing several business responsibilities."
@@ -27,6 +36,15 @@ rules:
     keywords:
       - "small-functions"
       - "focus"
+    aiGuidance:
+      reviewQuestions:
+        - "Does the function perform one coherent business task?"
+        - "Would the function be easier to test if one branch or concern were extracted?"
+      positiveExamples:
+        - "A method validates a command and delegates persistence to a collaborator."
+      negativeExamples:
+        - "A method validates input, performs authorization, formats HTML and sends mail."
+      remediation: "Split unrelated responsibilities and keep each function centered on one decision or transformation."
   - id: "AR-203"
     title: "Modules Hide Internal Detail"
     content: "Modules and classes should offer a small, stable surface and hide internal technical detail."
@@ -36,6 +54,15 @@ rules:
     keywords:
       - "public-api"
       - "internal-detail"
+    aiGuidance:
+      reviewQuestions:
+        - "Is the exposed API smaller and more stable than the internal implementation detail?"
+        - "Are internal helpers, storage types or temporary representations leaking through public contracts?"
+      positiveExamples:
+        - "A repository module exposes one query interface and keeps SQL mapping private."
+      negativeExamples:
+        - "Callers depend on internal cache keys or storage DTOs."
+      remediation: "Reduce the public surface and move volatile details behind module-private seams."
   - id: "AR-204"
     title: "Error Handling Is Explicit"
     content: "Failure paths should be modeled explicitly; swallowed exceptions, silent fallbacks and opaque null semantics should be avoided."
@@ -45,6 +72,15 @@ rules:
     keywords:
       - "exceptions"
       - "result-types"
+    aiGuidance:
+      reviewQuestions:
+        - "Is the failure contract visible to callers through types, exceptions or documented behavior?"
+        - "Could an error path be missed because null, false or default values hide it?"
+      positiveExamples:
+        - "A use case returns a typed error result when a dependency call fails."
+      negativeExamples:
+        - "An exception is caught, ignored and execution continues with partial data."
+      remediation: "Model failure explicitly and propagate or translate errors intentionally."
   - id: "AR-205"
     title: "Duplication Is Eliminated At The Right Abstraction Level"
     content: "Repeated logic and rules should be consolidated only when the shared abstraction is stable enough."
@@ -54,6 +90,15 @@ rules:
     keywords:
       - "dry"
       - "refactoring"
+    aiGuidance:
+      reviewQuestions:
+        - "Is the shared abstraction capturing a stable concept rather than incidental similarity?"
+        - "Would keeping the code duplicated for one more change reduce accidental coupling?"
+      positiveExamples:
+        - "Two mappers share a common normalization function because the rule is truly identical."
+      negativeExamples:
+        - "Three unrelated workflows are forced through one generic helper with many flags."
+      remediation: "Merge only stable common behavior; otherwise keep duplication local until the concept becomes clear."
   - id: "AR-206"
     title: "Code Is Designed For Testability"
     content: "Code should be structured through clear interfaces, controlled side effects and narrow responsibilities so that automated tests stay simple."
@@ -63,3 +108,12 @@ rules:
     keywords:
       - "deterministic"
       - "testable"
+    aiGuidance:
+      reviewQuestions:
+        - "Can the behavior be verified with isolated automated tests without booting unrelated infrastructure?"
+        - "Are side effects injected or otherwise controllable during tests?"
+      positiveExamples:
+        - "A service receives a clock and repository port through its constructor for deterministic tests."
+      negativeExamples:
+        - "Business logic reads static global state and makes live network calls directly."
+      remediation: "Introduce seams for time, I/O and collaborators, and reduce hidden shared state."

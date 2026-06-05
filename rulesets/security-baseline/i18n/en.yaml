@@ -1,7 +1,7 @@
 ruleSetId: "security-baseline"
 locale: "en"
 name: "Security Baseline"
-description: "Generic rule set for secure defaults, access control, secret protection and auditable security events."
+description: "Rule set for secure defaults, access control, secret protection and auditable security events with operational review guidance."
 category: "Security"
 compatibility: "Language-agnostic"
 tags:
@@ -19,6 +19,15 @@ rules:
       - "api-key"
       - "password"
       - "token"
+    aiGuidance:
+      reviewQuestions:
+        - "Could a credential or secret value be committed, logged or shipped in an artifact?"
+        - "Are placeholders, examples and local environment files clearly separated from real secrets?"
+      positiveExamples:
+        - "An application loads secrets from a managed secret store and masks them in logs."
+      negativeExamples:
+        - "An .env.example file contains a live API key or a debug log prints a bearer token."
+      remediation: "Move secrets to a secret manager or local ignored config, replace committed values with placeholders and mask log output."
   - id: "AR-302"
     title: "Authentication And Authorization Are Separated"
     content: "Identity verification and permission decisions should be modeled as separate responsibilities so that business permissions are not inferred implicitly from login state."
@@ -29,15 +38,33 @@ rules:
       - "authn"
       - "authz"
       - "least-privilege"
+    aiGuidance:
+      reviewQuestions:
+        - "Is identity verification separated from permission evaluation in code and design?"
+        - "Can a valid session accidentally grant business rights without an explicit policy check?"
+      positiveExamples:
+        - "A service checks identity through one component and evaluates permissions through a policy service."
+      negativeExamples:
+        - "A controller treats any authenticated user as automatically authorized for admin actions."
+      remediation: "Introduce an explicit authorization layer or policy check instead of inferring rights from authentication state."
   - id: "AR-303"
     title: "External Input Is Validated At System Boundaries"
-    content: "External inputs from HTTP, messaging, CLI, files or integrations should be validated and normalized at the system boundary."
+    content: "External inputs from HTTP, messaging, CLI, files or integrations should be validated, normalized and rejected in a controlled way at the system boundary."
     tags:
       - "Validation"
       - "Boundary"
     keywords:
       - "input-validation"
       - "contracts"
+    aiGuidance:
+      reviewQuestions:
+        - "Is every untrusted input validated before it reaches business logic?"
+        - "Are invalid payloads rejected in a controlled and observable way?"
+      positiveExamples:
+        - "A request DTO is schema-validated and normalized before invoking the use case."
+      negativeExamples:
+        - "Raw request fields pass directly into SQL building or filesystem paths."
+      remediation: "Add boundary validation, normalization and explicit rejection paths before business processing."
   - id: "AR-304"
     title: "Least Privilege Applies To Users And Services"
     content: "Users, service identities and background processes should receive only the minimum permissions required, scoped as tightly as possible."
@@ -47,6 +74,15 @@ rules:
     keywords:
       - "minimum-rights"
       - "scoped-access"
+    aiGuidance:
+      reviewQuestions:
+        - "Do accounts and services have only the permissions needed for their current responsibility?"
+        - "Are broad wildcard permissions or long-lived elevated roles avoided?"
+      positiveExamples:
+        - "A batch job uses a dedicated service account limited to one storage bucket."
+      negativeExamples:
+        - "One shared admin credential is used by all automation jobs."
+      remediation: "Split identities by responsibility and reduce permissions to the smallest workable scope."
   - id: "AR-305"
     title: "Security Relevant Events Are Auditable"
     content: "Authentication events, permission changes, secret rotation and security-relevant configuration changes should be logged in an auditable way."
@@ -56,6 +92,15 @@ rules:
     keywords:
       - "audit-log"
       - "traceability"
+    aiGuidance:
+      reviewQuestions:
+        - "Can important security actions be reconstructed after the fact from logs or audit trails?"
+        - "Do logs capture actor, action and outcome without leaking sensitive data?"
+      positiveExamples:
+        - "An admin permission change writes an audit record with actor, target and timestamp."
+      negativeExamples:
+        - "Credential rotation happens silently with no traceable event."
+      remediation: "Add structured audit events for security-sensitive actions and ensure sensitive values stay masked."
   - id: "AR-306"
     title: "Secure Defaults Override Convenience"
     content: "Unsafe exception paths such as test bypasses, open debug endpoints or global full access must be disabled by default."
@@ -65,3 +110,12 @@ rules:
     keywords:
       - "safe-defaults"
       - "opt-in-risk"
+    aiGuidance:
+      reviewQuestions:
+        - "Would a fresh deployment start in the safest reasonable mode without extra hardening?"
+        - "Are risky capabilities gated behind explicit opt-in rather than enabled implicitly?"
+      positiveExamples:
+        - "A debug endpoint is disabled unless a local-only development flag is turned on."
+      negativeExamples:
+        - "A production build ships with a test bypass or unrestricted admin mode enabled."
+      remediation: "Flip risky defaults off, require explicit opt-in and document the approved escape hatch."

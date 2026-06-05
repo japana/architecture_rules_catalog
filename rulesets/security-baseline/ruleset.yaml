@@ -1,70 +1,223 @@
 ruleSetId: "security-baseline"
 schemaVersion: "ruleset-catalog-v1"
-ruleSetVersion: "1.0.0"
+ruleSetVersion: "1.1.0"
 publisher: "APMDB Catalog Seed"
 license: "Apache-2.0"
-status: "published"
+status: "draft"
 defaultLocale: "en"
 availableLocales:
   - "en"
   - "de"
-approvals:
-  - maintainer: "catalog-maintainer"
-    approvedAt: "2026-06-05T18:00:00Z"
-    referenceType: "review"
-    reference: "https://example.org/catalog/reviews/security-baseline-v1"
+approvals: []
 rules:
   - id: "AR-301"
-    status: "Active"
+    status: "active"
     type: "security"
+    severity: "must"
+    enforcementLevel: "blocking"
+    detectability: "static-analysis"
+    priority: 100
+    overridePolicy: "explicit-exception-required"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Security Baseline"
-    relationships: []
+      - dimension: "technology"
+        values: ["agnostic"]
+      - dimension: "artifactType"
+        values: ["backend", "frontend", "ci", "infrastructure"]
+      - dimension: "criticality"
+        values: ["all", "security-sensitive"]
+    source:
+      type: "practice"
+      title: "Secret Management Baseline"
+      reference: "OWASP and operational hardening practices"
+    classification:
+      ruleIntent: "secrets-never-live-in-repositories-or-logs"
+      decisionImpact: "blocking"
+    appliesTo:
+      components: ["repositories", "pipelines", "logs", "sample files"]
+      artifacts: ["backend", "frontend", "ci", "infrastructure"]
+    constraints:
+      - kind: "secret-handling"
+        operator: "forbid"
+        targets:
+          - "committed credentials"
+          - "secrets in example files"
+          - "secrets in logs"
+          - "secrets in build artifacts"
+    relationships:
+      - target: "AR-306"
+        type: "supports"
+        rationale: "Secure defaults reduce accidental secret disclosure paths."
   - id: "AR-302"
-    status: "Active"
+    status: "active"
     type: "security"
+    severity: "must"
+    enforcementLevel: "warning"
+    detectability: "ai-assisted"
+    priority: 90
+    overridePolicy: "explicit-exception-required"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Access Control Principles"
-    relationships: []
+      - dimension: "technology"
+        values: ["agnostic"]
+      - dimension: "artifactType"
+        values: ["backend", "frontend"]
+      - dimension: "criticality"
+        values: ["security-sensitive", "all"]
+    source:
+      type: "principle"
+      title: "Access Control Principles"
+      reference: "Separate authentication and authorization concerns"
+    classification:
+      ruleIntent: "authentication-and-authorization-stay-separate"
+      decisionImpact: "blocking"
+    appliesTo:
+      components: ["identity providers", "policy engines", "application services"]
+      artifacts: ["backend", "frontend"]
+    constraints:
+      - kind: "allowed-responsibility"
+        operator: "allow"
+        targets:
+          - "identity verification"
+          - "explicit permission checks"
+      - kind: "forbidden-responsibility"
+        operator: "forbid"
+        targets:
+          - "implicit role inference from login state"
+    relationships:
+      - target: "AR-304"
+        type: "supports"
+        rationale: "Separated authorization logic enables least-privilege decisions."
   - id: "AR-303"
-    status: "Active"
+    status: "active"
     type: "api"
+    severity: "must"
+    enforcementLevel: "blocking"
+    detectability: "runtime"
+    priority: 95
+    overridePolicy: "explicit-exception-required"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Secure Input Handling"
-    relationships: []
+      - dimension: "technology"
+        values: ["http", "messaging", "cli", "files"]
+      - dimension: "artifactType"
+        values: ["backend", "frontend", "integrations"]
+      - dimension: "criticality"
+        values: ["all", "security-sensitive"]
+    source:
+      type: "practice"
+      title: "Secure Input Handling"
+      reference: "Validate at trust boundaries"
+    classification:
+      ruleIntent: "external-input-is-validated-at-boundaries"
+      decisionImpact: "blocking"
+    appliesTo:
+      components: ["controllers", "consumers", "cli handlers", "file importers"]
+      artifacts: ["backend", "frontend", "integrations"]
+    constraints:
+      - kind: "boundary-validation"
+        operator: "require"
+        targets:
+          - "schema validation"
+          - "normalization"
+          - "controlled rejection"
   - id: "AR-304"
-    status: "Active"
+    status: "active"
     type: "security"
+    severity: "must"
+    enforcementLevel: "warning"
+    detectability: "process"
+    priority: 85
+    overridePolicy: "higher-priority-wins"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Least Privilege"
-    relationships: []
+      - dimension: "technology"
+        values: ["agnostic"]
+      - dimension: "artifactType"
+        values: ["backend", "frontend", "infrastructure"]
+      - dimension: "criticality"
+        values: ["security-sensitive", "all"]
+    source:
+      type: "principle"
+      title: "Least Privilege"
+      reference: "Grant minimal required access"
+    classification:
+      ruleIntent: "least-privilege-applies-to-users-and-services"
+      decisionImpact: "blocking"
+    appliesTo:
+      components: ["users", "service accounts", "background jobs"]
+      artifacts: ["backend", "frontend", "infrastructure"]
+    constraints:
+      - kind: "allowed-responsibility"
+        operator: "require"
+        targets:
+          - "scoped permissions"
+          - "time-bound elevated access"
+      - kind: "forbidden-responsibility"
+        operator: "forbid"
+        targets:
+          - "global wildcard access"
   - id: "AR-305"
-    status: "Active"
+    status: "active"
     type: "operations"
+    severity: "should"
+    enforcementLevel: "warning"
+    detectability: "runtime"
+    priority: 70
+    overridePolicy: "more-specific-wins"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Auditability"
-    relationships: []
+      - dimension: "technology"
+        values: ["agnostic"]
+      - dimension: "artifactType"
+        values: ["backend", "ci", "infrastructure"]
+      - dimension: "criticality"
+        values: ["security-sensitive", "all"]
+    source:
+      type: "practice"
+      title: "Auditability"
+      reference: "Log security-relevant changes"
+    classification:
+      ruleIntent: "security-relevant-events-are-auditable"
+      decisionImpact: "non-blocking"
+    appliesTo:
+      components: ["auth flows", "admin APIs", "rotation jobs", "config changes"]
+      artifacts: ["backend", "ci", "infrastructure"]
+    constraints:
+      - kind: "logging-control"
+        operator: "require"
+        targets:
+          - "authentication event logging"
+          - "permission change logging"
+          - "secret rotation logging"
   - id: "AR-306"
-    status: "Active"
+    status: "active"
     type: "governance"
+    severity: "must"
+    enforcementLevel: "warning"
+    detectability: "process"
+    priority: 88
+    overridePolicy: "explicit-exception-required"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Secure By Default"
-    relationships: []
+      - dimension: "technology"
+        values: ["agnostic"]
+      - dimension: "artifactType"
+        values: ["backend", "frontend", "ci", "infrastructure"]
+      - dimension: "criticality"
+        values: ["all", "security-sensitive"]
+    source:
+      type: "principle"
+      title: "Secure By Default"
+      reference: "Unsafe paths require explicit opt-in"
+    classification:
+      ruleIntent: "secure-defaults-override-convenience"
+      decisionImpact: "blocking"
+    appliesTo:
+      components: ["feature flags", "config defaults", "debug endpoints"]
+      artifacts: ["backend", "frontend", "ci", "infrastructure"]
+    constraints:
+      - kind: "default-state"
+        operator: "require"
+        targets:
+          - "debug endpoints disabled"
+          - "privileged bypasses disabled"
+          - "unsafe flags opt-in"
+    relationships:
+      - target: "AR-301"
+        type: "supports"
+        rationale: "Safe defaults prevent accidental exposure channels for secrets."

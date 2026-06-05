@@ -1,7 +1,7 @@
 ruleSetId: "clean-architecture"
 locale: "en"
 name: "Clean Architecture"
-description: "Generic rule set for layering, dependency direction and use-case-centered architecture."
+description: "Rule set for layering, dependency direction and use-case-centered architecture with review-ready guidance."
 category: "Architecture"
 compatibility: "Language-agnostic"
 tags:
@@ -18,6 +18,15 @@ rules:
     keywords:
       - "framework-independent"
       - "domain-core"
+    aiGuidance:
+      reviewQuestions:
+        - "Does any domain type import framework or persistence packages directly?"
+        - "Can the domain be executed in a plain unit test without web or ORM bootstrapping?"
+      positiveExamples:
+        - "A domain service depends on a repository port interface declared inside the core."
+      negativeExamples:
+        - "A domain entity imports jakarta.persistence.Entity or Spring annotations."
+      remediation: "Move framework annotations and integration code into an adapter model or mapping layer."
   - id: "AR-102"
     title: "Dependencies Point Inward"
     content: "Dependencies between layers must point toward inner, more stable layers and never outward."
@@ -26,6 +35,15 @@ rules:
     keywords:
       - "inward-dependencies"
       - "stable-core"
+    aiGuidance:
+      reviewQuestions:
+        - "Do adapter or infrastructure modules depend on inner abstractions rather than the other way around?"
+        - "Is any inner layer importing a type that belongs to an outer delivery or infrastructure layer?"
+      positiveExamples:
+        - "A REST controller depends on an application use case interface."
+      negativeExamples:
+        - "An application service imports a concrete HTTP controller or SQL client."
+      remediation: "Invert the dependency through ports or move the outward concern into an adapter."
   - id: "AR-103"
     title: "Application Layer Orchestrates Use Cases"
     content: "The application layer coordinates use cases but does not contain technical adapter details."
@@ -35,6 +53,15 @@ rules:
     keywords:
       - "orchestration"
       - "use-case"
+    aiGuidance:
+      reviewQuestions:
+        - "Does the application layer focus on workflow coordination and transactional boundaries?"
+        - "Are HTTP, ORM or UI-specific details leaking into use-case orchestration?"
+      positiveExamples:
+        - "An application service loads ports, enforces workflow order and returns a use-case result."
+      negativeExamples:
+        - "An application service builds SQL queries or reads servlet request state."
+      remediation: "Keep orchestration in the application layer and push technical mechanics into dedicated adapters."
   - id: "AR-104"
     title: "Infrastructure Implements Ports"
     content: "Technical infrastructure should be integrated via ports and implemented by adapters."
@@ -44,6 +71,15 @@ rules:
     keywords:
       - "port-implementation"
       - "adapter"
+    aiGuidance:
+      reviewQuestions:
+        - "Are external systems accessed through ports defined by the inner layers?"
+        - "Is infrastructure code implementing contracts instead of inventing business behavior?"
+      positiveExamples:
+        - "A persistence adapter implements a repository port defined in the application or domain layer."
+      negativeExamples:
+        - "Business policy is hidden inside a JDBC repository implementation."
+      remediation: "Define or refine a port in the inner layer and move technical integration behind that contract."
   - id: "AR-105"
     title: "Interface Adapters Do Not Contain Business Policy"
     content: "Controllers, presenters, resources or UI adapters should encapsulate mapping, not core business policy."
@@ -53,6 +89,15 @@ rules:
     keywords:
       - "controller"
       - "dto-mapping"
+    aiGuidance:
+      reviewQuestions:
+        - "Are controllers and presenters limited to translation, validation handoff and response shaping?"
+        - "Do adapters contain branching that should belong to a use case or domain policy?"
+      positiveExamples:
+        - "A controller maps request DTOs to a command and delegates to an application use case."
+      negativeExamples:
+        - "A controller decides discount eligibility directly from business rules."
+      remediation: "Extract the business decision into the use case or domain layer and leave only mapping in the adapter."
   - id: "AR-106"
     title: "Cross-Cutting Concerns Stay Outside The Domain"
     content: "Logging, tracing, security enforcement, caching and transaction control should be modeled outside the domain core."
@@ -63,3 +108,12 @@ rules:
       - "logging"
       - "metrics"
       - "transactions"
+    aiGuidance:
+      reviewQuestions:
+        - "Does the domain contain operational code such as logging, tracing or cache control?"
+        - "Are technical security checks implemented outside the business model while business rules stay inside?"
+      positiveExamples:
+        - "A transaction decorator wraps an application use case without modifying domain entities."
+      negativeExamples:
+        - "A domain entity writes log lines or checks framework security context."
+      remediation: "Move operational concerns into decorators, middleware or adapters and keep only business rules in the domain."

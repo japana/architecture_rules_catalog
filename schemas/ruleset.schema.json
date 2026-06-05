@@ -8,21 +8,27 @@
     "publisher",
     "license",
     "status",
-    "approvals",
     "rules"
   ],
   "properties": {
     "ruleSetId": { "type": "string", "minLength": 1 },
     "schemaVersion": { "type": "string", "const": "ruleset-catalog-v1" },
-    "ruleSetVersion": { "type": "string", "minLength": 1 },
+    "ruleSetVersion": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
     "publisher": { "type": "string", "minLength": 1 },
     "license": { "type": "string", "minLength": 1 },
-    "status": { "type": "string", "enum": ["draft", "review", "published", "deprecated", "invalid"] },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "published", "deprecated", "invalid"]
+    },
     "defaultLocale": { "type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$" },
     "availableLocales": {
       "type": "array",
       "minItems": 1,
-      "items": { "type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$" }
+      "items": { "type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$" },
+      "uniqueItems": true
     },
     "approvals": {
       "type": "array",
@@ -32,7 +38,10 @@
         "properties": {
           "maintainer": { "type": "string", "minLength": 1 },
           "approvedAt": { "type": "string", "format": "date-time" },
-          "referenceType": { "type": "string", "enum": ["commit", "review", "event"] },
+          "referenceType": {
+            "type": "string",
+            "enum": ["commit", "review", "event"]
+          },
           "reference": { "type": "string", "minLength": 1 }
         },
         "additionalProperties": false
@@ -43,13 +52,63 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["id", "status", "type", "scope", "source", "relationships"],
+        "required": [
+          "id",
+          "status",
+          "type",
+          "severity",
+          "enforcementLevel",
+          "detectability",
+          "priority",
+          "overridePolicy",
+          "scope",
+          "source",
+          "classification",
+          "appliesTo",
+          "constraints"
+        ],
         "properties": {
           "id": { "type": "string", "pattern": "^AR-[0-9]{3}$" },
-          "status": { "type": "string", "enum": ["Draft", "Active", "Deprecated", "Superseded"] },
+          "status": {
+            "type": "string",
+            "enum": ["draft", "active", "deprecated", "superseded"]
+          },
           "type": {
             "type": "string",
-            "enum": ["layering", "module-boundary", "dependency", "naming", "api", "persistence", "security", "testing", "build", "operations", "governance"]
+            "enum": [
+              "layering",
+              "module-boundary",
+              "dependency",
+              "naming",
+              "api",
+              "persistence",
+              "security",
+              "testing",
+              "build",
+              "operations",
+              "governance"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["must", "should", "may"]
+          },
+          "enforcementLevel": {
+            "type": "string",
+            "enum": ["manual", "advisory", "warning", "blocking"]
+          },
+          "detectability": {
+            "type": "string",
+            "enum": ["manual", "ai-assisted", "static-analysis", "runtime", "process"]
+          },
+          "priority": { "type": "integer", "minimum": 0 },
+          "overridePolicy": {
+            "type": "string",
+            "enum": [
+              "more-specific-wins",
+              "higher-priority-wins",
+              "explicit-exception-required"
+            ]
           },
           "scope": {
             "type": "array",
@@ -58,17 +117,116 @@
               "type": "object",
               "required": ["dimension", "values"],
               "properties": {
-                "dimension": { "type": "string", "minLength": 1 },
+                "dimension": {
+                  "type": "string",
+                  "enum": [
+                    "architectureStyle",
+                    "technology",
+                    "artifactType",
+                    "criticality",
+                    "layer",
+                    "runtime"
+                  ]
+                },
                 "values": {
                   "type": "array",
                   "minItems": 1,
-                  "items": { "type": "string", "minLength": 1 }
+                  "items": { "type": "string", "minLength": 1 },
+                  "uniqueItems": true
                 }
               },
               "additionalProperties": false
             }
           },
-          "source": { "type": "string", "minLength": 1 },
+          "source": {
+            "type": "object",
+            "required": ["type", "title", "reference"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["book", "standard", "principle", "practice", "guideline"]
+              },
+              "title": { "type": "string", "minLength": 1 },
+              "reference": { "type": "string", "minLength": 1 },
+              "url": { "type": "string", "format": "uri" }
+            },
+            "additionalProperties": false
+          },
+          "classification": {
+            "type": "object",
+            "required": ["ruleIntent"],
+            "properties": {
+              "ruleIntent": { "type": "string", "minLength": 1 },
+              "decisionImpact": {
+                "type": "string",
+                "enum": ["informational", "non-blocking", "blocking"]
+              }
+            },
+            "additionalProperties": false
+          },
+          "appliesTo": {
+            "type": "object",
+            "properties": {
+              "packages": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 },
+                "uniqueItems": true
+              },
+              "components": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 },
+                "uniqueItems": true
+              },
+              "artifacts": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 },
+                "uniqueItems": true
+              },
+              "entryPoints": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 },
+                "uniqueItems": true
+              }
+            },
+            "additionalProperties": false
+          },
+          "constraints": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["kind", "operator", "targets"],
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "forbidden-dependency",
+                    "required-dependency-direction",
+                    "allowed-responsibility",
+                    "forbidden-responsibility",
+                    "boundary-validation",
+                    "secret-handling",
+                    "logging-control",
+                    "default-state",
+                    "testability",
+                    "naming"
+                  ]
+                },
+                "operator": {
+                  "type": "string",
+                  "enum": ["forbid", "require", "allow", "document"]
+                },
+                "targets": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "type": "string", "minLength": 1 },
+                  "uniqueItems": true
+                },
+                "notes": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          },
           "relationships": {
             "type": "array",
             "items": {
@@ -76,8 +234,18 @@
               "required": ["target", "type"],
               "properties": {
                 "target": { "type": "string", "minLength": 1 },
-                "type": { "type": "string", "minLength": 1 },
-                "rationale": { "type": "string" }
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "dependsOn",
+                    "supports",
+                    "conflictsWith",
+                    "supersedes",
+                    "refines",
+                    "duplicates"
+                  ]
+                },
+                "rationale": { "type": "string", "minLength": 1 }
               },
               "additionalProperties": false
             }

@@ -1,8 +1,9 @@
 # Catalog Seed v1
 
-Dieser Ordner ist ein upload-faehiger Seed fuer ein oeffentliches APMDB-
-Catalog-Repository im echten `ruleset-catalog-v1`-Format mit separaten
-Locale-Dateien.
+Dieser Ordner ist ein upload-fähiger Seed für ein öffentliches APMDB-
+Catalog-Repository im `ruleset-catalog-v1`-Format mit separaten
+Locale-Dateien, maschinenlesbaren Regelkernen und lokalisierter
+AI-Review-Hilfe.
 
 ## Struktur
 
@@ -32,18 +33,52 @@ catalog-seed/
 
 ## Prinzip
 
-- `ruleset.yaml` enthaelt nur sprachneutrale Struktur- und Governance-Daten.
-- `i18n/<locale>.yaml` enthaelt nur Anzeigeinhalte.
-- Locale-Dateien referenzieren Regeln immer ueber `id`.
-- Locale-Dateien duerfen keine strukturellen Felder wie `type`, `scope`,
-  `status` oder `relationships` ueberschreiben.
+- `ruleset.yaml` enthält sprachneutrale Struktur-, Governance- und
+  Enforcement-Daten.
+- `i18n/<locale>.yaml` enthält nur Anzeigeinhalte, Beispiele und
+  AI-Review-Hinweise.
+- Locale-Dateien referenzieren Regeln immer über `id`.
+- Locale-Dateien dürfen keine strukturellen Felder wie `type`, `scope`,
+  `status`, `severity` oder `relationships` überschreiben.
+
+## Modell
+
+- `rules[*].severity`, `enforcementLevel`, `detectability` und `priority`
+  machen Regeln priorisierbar und operationalisierbar.
+- `classification`, `appliesTo` und `constraints` bilden einen
+  maschinenlesbaren Regelkern für spätere statische Analysen,
+  AI-Reviews und Governance-Checks.
+- `relationships` sind auf feste Typen begrenzt, damit Konflikte und
+  Verfeinerungen konsistent modelliert werden können.
+- `aiGuidance` ergänzt pro lokalisierter Regel Review-Fragen, Positiv- und
+  Negativbeispiele sowie Remediation.
 
 ## Vor dem Upload anpassen
 
 - `publisher`
-- `approvals[*].maintainer`
-- `approvals[*].reference`
-- optional `documentationBaseUrl` in `catalog.yaml`
+- `status` und `approvals`, sobald echte Review-Artefakte existieren
+- Scope-Werte für echte Zieltechnologien und Artefakte
+- Regel-Constraints für projektspezifische Durchsetzung
+
+## Validierung
+
+```bash
+npm install
+npm test
+npm run validate
+```
+
+Der Validator prüft unter anderem:
+
+- referenzierte RuleSet- und Locale-Dateien
+- Schema-Konformität
+- Locale-/RuleSet-ID-Konsistenz
+- doppelte Rule-IDs
+- fehlende oder überzählige Lokalisierungen
+- SemVer für `ruleSetVersion`
+- Platzhalter-URLs in Governance-Feldern
+- Relationships auf existierende Regeln
+- Tags und Keywords in jeder lokalisierten Regel
 
 ## Consumer-Regel
 

@@ -4,7 +4,6 @@ defaultLocale: "en"
 supportedLocales:
   - "en"
   - "de"
-documentationBaseUrl: "https://example.org/catalog"
 ruleSets:
   - id: "clean-architecture"
     path: "rulesets/clean-architecture/ruleset.yaml"

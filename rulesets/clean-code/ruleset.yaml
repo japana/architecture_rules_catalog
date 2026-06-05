@@ -1,70 +1,234 @@
 ruleSetId: "clean-code"
 schemaVersion: "ruleset-catalog-v1"
-ruleSetVersion: "1.0.0"
+ruleSetVersion: "1.1.0"
 publisher: "APMDB Catalog Seed"
 license: "Apache-2.0"
-status: "published"
+status: "draft"
 defaultLocale: "en"
 availableLocales:
   - "en"
   - "de"
-approvals:
-  - maintainer: "catalog-maintainer"
-    approvedAt: "2026-06-05T18:00:00Z"
-    referenceType: "review"
-    reference: "https://example.org/catalog/reviews/clean-code-v1"
+approvals: []
 rules:
   - id: "AR-201"
-    status: "Active"
+    status: "active"
     type: "naming"
+    severity: "should"
+    enforcementLevel: "advisory"
+    detectability: "ai-assisted"
+    priority: 55
+    overridePolicy: "more-specific-wins"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Clean Code"
-    relationships: []
+      - dimension: "technology"
+        values: ["agnostic"]
+      - dimension: "artifactType"
+        values: ["backend", "frontend", "scripts"]
+      - dimension: "criticality"
+        values: ["all"]
+    source:
+      type: "book"
+      title: "Clean Code"
+      reference: "Meaningful names"
+    classification:
+      ruleIntent: "names-must-express-intent"
+      decisionImpact: "informational"
+    appliesTo:
+      components: ["classes", "functions", "modules", "variables"]
+      artifacts: ["backend", "frontend", "scripts"]
+    constraints:
+      - kind: "naming"
+        operator: "require"
+        targets:
+          - "intent-revealing names"
+          - "domain vocabulary"
+      - kind: "naming"
+        operator: "forbid"
+        targets:
+          - "opaque abbreviations"
+          - "misleading generic names"
   - id: "AR-202"
-    status: "Active"
+    status: "active"
     type: "governance"
+    severity: "should"
+    enforcementLevel: "warning"
+    detectability: "ai-assisted"
+    priority: 65
+    overridePolicy: "more-specific-wins"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Clean Code"
-    relationships: []
+      - dimension: "technology"
+        values: ["agnostic"]
+      - dimension: "artifactType"
+        values: ["backend", "frontend", "scripts"]
+      - dimension: "criticality"
+        values: ["all"]
+    source:
+      type: "book"
+      title: "Clean Code"
+      reference: "Functions"
+    classification:
+      ruleIntent: "functions-stay-small-and-focused"
+      decisionImpact: "non-blocking"
+    appliesTo:
+      components: ["functions", "methods"]
+      artifacts: ["backend", "frontend", "scripts"]
+    constraints:
+      - kind: "allowed-responsibility"
+        operator: "allow"
+        targets:
+          - "single business purpose"
+      - kind: "forbidden-responsibility"
+        operator: "forbid"
+        targets:
+          - "multiple unrelated decisions"
+          - "mixed orchestration and low-level formatting"
+    relationships:
+      - target: "AR-206"
+        type: "supports"
+        rationale: "Small responsibilities make automated tests simpler."
   - id: "AR-203"
-    status: "Active"
+    status: "active"
     type: "module-boundary"
+    severity: "must"
+    enforcementLevel: "warning"
+    detectability: "ai-assisted"
+    priority: 70
+    overridePolicy: "higher-priority-wins"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Information Hiding"
-    relationships: []
+      - dimension: "technology"
+        values: ["agnostic"]
+      - dimension: "artifactType"
+        values: ["backend", "frontend", "libraries"]
+      - dimension: "criticality"
+        values: ["all"]
+    source:
+      type: "principle"
+      title: "Information Hiding"
+      reference: "Parnas modularity principles"
+    classification:
+      ruleIntent: "modules-hide-internal-detail"
+      decisionImpact: "non-blocking"
+    appliesTo:
+      components: ["modules", "classes", "packages"]
+      artifacts: ["backend", "frontend", "libraries"]
+    constraints:
+      - kind: "allowed-responsibility"
+        operator: "allow"
+        targets:
+          - "stable public interface"
+      - kind: "forbidden-responsibility"
+        operator: "forbid"
+        targets:
+          - "leaking internal storage choices"
+          - "exposing unstable helper APIs"
   - id: "AR-204"
-    status: "Active"
+    status: "active"
     type: "api"
+    severity: "must"
+    enforcementLevel: "warning"
+    detectability: "ai-assisted"
+    priority: 75
+    overridePolicy: "explicit-exception-required"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Robustness Principles"
-    relationships: []
+      - dimension: "technology"
+        values: ["agnostic"]
+      - dimension: "artifactType"
+        values: ["backend", "frontend", "scripts"]
+      - dimension: "criticality"
+        values: ["all"]
+    source:
+      type: "principle"
+      title: "Robustness Principles"
+      reference: "Explicit failure handling"
+    classification:
+      ruleIntent: "error-handling-must-be-explicit"
+      decisionImpact: "blocking"
+    appliesTo:
+      components: ["functions", "api boundaries", "jobs"]
+      artifacts: ["backend", "frontend", "scripts"]
+    constraints:
+      - kind: "allowed-responsibility"
+        operator: "allow"
+        targets:
+          - "typed error result"
+          - "documented exception propagation"
+      - kind: "forbidden-responsibility"
+        operator: "forbid"
+        targets:
+          - "swallowed exception"
+          - "silent fallback"
+          - "ambiguous null contract"
   - id: "AR-205"
-    status: "Active"
+    status: "active"
     type: "build"
+    severity: "should"
+    enforcementLevel: "advisory"
+    detectability: "ai-assisted"
+    priority: 50
+    overridePolicy: "more-specific-wins"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "DRY"
-    relationships: []
+      - dimension: "technology"
+        values: ["agnostic"]
+      - dimension: "artifactType"
+        values: ["backend", "frontend", "scripts"]
+      - dimension: "criticality"
+        values: ["all"]
+    source:
+      type: "principle"
+      title: "DRY"
+      reference: "Avoid accidental duplication"
+    classification:
+      ruleIntent: "duplication-is-removed-at-stable-abstractions"
+      decisionImpact: "informational"
+    appliesTo:
+      components: ["modules", "functions", "pipelines"]
+      artifacts: ["backend", "frontend", "scripts"]
+    constraints:
+      - kind: "allowed-responsibility"
+        operator: "allow"
+        targets:
+          - "temporary duplication during discovery"
+          - "shared abstraction with stable concept"
+      - kind: "forbidden-responsibility"
+        operator: "forbid"
+        targets:
+          - "premature shared abstraction"
+    relationships:
+      - target: "AR-202"
+        type: "supports"
+        rationale: "Stable abstractions help functions stay focused instead of parameter-heavy."
   - id: "AR-206"
-    status: "Active"
+    status: "active"
     type: "testing"
+    severity: "must"
+    enforcementLevel: "warning"
+    detectability: "ai-assisted"
+    priority: 85
+    overridePolicy: "higher-priority-wins"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Testability"
-    relationships: []
+      - dimension: "technology"
+        values: ["agnostic"]
+      - dimension: "artifactType"
+        values: ["backend", "frontend", "libraries"]
+      - dimension: "criticality"
+        values: ["all"]
+    source:
+      type: "principle"
+      title: "Testability"
+      reference: "Design for automated testing"
+    classification:
+      ruleIntent: "code-is-structured-for-testability"
+      decisionImpact: "blocking"
+    appliesTo:
+      components: ["modules", "services", "hooks", "classes"]
+      artifacts: ["backend", "frontend", "libraries"]
+    constraints:
+      - kind: "testability"
+        operator: "require"
+        targets:
+          - "clear seams"
+          - "controlled side effects"
+          - "deterministic behavior"
+      - kind: "forbidden-responsibility"
+        operator: "forbid"
+        targets:
+          - "hidden global state dependency"

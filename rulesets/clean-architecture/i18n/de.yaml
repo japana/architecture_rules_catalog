@@ -1,51 +1,87 @@
 ruleSetId: "clean-architecture"
 locale: "de"
 name: "Saubere Architektur"
-description: "Generisches Regelwerk fuer Schichtentrennung, Abhaengigkeitsrichtung und use-case-zentrierte Architektur."
+description: "Regelwerk für Schichtentrennung, Abhängigkeitsrichtung und Use-Case-zentrierte Architektur mit konkreter Review-Hilfe."
 category: "Architektur"
-compatibility: "Sprachunabhaengig"
+compatibility: "Sprachunabhängig"
 tags:
   - "Architektur"
   - "Schichten"
   - "PortsUndAdapter"
 rules:
   - id: "AR-101"
-    title: "Der Domaenenkern haengt von keinem Framework ab"
-    content: "Der fachliche Kern darf keine Web-, UI-, ORM-, Framework- oder Infrastrukturabhaengigkeiten besitzen."
+    title: "Der Domänenkern hängt von keinem Framework ab"
+    content: "Der fachliche Kern darf keine Web-, UI-, ORM-, Framework- oder Infrastrukturabhängigkeiten besitzen."
     tags:
-      - "Domaene"
+      - "Domäne"
       - "Isolation"
     keywords:
-      - "framework-unabhaengig"
-      - "domaenenkern"
+      - "framework-unabhängig"
+      - "domänenkern"
+    aiGuidance:
+      reviewQuestions:
+        - "Importiert ein Domänentyp direkt Framework- oder Persistenzpakete?"
+        - "Lässt sich die Domäne in einem reinen Unit-Test ohne Web- oder ORM-Bootstrap ausführen?"
+      positiveExamples:
+        - "Ein Domain-Service hängt von einem Repository-Port ab, der im Kern definiert ist."
+      negativeExamples:
+        - "Eine Domain-Entity importiert jakarta.persistence.Entity oder Spring-Annotationen."
+      remediation: "Verschiebe Framework-Annotationen und Integrationscode in ein Adaptermodell oder eine Mapping-Schicht."
   - id: "AR-102"
-    title: "Abhaengigkeiten zeigen nach innen"
-    content: "Abhaengigkeiten zwischen Schichten muessen auf stabilere, innere Schichten zeigen und nie nach aussen."
+    title: "Abhängigkeiten zeigen nach innen"
+    content: "Abhängigkeiten zwischen Schichten müssen auf stabilere, innere Schichten zeigen und nie nach außen."
     tags:
-      - "Abhaengigkeitsregel"
+      - "Abhängigkeitsregel"
     keywords:
       - "nach-innen"
       - "stabiler-kern"
+    aiGuidance:
+      reviewQuestions:
+        - "Hängen Adapter und Infrastruktur von inneren Abstraktionen ab und nicht umgekehrt?"
+        - "Importiert eine innere Schicht Typen aus einer äußeren Delivery- oder Infrastrukturschicht?"
+      positiveExamples:
+        - "Ein REST-Controller hängt von einem Application-Use-Case-Interface ab."
+      negativeExamples:
+        - "Ein Application-Service importiert einen konkreten HTTP-Controller oder SQL-Client."
+      remediation: "Invertiere die Abhängigkeit über Ports oder verschiebe die äußere Sorge in einen Adapter."
   - id: "AR-103"
     title: "Die Application-Schicht orchestriert Use Cases"
-    content: "Die Application-Schicht orchestriert Anwendungsfaelle, enthaelt aber keine technischen Adapterdetails."
+    content: "Die Application-Schicht koordiniert Anwendungsfälle, enthält aber keine technischen Adapterdetails."
     tags:
       - "UseCase"
       - "Application"
     keywords:
       - "orchestrierung"
       - "anwendungsfall"
+    aiGuidance:
+      reviewQuestions:
+        - "Konzentriert sich die Application-Schicht auf Workflow-Koordination und Transaktionsgrenzen?"
+        - "Lecken HTTP-, ORM- oder UI-Details in die Use-Case-Orchestrierung?"
+      positiveExamples:
+        - "Ein Application-Service lädt Ports, erzwingt die Reihenfolge eines Workflows und liefert ein Use-Case-Ergebnis zurück."
+      negativeExamples:
+        - "Ein Application-Service baut SQL-Queries oder liest Servlet-Request-Zustand."
+      remediation: "Belasse die Orchestrierung in der Application-Schicht und verschiebe technische Mechanik in dedizierte Adapter."
   - id: "AR-104"
     title: "Infrastruktur implementiert Ports"
-    content: "Technische Infrastruktur soll ueber Ports eingebunden und durch Adapter implementiert werden."
+    content: "Technische Infrastruktur soll über Ports eingebunden und durch Adapter implementiert werden."
     tags:
       - "PortsUndAdapter"
       - "Infrastruktur"
     keywords:
       - "port-implementierung"
       - "adapter"
+    aiGuidance:
+      reviewQuestions:
+        - "Werden externe Systeme über Ports angesprochen, die von inneren Schichten definiert sind?"
+        - "Implementiert Infrastruktur Verträge, statt Fachverhalten zu erfinden?"
+      positiveExamples:
+        - "Ein Persistenz-Adapter implementiert einen Repository-Port aus Application oder Domain."
+      negativeExamples:
+        - "Fachlogik ist in einer JDBC-Repository-Implementierung versteckt."
+      remediation: "Definiere oder schärfe einen Port in der inneren Schicht und kapsle die technische Integration dahinter."
   - id: "AR-105"
-    title: "Interface Adapter enthalten keine fachliche Kernlogik"
+    title: "Interface-Adapter enthalten keine fachliche Kernlogik"
     content: "Controller, Presenter, Resources oder UI-Adapter sollen Mapping kapseln, nicht aber fachliche Kernregeln."
     tags:
       - "Adapter"
@@ -53,9 +89,18 @@ rules:
     keywords:
       - "controller"
       - "dto-mapping"
+    aiGuidance:
+      reviewQuestions:
+        - "Beschränken sich Controller und Presenter auf Übersetzung, Validierungsübergabe und Antwortaufbereitung?"
+        - "Enthalten Adapter Verzweigungen, die eigentlich in Use Case oder Fachregel gehören?"
+      positiveExamples:
+        - "Ein Controller mappt Request-DTOs auf ein Command und delegiert an einen Application-Use-Case."
+      negativeExamples:
+        - "Ein Controller entscheidet Rabatte direkt anhand von Fachregeln."
+      remediation: "Extrahiere die fachliche Entscheidung in Use Case oder Domäne und lasse im Adapter nur das Mapping zurück."
   - id: "AR-106"
-    title: "Querschnittsthemen bleiben ausserhalb der Domaene"
-    content: "Logging, Tracing, Security Enforcement, Caching und Transaktionssteuerung sollen ausserhalb des Domaenenkerns modelliert werden."
+    title: "Querschnittsthemen bleiben außerhalb der Domäne"
+    content: "Logging, Tracing, Security Enforcement, Caching und Transaktionssteuerung sollen außerhalb des Domänenkerns modelliert werden."
     tags:
       - "Querschnitt"
       - "Betrieb"
@@ -63,3 +108,12 @@ rules:
       - "logging"
       - "metriken"
       - "transaktionen"
+    aiGuidance:
+      reviewQuestions:
+        - "Enthält die Domäne operativen Code wie Logging, Tracing oder Cache-Steuerung?"
+        - "Werden technische Sicherheitsprüfungen außerhalb des Fachmodells umgesetzt, während Fachregeln innen bleiben?"
+      positiveExamples:
+        - "Ein Transaktions-Dekorator umhüllt einen Application-Use-Case, ohne Domain-Entities zu verändern."
+      negativeExamples:
+        - "Eine Domain-Entity schreibt Logzeilen oder prüft den Framework-Security-Kontext."
+      remediation: "Verschiebe operative Themen in Dekoratoren, Middleware oder Adapter und belasse in der Domäne nur Fachregeln."

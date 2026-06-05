@@ -1,23 +1,32 @@
 ruleSetId: "clean-code"
 locale: "de"
 name: "Sauberer Code"
-description: "Generisches Regelwerk fuer Lesbarkeit, Wartbarkeit, Testbarkeit und kontrollierte Komplexitaet."
-category: "CodeQualitaet"
-compatibility: "Sprachunabhaengig"
+description: "Regelwerk für Lesbarkeit, Wartbarkeit, Testbarkeit und kontrollierte Komplexität mit konkreter Review-Hilfe."
+category: "CodeQualität"
+compatibility: "Sprachunabhängig"
 tags:
-  - "CodeQualitaet"
+  - "CodeQualität"
   - "Wartbarkeit"
   - "Testbarkeit"
 rules:
   - id: "AR-201"
     title: "Namen machen die Absicht klar"
-    content: "Bezeichner fuer Klassen, Methoden, Module und Variablen sollen ihre fachliche Absicht klar ausdruecken und keine unnoetigen Abkuerzungen enthalten."
+    content: "Bezeichner für Klassen, Methoden, Module und Variablen sollen ihre fachliche Absicht klar ausdrücken und keine unnötigen Abkürzungen enthalten."
     tags:
       - "Benennung"
       - "Lesbarkeit"
     keywords:
       - "absicht"
       - "klarheit"
+    aiGuidance:
+      reviewQuestions:
+        - "Kann eine lesende Person die fachliche Absicht aus den wichtigsten Bezeichnern ohne Zusatzkommentare ableiten?"
+        - "Verbergen Abkürzungen Bedeutung, die im Fachwortschatz ausgeschrieben sein sollte?"
+      positiveExamples:
+        - "Eine Methode namens berechneNettoRechnungsSumme macht das fachliche Ergebnis klar."
+      negativeExamples:
+        - "Eine Methode namens calcVal oder handleData verschleiert die Absicht."
+      remediation: "Benenne Identifier in Richtung Fachwortschatz um und entferne Abkürzungen, die nicht teamweit etabliert sind."
   - id: "AR-202"
     title: "Funktionen bleiben klein und fokussiert"
     content: "Methoden und Funktionen sollen einen klaren Zweck verfolgen und nicht mehrere fachliche Verantwortungen vermischen."
@@ -27,24 +36,51 @@ rules:
     keywords:
       - "kleine-funktionen"
       - "fokus"
+    aiGuidance:
+      reviewQuestions:
+        - "Erfüllt die Funktion genau eine zusammenhängende fachliche Aufgabe?"
+        - "Würde sich die Funktion leichter testen lassen, wenn ein Zweig oder eine Sorge extrahiert würde?"
+      positiveExamples:
+        - "Eine Methode validiert ein Command und delegiert Persistenz an eine Kollaboration."
+      negativeExamples:
+        - "Eine Methode validiert Input, führt Autorisierung durch, formatiert HTML und verschickt E-Mails."
+      remediation: "Trenne fachlich unabhängige Verantwortungen und zentriere jede Funktion auf eine Entscheidung oder Transformation."
   - id: "AR-203"
     title: "Module verbergen interne Details"
-    content: "Module und Klassen sollen eine kleine, stabile Oberflaeche anbieten und interne technische Details verbergen."
+    content: "Module und Klassen sollen eine kleine, stabile Oberfläche anbieten und interne technische Details verbergen."
     tags:
       - "Kapselung"
-      - "Modularitaet"
+      - "Modularität"
     keywords:
-      - "oeffentliche-api"
+      - "öffentliche-api"
       - "internes-detail"
+    aiGuidance:
+      reviewQuestions:
+        - "Ist die exponierte API kleiner und stabiler als das innere Implementierungsdetail?"
+        - "Leaken interne Helfer, Speichertypen oder temporäre Repräsentationen durch öffentliche Verträge?"
+      positiveExamples:
+        - "Ein Repository-Modul bietet ein Query-Interface an und hält SQL-Mapping privat."
+      negativeExamples:
+        - "Aufrufende Komponenten hängen von internen Cache-Keys oder Storage-DTOs ab."
+      remediation: "Verkleinere die öffentliche Oberfläche und verschiebe volatile Details hinter modulinterne Nähte."
   - id: "AR-204"
     title: "Fehlerbehandlung ist explizit"
-    content: "Fehlerfaelle sollen bewusst modelliert werden; verschluckte Ausnahmen, stille Fallbacks und intransparente Null-Semantik sind zu vermeiden."
+    content: "Fehlerfälle sollen bewusst modelliert werden; verschluckte Ausnahmen, stille Fallbacks und intransparente Null-Semantik sind zu vermeiden."
     tags:
       - "Fehlerbehandlung"
       - "Robustheit"
     keywords:
       - "ausnahmen"
       - "result-typen"
+    aiGuidance:
+      reviewQuestions:
+        - "Ist der Fehlervertrag für Aufrufende über Typen, Exceptions oder dokumentiertes Verhalten sichtbar?"
+        - "Kann ein Fehlerpfad übersehen werden, weil null, false oder Default-Werte ihn verbergen?"
+      positiveExamples:
+        - "Ein Use Case liefert bei einem fehlgeschlagenen Abhängigkeitsaufruf ein typisiertes Fehlerergebnis zurück."
+      negativeExamples:
+        - "Eine Exception wird gefangen, ignoriert und die Ausführung läuft mit Teildaten weiter."
+      remediation: "Modelliere Fehler explizit und propagiere oder übersetze sie bewusst."
   - id: "AR-205"
     title: "Duplikation wird auf der richtigen Abstraktionsebene eliminiert"
     content: "Wiederholte Logik und Regeln sollen nur dann konsolidiert werden, wenn die gemeinsame Abstraktion stabil genug ist."
@@ -54,12 +90,30 @@ rules:
     keywords:
       - "dry"
       - "refactoring"
+    aiGuidance:
+      reviewQuestions:
+        - "Beschreibt die gemeinsame Abstraktion ein stabiles Konzept statt bloßer Ähnlichkeit?"
+        - "Würde bewusstes Duplizieren für eine weitere Änderung weniger Kopplung erzeugen?"
+      positiveExamples:
+        - "Zwei Mapper teilen sich eine Normalisierungsfunktion, weil die Regel wirklich identisch ist."
+      negativeExamples:
+        - "Drei fachfremde Workflows werden über einen generischen Helper mit vielen Flags erzwungen."
+      remediation: "Fasse nur stabiles gemeinsames Verhalten zusammen; sonst bleibt Duplikation lokal, bis das Konzept klar ist."
   - id: "AR-206"
     title: "Code wird auf Testbarkeit ausgelegt"
-    content: "Code soll ueber klare Schnittstellen, kontrollierbare Seiteneffekte und kleine Verantwortungen so gestaltet sein, dass automatisierte Tests einfach moeglich sind."
+    content: "Code soll über klare Schnittstellen, kontrollierbare Seiteneffekte und kleine Verantwortungen so gestaltet sein, dass automatisierte Tests einfach möglich sind."
     tags:
       - "Testing"
       - "Design"
     keywords:
       - "deterministisch"
       - "testbar"
+    aiGuidance:
+      reviewQuestions:
+        - "Lässt sich das Verhalten mit isolierten automatisierten Tests prüfen, ohne irrelevante Infrastruktur zu booten?"
+        - "Sind Seiteneffekte injiziert oder im Test anderweitig kontrollierbar?"
+      positiveExamples:
+        - "Ein Service erhält Uhr und Repository-Port per Konstruktor für deterministische Tests."
+      negativeExamples:
+        - "Fachlogik liest globalen Zustand statisch aus und macht Live-Netzwerkaufrufe direkt."
+      remediation: "Führe Nähte für Zeit, I/O und Kollaborationen ein und reduziere versteckten globalen Zustand."

@@ -1,70 +1,271 @@
 ruleSetId: "clean-architecture"
 schemaVersion: "ruleset-catalog-v1"
-ruleSetVersion: "1.0.0"
+ruleSetVersion: "1.1.0"
 publisher: "APMDB Catalog Seed"
 license: "Apache-2.0"
-status: "published"
+status: "draft"
 defaultLocale: "en"
 availableLocales:
   - "en"
   - "de"
-approvals:
-  - maintainer: "catalog-maintainer"
-    approvedAt: "2026-06-05T18:00:00Z"
-    referenceType: "review"
-    reference: "https://example.org/catalog/reviews/clean-architecture-v1"
+approvals: []
 rules:
   - id: "AR-101"
-    status: "Active"
-    type: "layering"
-    scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Clean Architecture"
-    relationships: []
-  - id: "AR-102"
-    status: "Active"
+    status: "active"
     type: "dependency"
+    severity: "must"
+    enforcementLevel: "blocking"
+    detectability: "static-analysis"
+    priority: 100
+    overridePolicy: "explicit-exception-required"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Clean Architecture"
-    relationships: []
+      - dimension: "architectureStyle"
+        values: ["clean-architecture", "hexagonal"]
+      - dimension: "technology"
+        values: ["java", "kotlin", "spring", "quarkus"]
+      - dimension: "artifactType"
+        values: ["backend"]
+      - dimension: "criticality"
+        values: ["all"]
+      - dimension: "layer"
+        values: ["domain"]
+    source:
+      type: "book"
+      title: "Clean Architecture"
+      reference: "Robert C. Martin"
+    classification:
+      ruleIntent: "domain-must-not-depend-on-frameworks"
+      decisionImpact: "blocking"
+    appliesTo:
+      packages: ["..domain..", "..core.."]
+      components: ["domain"]
+      artifacts: ["backend"]
+    constraints:
+      - kind: "forbidden-dependency"
+        operator: "forbid"
+        targets:
+          - "org.springframework.."
+          - "io.quarkus.."
+          - "jakarta.persistence.."
+          - "javax.persistence.."
+          - "org.hibernate.."
+    relationships:
+      - target: "AR-104"
+        type: "supports"
+        rationale: "Ports keep framework-specific persistence and delivery code outside the domain."
+      - target: "AR-106"
+        type: "supports"
+        rationale: "Cross-cutting controls remain outside the business core."
+  - id: "AR-102"
+    status: "active"
+    type: "layering"
+    severity: "must"
+    enforcementLevel: "blocking"
+    detectability: "static-analysis"
+    priority: 95
+    overridePolicy: "explicit-exception-required"
+    scope:
+      - dimension: "architectureStyle"
+        values: ["clean-architecture", "hexagonal"]
+      - dimension: "technology"
+        values: ["agnostic"]
+      - dimension: "artifactType"
+        values: ["backend"]
+      - dimension: "criticality"
+        values: ["all"]
+    source:
+      type: "principle"
+      title: "Dependency Rule"
+      reference: "Clean Architecture"
+    classification:
+      ruleIntent: "dependencies-must-point-inward"
+      decisionImpact: "blocking"
+    appliesTo:
+      components: ["domain", "application", "adapters", "infrastructure"]
+      artifacts: ["backend"]
+    constraints:
+      - kind: "required-dependency-direction"
+        operator: "require"
+        targets:
+          - "domain <- application <- interface-adapters <- infrastructure"
+    relationships:
+      - target: "AR-101"
+        type: "supports"
+        rationale: "Inward dependencies protect the framework-independent domain."
   - id: "AR-103"
-    status: "Active"
+    status: "active"
     type: "governance"
+    severity: "should"
+    enforcementLevel: "warning"
+    detectability: "ai-assisted"
+    priority: 80
+    overridePolicy: "more-specific-wins"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Clean Architecture"
-    relationships: []
+      - dimension: "architectureStyle"
+        values: ["clean-architecture", "hexagonal"]
+      - dimension: "technology"
+        values: ["agnostic"]
+      - dimension: "artifactType"
+        values: ["backend"]
+      - dimension: "criticality"
+        values: ["all"]
+      - dimension: "layer"
+        values: ["application"]
+    source:
+      type: "book"
+      title: "Clean Architecture"
+      reference: "Use case interactor guidance"
+    classification:
+      ruleIntent: "application-layer-orchestrates-use-cases"
+      decisionImpact: "non-blocking"
+    appliesTo:
+      components: ["application"]
+      artifacts: ["backend"]
+    constraints:
+      - kind: "allowed-responsibility"
+        operator: "allow"
+        targets:
+          - "use-case orchestration"
+          - "transaction boundary coordination"
+          - "port collaboration"
+      - kind: "forbidden-responsibility"
+        operator: "forbid"
+        targets:
+          - "http handling"
+          - "orm mapping"
+          - "ui composition"
+    relationships:
+      - target: "AR-105"
+        type: "refines"
+        rationale: "Adapter responsibilities are explicitly separated from application orchestration."
   - id: "AR-104"
-    status: "Active"
+    status: "active"
     type: "module-boundary"
+    severity: "must"
+    enforcementLevel: "warning"
+    detectability: "ai-assisted"
+    priority: 90
+    overridePolicy: "higher-priority-wins"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Ports and Adapters"
-    relationships: []
+      - dimension: "architectureStyle"
+        values: ["clean-architecture", "hexagonal"]
+      - dimension: "technology"
+        values: ["agnostic"]
+      - dimension: "artifactType"
+        values: ["backend"]
+      - dimension: "criticality"
+        values: ["all"]
+      - dimension: "layer"
+        values: ["infrastructure"]
+    source:
+      type: "principle"
+      title: "Ports and Adapters"
+      reference: "Hexagonal Architecture"
+    classification:
+      ruleIntent: "infrastructure-implements-ports"
+      decisionImpact: "blocking"
+    appliesTo:
+      components: ["infrastructure", "adapters"]
+      artifacts: ["backend"]
+    constraints:
+      - kind: "allowed-responsibility"
+        operator: "allow"
+        targets:
+          - "repository adapter"
+          - "messaging adapter"
+          - "external service adapter"
+      - kind: "forbidden-responsibility"
+        operator: "forbid"
+        targets:
+          - "domain policy ownership"
+    relationships:
+      - target: "AR-101"
+        type: "supports"
+        rationale: "Adapter boundaries keep technical details away from the domain."
   - id: "AR-105"
-    status: "Active"
+    status: "active"
     type: "api"
+    severity: "should"
+    enforcementLevel: "warning"
+    detectability: "ai-assisted"
+    priority: 75
+    overridePolicy: "more-specific-wins"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Clean Architecture"
-    relationships: []
+      - dimension: "architectureStyle"
+        values: ["clean-architecture", "hexagonal"]
+      - dimension: "technology"
+        values: ["web", "rest", "ui"]
+      - dimension: "artifactType"
+        values: ["backend", "frontend"]
+      - dimension: "criticality"
+        values: ["all"]
+      - dimension: "layer"
+        values: ["interface-adapters"]
+    source:
+      type: "book"
+      title: "Clean Architecture"
+      reference: "Interface adapters"
+    classification:
+      ruleIntent: "adapters-avoid-business-policy"
+      decisionImpact: "non-blocking"
+    appliesTo:
+      components: ["controllers", "presenters", "resources", "ui-adapters"]
+      artifacts: ["backend", "frontend"]
+    constraints:
+      - kind: "allowed-responsibility"
+        operator: "allow"
+        targets:
+          - "dto mapping"
+          - "request normalization"
+          - "response shaping"
+      - kind: "forbidden-responsibility"
+        operator: "forbid"
+        targets:
+          - "business decision"
+          - "policy branching"
+    relationships:
+      - target: "AR-103"
+        type: "supports"
+        rationale: "Thin adapters preserve use-case orchestration boundaries."
   - id: "AR-106"
-    status: "Active"
+    status: "active"
     type: "operations"
+    severity: "must"
+    enforcementLevel: "warning"
+    detectability: "ai-assisted"
+    priority: 85
+    overridePolicy: "explicit-exception-required"
     scope:
-      - dimension: "system"
-        values:
-          - "Any"
-    source: "Clean Architecture"
-    relationships: []
+      - dimension: "architectureStyle"
+        values: ["clean-architecture", "hexagonal"]
+      - dimension: "technology"
+        values: ["agnostic"]
+      - dimension: "artifactType"
+        values: ["backend"]
+      - dimension: "criticality"
+        values: ["all"]
+      - dimension: "layer"
+        values: ["domain"]
+    source:
+      type: "principle"
+      title: "Cross-Cutting Concerns"
+      reference: "Clean Architecture"
+    classification:
+      ruleIntent: "cross-cutting-concerns-stay-outside-domain"
+      decisionImpact: "blocking"
+    appliesTo:
+      components: ["domain"]
+      artifacts: ["backend"]
+    constraints:
+      - kind: "forbidden-responsibility"
+        operator: "forbid"
+        targets:
+          - "logging"
+          - "tracing"
+          - "security enforcement"
+          - "cache coordination"
+          - "transaction control"
+    relationships:
+      - target: "AR-101"
+        type: "supports"
+        rationale: "Keeping cross-cutting concerns outside the domain reinforces isolation."
