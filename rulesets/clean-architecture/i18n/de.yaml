@@ -1,7 +1,7 @@
 ruleSetId: "clean-architecture"
 locale: "de"
 name: "Saubere Architektur"
-description: "Regelwerk für Schichtentrennung, Abhängigkeitsrichtung und Use-Case-zentrierte Architektur mit konkreter Review-Hilfe."
+description: "Generisches Regelwerk für Schichtentrennung, Abhängigkeitsrichtung und Use-Case-zentrierte Architektur."
 category: "Architektur"
 compatibility: "Sprachunabhängig"
 tags:
@@ -10,110 +10,171 @@ tags:
   - "PortsUndAdapter"
 rules:
   - id: "AR-101"
-    title: "Der Domänenkern hängt von keinem Framework ab"
-    content: "Der fachliche Kern darf keine Web-, UI-, ORM-, Framework- oder Infrastrukturabhängigkeiten besitzen."
+    title: "Fachliche Kernlogik bleibt unabhängig von technischen Details"
+    summary: "Der fachliche Kern soll nicht von UI-, Persistenz-, Messaging-, Web-, Framework- oder Infrastrukturdetails abhängen."
+    content: "Fachliche Kernlogik soll so modelliert werden, dass sie ohne konkrete technische Infrastruktur verstanden, getestet und weiterentwickelt werden kann. Technische Details dürfen über Schnittstellen, Adapter oder äußere Schichten angebunden werden, sollen aber nicht das fachliche Modell oder fachliche Entscheidungen prägen."
+    rationale: "Fachkonzepte leben meist länger als konkrete Technologien. Wenn Fachlogik von technischen Details abhängt, werden Austauschbarkeit, Testbarkeit und langfristige Wartbarkeit geschwächt."
+    reviewQuestions:
+      - "Kann die Fachlogik ohne konkrete technische Infrastruktur verstanden und getestet werden?"
+      - "Könnte die Persistenz-, UI- oder Messaging-Technologie ausgetauscht werden, ohne den fachlichen Kern wesentlich zu ändern?"
+      - "Sind technische Details Teil der Fachsprache geworden, obwohl sie keine Fachkonzepte sind?"
+    positiveExamples:
+      - "Ein Use Case hängt von einer fachlich benannten Schnittstelle ab, nicht von einem konkreten technischen Adapter."
+      - "Ein Domänenobjekt beschreibt fachliche Zustände und Regeln, ohne Speicher- oder Transportbelange mitzutragen."
+    negativeExamples:
+      - "Eine fachliche Entität benötigt Persistenz-, Transport- oder Delivery-Konzepte, um sinnvoll verwendbar zu sein."
+      - "Fachliche Entscheidungen werden durch technische Lifecycle-Mechanismen ausgelöst oder geprägt."
+    exceptions:
+      - "In sehr kleinen oder bewusst kurzlebigen Systemen kann pragmatische Kopplung vertretbar sein, wenn sie dokumentiert und lokal begrenzt ist."
+    remediation:
+      - "Technische Details in Adapter- oder Infrastrukturmodule verschieben."
+      - "Fachlich benannte Schnittstellen zwischen Kernlogik und technischer Umsetzung einführen."
+      - "Fachbegriffe von technischen Begriffen trennen."
     tags:
       - "Domäne"
       - "Isolation"
+      - "Abhängigkeiten"
     keywords:
       - "framework-unabhängig"
       - "domänenkern"
-    aiGuidance:
-      reviewQuestions:
-        - "Importiert ein Domänentyp direkt Framework- oder Persistenzpakete?"
-        - "Lässt sich die Domäne in einem reinen Unit-Test ohne Web- oder ORM-Bootstrap ausführen?"
-      positiveExamples:
-        - "Ein Domain-Service hängt von einem Repository-Port ab, der im Kern definiert ist."
-      negativeExamples:
-        - "Eine Domain-Entity importiert jakarta.persistence.Entity oder Spring-Annotationen."
-      remediation: "Verschiebe Framework-Annotationen und Integrationscode in ein Adaptermodell oder eine Mapping-Schicht."
+      - "technische-details"
   - id: "AR-102"
-    title: "Abhängigkeiten zeigen nach innen"
-    content: "Abhängigkeiten zwischen Schichten müssen auf stabilere, innere Schichten zeigen und nie nach außen."
+    title: "Abhängigkeiten zeigen zu stabileren Konzepten"
+    summary: "Abhängigkeiten sollen zu stabileren fachlichen Konzepten zeigen und nicht nach außen zu volatilen technischen Belangen."
+    content: "Abhängigkeiten zwischen Schichten und Modulen sollen auf die Konzepte zeigen, die seltener geändert werden und den fachlichen Kern tragen. Äußere technische Belange dürfen von inneren Konzepten abhängen, umgekehrt sollte das vermieden werden."
+    rationale: "Stabile Fachkonzepte sollen nicht mit jeder Änderung an Delivery, Infrastruktur oder Betrieb angepasst werden müssen."
+    reviewQuestions:
+      - "Bleiben innere fachliche Schichten unabhängig von äußeren technischen Schichten?"
+      - "Würde eine Änderung an Infrastruktur oder Delivery-Stil den fachlichen Kern zur Änderung zwingen?"
+      - "Referenzieren stabile Konzepte Details, die voraussichtlich häufig wechseln?"
+    positiveExamples:
+      - "Ein äußerer Adapter hängt von einem Application-Port ab."
+      - "Ein fachlicher Service bleibt nutzbar, unabhängig davon, wie Eingaben eintreffen oder Ergebnisse gespeichert werden."
+    negativeExamples:
+      - "Ein fachlicher Service kennt eine konkrete Delivery- oder Infrastrukturkomponente."
+      - "Ein volatiler technischer Belang bestimmt die Struktur eines stabilen Fachmoduls."
+    exceptions:
+      - "Temporäre Migrationsnähte können vertretbar sein, wenn Zielbild und Abbaupfad explizit dokumentiert sind."
+    remediation:
+      - "Äußere Abhängigkeiten über Ports oder abstrakte Schnittstellen invertieren."
+      - "Volatile Belange hinter Adaptergrenzen verschieben."
+      - "Erneut prüfen, welche Konzepte über die Zeit stabil bleiben sollen."
     tags:
       - "Abhängigkeitsregel"
+      - "Stabilität"
     keywords:
       - "nach-innen"
-      - "stabiler-kern"
-    aiGuidance:
-      reviewQuestions:
-        - "Hängen Adapter und Infrastruktur von inneren Abstraktionen ab und nicht umgekehrt?"
-        - "Importiert eine innere Schicht Typen aus einer äußeren Delivery- oder Infrastrukturschicht?"
-      positiveExamples:
-        - "Ein REST-Controller hängt von einem Application-Use-Case-Interface ab."
-      negativeExamples:
-        - "Ein Application-Service importiert einen konkreten HTTP-Controller oder SQL-Client."
-      remediation: "Invertiere die Abhängigkeit über Ports oder verschiebe die äußere Sorge in einen Adapter."
+      - "stabile-konzepte"
+      - "schichtung"
   - id: "AR-103"
     title: "Die Application-Schicht orchestriert Use Cases"
-    content: "Die Application-Schicht koordiniert Anwendungsfälle, enthält aber keine technischen Adapterdetails."
+    summary: "Application-Logik soll Use Cases koordinieren, ohne konkrete Adapterlogik zu übernehmen."
+    content: "Die Application-Schicht ist für Workflow-Koordination, Use-Case-Ausführung und die Zusammenarbeit zwischen fachlichen Abstraktionen verantwortlich. Sie soll keine konkreten Adapterbelange oder direkte Infrastrukturbehandlung übernehmen."
+    rationale: "Wenn Application-Logik technische Details absorbiert, werden fachliche Abläufe schwerer verständlich, reviewbar und wiederverwendbar."
+    reviewQuestions:
+      - "Konzentriert sich die Application-Schicht auf den fachlichen Ablauf statt auf technische Mechanik?"
+      - "Lecken technische Zugriffdetails in die fachliche Workflow-Orchestrierung?"
+      - "Erzeugen oder konfigurieren Use Cases konkrete Adapter direkt?"
+    positiveExamples:
+      - "Ein Use Case koordiniert Validierung, Fachentscheidungen und Kollaboration über deklarierte Ports."
+      - "Die Reihenfolge eines Workflows ist in der Application-Logik sichtbar, ohne von konkreten Infrastrukturklassen abzuhängen."
+    negativeExamples:
+      - "Ein Use Case führt direkte technische Zugriffschritte aus, statt sie über Ports zu delegieren."
+      - "Application-Logik mischt fachlichen Ablauf mit konkreter Adaptereinrichtung oder Protokollbehandlung."
+    exceptions:
+      - "Eine sehr schmale Kompositionssorge kann vorübergehend in der Application-Schicht verbleiben, wenn noch keine stabile Adaptergrenze existiert und der Trade-off dokumentiert ist."
+    remediation:
+      - "Technische Mechanik hinter Ports oder Adapter-Schnittstellen verschieben."
+      - "Application-Services auf Ablaufreihenfolge und fachliche Koordination zentrieren."
+      - "Direkte Infrastrukturbehandlung in dedizierte Adapter extrahieren."
     tags:
       - "UseCase"
       - "Application"
     keywords:
       - "orchestrierung"
+      - "workflow"
       - "anwendungsfall"
-    aiGuidance:
-      reviewQuestions:
-        - "Konzentriert sich die Application-Schicht auf Workflow-Koordination und Transaktionsgrenzen?"
-        - "Lecken HTTP-, ORM- oder UI-Details in die Use-Case-Orchestrierung?"
-      positiveExamples:
-        - "Ein Application-Service lädt Ports, erzwingt die Reihenfolge eines Workflows und liefert ein Use-Case-Ergebnis zurück."
-      negativeExamples:
-        - "Ein Application-Service baut SQL-Queries oder liest Servlet-Request-Zustand."
-      remediation: "Belasse die Orchestrierung in der Application-Schicht und verschiebe technische Mechanik in dedizierte Adapter."
   - id: "AR-104"
-    title: "Infrastruktur implementiert Ports"
-    content: "Technische Infrastruktur soll über Ports eingebunden und durch Adapter implementiert werden."
+    title: "Technische Infrastruktur wird über fachlich ausgerichtete Schnittstellen angebunden"
+    summary: "Infrastruktur soll Schnittstellen implementieren, die von innen nach außen definiert werden, nicht umgekehrt."
+    content: "Technische Infrastruktur soll über Schnittstellen oder Ports angebunden werden, die fachliche oder anwendungsbezogene Bedürfnisse abbilden. Die technische Integration dient diesen Bedürfnissen und soll sie nicht definieren."
+    rationale: "Wenn technische Integrationen die Form der fachlichen Schnittstelle diktieren, wird das Fachdesign von der aktuellen Technologieauswahl eingeengt."
+    reviewQuestions:
+      - "Sind konkrete technische Integrationen hinter Schnittstellen verborgen, die den Bedürfnissen innerer Schichten folgen?"
+      - "Implementiert ein technischer Adapter einen Vertrag oder definiert er den Vertrag faktisch selbst?"
+      - "Können Integrationen ausgetauscht werden, ohne fachliche Abläufe umzuschneiden?"
+    positiveExamples:
+      - "Ein Persistenz-Adapter implementiert eine fachlich benannte Repository-Schnittstelle."
+      - "Eine externe Integration ist hinter einer Schnittstelle gekapselt, die von der Application-Schicht verwendet wird."
+    negativeExamples:
+      - "Ein fachlicher Service referenziert direkt einen konkreten Infrastruktur-Adapter."
+      - "Die Form des fachlichen Vertrags wird überwiegend von einem externen System bestimmt."
+    exceptions:
+      - "Ein kurzlebiger Integrationsspike kann vorübergehend direkt angebunden sein, solange die Ziel-Schnittstelle noch geschärft wird."
+    remediation:
+      - "Fachlich ausgerichtete Ports definieren, bevor konkrete Adapter finalisiert werden."
+      - "Konkrete Integrationsdetails hinter Adaptermodule verschieben."
+      - "Verträge so zuschneiden, dass sie innere Bedürfnisse statt äußerer Beschränkungen spiegeln."
     tags:
       - "PortsUndAdapter"
       - "Infrastruktur"
     keywords:
-      - "port-implementierung"
+      - "port"
       - "adapter"
-    aiGuidance:
-      reviewQuestions:
-        - "Werden externe Systeme über Ports angesprochen, die von inneren Schichten definiert sind?"
-        - "Implementiert Infrastruktur Verträge, statt Fachverhalten zu erfinden?"
-      positiveExamples:
-        - "Ein Persistenz-Adapter implementiert einen Repository-Port aus Application oder Domain."
-      negativeExamples:
-        - "Fachlogik ist in einer JDBC-Repository-Implementierung versteckt."
-      remediation: "Definiere oder schärfe einen Port in der inneren Schicht und kapsle die technische Integration dahinter."
+      - "integration"
   - id: "AR-105"
-    title: "Interface-Adapter enthalten keine fachliche Kernlogik"
-    content: "Controller, Presenter, Resources oder UI-Adapter sollen Mapping kapseln, nicht aber fachliche Kernregeln."
+    title: "Interface-Adapter übersetzen, besitzen aber keine Fachlogik"
+    summary: "Adapter sollen zwischen außen und innen übersetzen, ohne zum Heimatort fachlicher Regeln zu werden."
+    content: "Interface-Adapter wie Controller, Presenter, UI-Adapter oder API-Adapter sollen an Grenzen übersetzen, normalisieren und Daten aufbereiten. Sie sollen nicht der Ort werden, an dem fachliche Regeln oder zentrale Fachentscheidungen getroffen werden."
+    rationale: "Wenn Fachlogik in Adaptern landet, ändern Änderungen an externen Grenzen plötzlich fachliches Verhalten und das Kernmodell wird unzuverlässiger."
+    reviewQuestions:
+      - "Beschränken sich Adapter auf Übersetzung, Normalisierungsübergabe und Antwortaufbereitung?"
+      - "Entsteht eine fachliche Entscheidung durch adapterlokale Verzweigung?"
+      - "Würde eine Änderung an einer externen Grenze versehentlich Fachverhalten ändern?"
+    positiveExamples:
+      - "Ein Adapter konvertiert Grenzdaten und delegiert ein fachliches Kommando nach innen."
+      - "Grenzspezifische Validierung bleibt getrennt von fachlichen Kernentscheidungen."
+    negativeExamples:
+      - "Ein Adapter entscheidet über Berechtigung, Preis oder Freigabe."
+      - "Mapping-Logik verändert die zugrunde liegende Fachregel, statt nur Daten zu übersetzen."
+    exceptions:
+      - "Reine Darstellungsformatierung und grenzspezifisches Fallback-Verhalten dürfen im Adapter bleiben, solange sie keine Fachentscheidungen ändern."
+    remediation:
+      - "Fachregeln in Use Cases oder Domain-Services extrahieren."
+      - "Adapter auf Übersetzung und Grenzbelange fokussieren."
+      - "Fachliche Validierung von transportspezifischer Normalisierung trennen."
     tags:
       - "Adapter"
       - "Grenze"
     keywords:
-      - "controller"
-      - "dto-mapping"
-    aiGuidance:
-      reviewQuestions:
-        - "Beschränken sich Controller und Presenter auf Übersetzung, Validierungsübergabe und Antwortaufbereitung?"
-        - "Enthalten Adapter Verzweigungen, die eigentlich in Use Case oder Fachregel gehören?"
-      positiveExamples:
-        - "Ein Controller mappt Request-DTOs auf ein Command und delegiert an einen Application-Use-Case."
-      negativeExamples:
-        - "Ein Controller entscheidet Rabatte direkt anhand von Fachregeln."
-      remediation: "Extrahiere die fachliche Entscheidung in Use Case oder Domäne und lasse im Adapter nur das Mapping zurück."
+      - "mapping"
+      - "fachlogik"
+      - "übersetzung"
   - id: "AR-106"
-    title: "Querschnittsthemen bleiben außerhalb der Domäne"
-    content: "Logging, Tracing, Security Enforcement, Caching und Transaktionssteuerung sollen außerhalb des Domänenkerns modelliert werden."
+    title: "Querschnittsthemen dürfen den fachlichen Kern nicht technisch verunreinigen"
+    summary: "Querschnittsthemen sollen so platziert werden, dass sie den fachlichen Kern nicht dominieren oder verzerren."
+    content: "Logging, Tracing, technisches Security-Enforcement, Caching und Transaktionssteuerung sollen so platziert werden, dass sie den fachlichen Kern unterstützen, ohne fachliche Modelle zu technischen Koordinationspunkten zu machen. Fachliche Sicherheitsregeln können zur Domäne gehören, technisches Enforcement nicht."
+    rationale: "Der fachliche Kern verliert Klarheit, wenn technische Policies und Fachregeln kaum noch unterscheidbar sind."
+    reviewQuestions:
+      - "Dominieren Querschnittsmechanismen die Form der Fachlogik?"
+      - "Lassen sich Fachregeln klar von technischem Enforcement oder operativen Policies unterscheiden?"
+      - "Benötigen fachliche Objekte technische Hilfsdienste, um ihre Hauptaufgabe zu erfüllen?"
+    positiveExamples:
+      - "Eine Transaktionsgrenze umhüllt einen Use Case, ohne das fachliche Modell zu verändern."
+      - "Fachliche Berechtigungsregeln sind getrennt von technischen Enforcement-Mechanismen modelliert."
+    negativeExamples:
+      - "Ein fachliches Objekt kann seine Kernaufgabe nur erfüllen, wenn technische Querschnittsdienste in ihm eingebettet sind."
+      - "Technisches Enforcement und Fachregeln sind im selben Entscheidungsfluss untrennbar vermischt."
+    exceptions:
+      - "Eine Fachregel darf Sicherheits-, Nachvollziehbarkeits- oder Audit-Konzepte referenzieren, wenn diese Konzepte wirklich Teil der Fachsprache sind."
+    remediation:
+      - "Technische Querschnittsumsetzung in Dekoratoren, Middleware oder äußere Adapter verschieben."
+      - "Fachregeln explizit und getrennt von operativem Enforcement halten."
+      - "Neu prüfen, ob ein Belang wirklich fachlich oder nur technisch notwendig ist."
     tags:
       - "Querschnitt"
       - "Betrieb"
     keywords:
-      - "logging"
-      - "metriken"
-      - "transaktionen"
-    aiGuidance:
-      reviewQuestions:
-        - "Enthält die Domäne operativen Code wie Logging, Tracing oder Cache-Steuerung?"
-        - "Werden technische Sicherheitsprüfungen außerhalb des Fachmodells umgesetzt, während Fachregeln innen bleiben?"
-      positiveExamples:
-        - "Ein Transaktions-Dekorator umhüllt einen Application-Use-Case, ohne Domain-Entities zu verändern."
-      negativeExamples:
-        - "Eine Domain-Entity schreibt Logzeilen oder prüft den Framework-Security-Kontext."
-      remediation: "Verschiebe operative Themen in Dekoratoren, Middleware oder Adapter und belasse in der Domäne nur Fachregeln."
+      - "querschnitt"
+      - "technische-verunreinigung"
+      - "domänenklarheit"

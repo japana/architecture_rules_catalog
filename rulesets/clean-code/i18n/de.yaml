@@ -1,7 +1,7 @@
 ruleSetId: "clean-code"
 locale: "de"
 name: "Sauberer Code"
-description: "Regelwerk für Lesbarkeit, Wartbarkeit, Testbarkeit und kontrollierte Komplexität mit konkreter Review-Hilfe."
+description: "Generisches Regelwerk für Lesbarkeit, Wartbarkeit, explizites Verhalten und Testbarkeit."
 category: "CodeQualität"
 compatibility: "Sprachunabhängig"
 tags:
@@ -11,109 +11,169 @@ tags:
 rules:
   - id: "AR-201"
     title: "Namen machen die Absicht klar"
-    content: "Bezeichner für Klassen, Methoden, Module und Variablen sollen ihre fachliche Absicht klar ausdrücken und keine unnötigen Abkürzungen enthalten."
+    summary: "Namen sollen fachliche oder technische Absicht klar erkennbar machen."
+    content: "Bezeichner für Module, Services, Funktionen, Variablen und Tests sollen Zweck und Verantwortung verständlich machen, ohne dass Lesende verborgene Bedeutung erraten müssen."
+    rationale: "Gute Namen reduzieren Missverständnisse und senken den mentalen Aufwand für Review, Wartung und Änderung."
+    reviewQuestions:
+      - "Macht der Name Zweck und Verantwortung klar erkennbar?"
+      - "Würde eine neue Person den Begriff ohne Spezialwissen aus dem Team verstehen?"
+      - "Beschreibt der Name die Absicht statt bloßer Mechanik?"
+    positiveExamples:
+      - "Ein Funktionsname macht das fachliche Ergebnis einer Aktion offensichtlich."
+      - "Ein Modulname spiegelt eine stabile fachliche oder technische Verantwortung wider."
+    negativeExamples:
+      - "Ein Bezeichner versteckt Bedeutung hinter vagem Wording oder privaten Abkürzungen."
+      - "Ein Name fokussiert Implementierungsdetails, obwohl die eigentliche Absicht wichtiger wäre."
+    exceptions:
+      - "Etablierte Fachabkürzungen dürfen bleiben, wenn sie im Team und in der Domäne breit verstanden werden."
+    remediation:
+      - "In Richtung Fachwortschatz oder Verantwortungsbeschreibung umbenennen."
+      - "Abkürzungen entfernen, die kein gemeinsamer Wortschatz sind."
+      - "Namen bevorzugen, die Absicht statt Mechanik beschreiben."
     tags:
       - "Benennung"
       - "Lesbarkeit"
     keywords:
       - "absicht"
       - "klarheit"
-    aiGuidance:
-      reviewQuestions:
-        - "Kann eine lesende Person die fachliche Absicht aus den wichtigsten Bezeichnern ohne Zusatzkommentare ableiten?"
-        - "Verbergen Abkürzungen Bedeutung, die im Fachwortschatz ausgeschrieben sein sollte?"
-      positiveExamples:
-        - "Eine Methode namens berechneNettoRechnungsSumme macht das fachliche Ergebnis klar."
-      negativeExamples:
-        - "Eine Methode namens calcVal oder handleData verschleiert die Absicht."
-      remediation: "Benenne Identifier in Richtung Fachwortschatz um und entferne Abkürzungen, die nicht teamweit etabliert sind."
+      - "wortschatz"
   - id: "AR-202"
-    title: "Funktionen bleiben klein und fokussiert"
-    content: "Methoden und Funktionen sollen einen klaren Zweck verfolgen und nicht mehrere fachliche Verantwortungen vermischen."
+    title: "Funktionen behalten eine klar erkennbare Verantwortung"
+    summary: "Funktionen und Methoden sollen eine Verantwortung haben, die leicht erkennbar ist."
+    content: "Eine Funktion oder Methode soll einem zusammenhängenden Zweck dienen. Sie darf mehrere Schritte koordinieren, wenn diese Schritte zusammengehören, soll aber keine fachlich unabhängigen Verantwortungen vermischen."
+    rationale: "Fokussierte Verantwortungen verbessern Lesbarkeit, Änderungssicherheit und Testbarkeit, ohne starre Zeilenlimits zu erzwingen."
+    reviewQuestions:
+      - "Ist die Verantwortung der Funktion erkennbar, ohne viele Low-Level-Details lesen zu müssen?"
+      - "Werden fachlich unabhängige Belange in einer Operation vermischt?"
+      - "Würde das Extrahieren eines Belangs die Logik verständlicher und testbarer machen?"
+    positiveExamples:
+      - "Eine Funktion prüft eine konkrete fachliche Vorbedingung und delegiert dann den nächsten Kollaborationsschritt."
+      - "Eine Methode koordiniert einen Workflow, ohne fremde Formatierungs- oder Speicherverantwortung zu übernehmen."
+    negativeExamples:
+      - "Eine Funktion mischt Validierung, Entscheidung, Persistenz, Mapping und Nebenwirkungen ohne klare Struktur."
+      - "Der eigentliche Zweck der Funktion wird erst nach vielen verzweigten Details sichtbar."
+    exceptions:
+      - "Ein kurzer Koordinator darf mehrere eng verbundene Schritte zusammenhalten, wenn sie eine zusammenhängende fachliche Aktion bilden."
+    remediation:
+      - "Unabhängige Belange in Kollaborationen oder kleinere Funktionen aufteilen."
+      - "Hilfsschritte nach der jeweiligen Entscheidung oder Transformation benennen."
+      - "Die Hauptfunktion auf eine klar erkennbare Verantwortung zentrieren."
     tags:
       - "Funktionen"
       - "SingleResponsibility"
     keywords:
-      - "kleine-funktionen"
-      - "fokus"
-    aiGuidance:
-      reviewQuestions:
-        - "Erfüllt die Funktion genau eine zusammenhängende fachliche Aufgabe?"
-        - "Würde sich die Funktion leichter testen lassen, wenn ein Zweig oder eine Sorge extrahiert würde?"
-      positiveExamples:
-        - "Eine Methode validiert ein Command und delegiert Persistenz an eine Kollaboration."
-      negativeExamples:
-        - "Eine Methode validiert Input, führt Autorisierung durch, formatiert HTML und verschickt E-Mails."
-      remediation: "Trenne fachlich unabhängige Verantwortungen und zentriere jede Funktion auf eine Entscheidung oder Transformation."
+      - "fokussierte-funktionen"
+      - "verantwortung"
+      - "kohäsion"
   - id: "AR-203"
     title: "Module verbergen interne Details"
-    content: "Module und Klassen sollen eine kleine, stabile Oberfläche anbieten und interne technische Details verbergen."
+    summary: "Module sollen stabile, schmale Oberflächen anbieten und interne Abläufe verbergen."
+    content: "Ein Modul oder eine Klasse soll nur das exponieren, was externe Nutzende wirklich brauchen. Interne Abläufe, Hilfsstrukturen und volatile Implementierungsentscheidungen bleiben hinter der Modulgrenze."
+    rationale: "Information Hiding reduziert Folgeschäden und erlaubt interne Entwicklung, ohne unnötig externe Änderungen auszulösen."
+    reviewQuestions:
+      - "Hängen Aufrufende nur von der stabilen Oberfläche des Moduls ab?"
+      - "Leaken interne Hilfskonzepte in die öffentliche Nutzung?"
+      - "Würde ein internes Refactoring mehr Verbraucher brechen als nötig?"
+    positiveExamples:
+      - "Ein Modul bietet eine stabile Schnittstelle an und hält innere Hilfsstrukturen privat."
+      - "Externe Aufrufende hängen von Ergebnissen und Verträgen ab, nicht von interner Ablaufreihenfolge."
+    negativeExamples:
+      - "Nutzende müssen interne Datenformen oder Hilfsroutinen kennen, um das Modul sicher zu verwenden."
+      - "Interne Details werden faktisch öffentlich, weil externer Code direkt darauf aufbaut."
+    exceptions:
+      - "Eine temporäre Migrationsoberfläche darf breiter sein, wenn Legacy-Aufrufende Zeit zum Umstieg brauchen und die Zieloberfläche dokumentiert ist."
+    remediation:
+      - "Die öffentliche Oberfläche auf den stabilen Vertrag verkleinern."
+      - "Hilfsfunktionen und volatile Strukturen hinter interne Grenzen verschieben."
+      - "Aufrufende von internen Details entkoppeln."
     tags:
       - "Kapselung"
       - "Modularität"
     keywords:
-      - "öffentliche-api"
-      - "internes-detail"
-    aiGuidance:
-      reviewQuestions:
-        - "Ist die exponierte API kleiner und stabiler als das innere Implementierungsdetail?"
-        - "Leaken interne Helfer, Speichertypen oder temporäre Repräsentationen durch öffentliche Verträge?"
-      positiveExamples:
-        - "Ein Repository-Modul bietet ein Query-Interface an und hält SQL-Mapping privat."
-      negativeExamples:
-        - "Aufrufende Komponenten hängen von internen Cache-Keys oder Storage-DTOs ab."
-      remediation: "Verkleinere die öffentliche Oberfläche und verschiebe volatile Details hinter modulinterne Nähte."
+      - "information-hiding"
+      - "öffentliche-oberfläche"
+      - "kapselung"
   - id: "AR-204"
     title: "Fehlerbehandlung ist explizit"
-    content: "Fehlerfälle sollen bewusst modelliert werden; verschluckte Ausnahmen, stille Fallbacks und intransparente Null-Semantik sind zu vermeiden."
+    summary: "Fehlverhalten soll sichtbar, bewusst und nachvollziehbar modelliert sein."
+    content: "Fehlerpfade sollen so modelliert sein, dass Aufrufende und Reviewende verstehen können, was im Fehlerfall passiert. Stilles Verschlucken, intransparente Fallbacks und implizite Maskierung von Fehlern sind zu vermeiden."
+    rationale: "Explizite Fehlerbehandlung reduziert verborgenes Verhalten und macht fachliche Risiken leichter nachvollziehbar."
+    reviewQuestions:
+      - "Kann eine lesende Person nachvollziehen, was bei einem Fehlschlag geschieht?"
+      - "Ist Fallback-Verhalten sichtbar und begründet?"
+      - "Könnten Null-, Leer- oder Default-Werte einen fachlich relevanten Fehler verdecken?"
+    positiveExamples:
+      - "Ein Fehlerpfad ist über ein explizites Ergebnis, einen Vertrag oder eine dokumentierte Propagationsstrategie sichtbar."
+      - "Fallback-Verhalten ist bewusst gewählt und für Reviewende nachvollziehbar."
+    negativeExamples:
+      - "Ein Fehler wird still verschluckt."
+      - "Default-Werte maskieren einen fachlich relevanten Fehlerzustand."
+    exceptions:
+      - "Low-Level-Rauschunterdrückung kann vertretbar sein, wenn der ignorierte Zustand harmlos, gut verstanden und explizit dokumentiert ist."
+    remediation:
+      - "Fehlerpfade im Kontrollfluss oder Vertragsdesign explizit machen."
+      - "Fallback-Verhalten bewusst dokumentieren oder sichtbar machen."
+      - "Fehler nicht hinter mehrdeutigem Default-Verhalten verbergen."
     tags:
       - "Fehlerbehandlung"
       - "Robustheit"
     keywords:
-      - "ausnahmen"
-      - "result-typen"
-    aiGuidance:
-      reviewQuestions:
-        - "Ist der Fehlervertrag für Aufrufende über Typen, Exceptions oder dokumentiertes Verhalten sichtbar?"
-        - "Kann ein Fehlerpfad übersehen werden, weil null, false oder Default-Werte ihn verbergen?"
-      positiveExamples:
-        - "Ein Use Case liefert bei einem fehlgeschlagenen Abhängigkeitsaufruf ein typisiertes Fehlerergebnis zurück."
-      negativeExamples:
-        - "Eine Exception wird gefangen, ignoriert und die Ausführung läuft mit Teildaten weiter."
-      remediation: "Modelliere Fehler explizit und propagiere oder übersetze sie bewusst."
+      - "explizite-fehler"
+      - "fallbacks"
+      - "fehlerpfade"
   - id: "AR-205"
-    title: "Duplikation wird auf der richtigen Abstraktionsebene eliminiert"
-    content: "Wiederholte Logik und Regeln sollen nur dann konsolidiert werden, wenn die gemeinsame Abstraktion stabil genug ist."
+    title: "Dupliziere nur, was sich noch nicht als stabil erwiesen hat"
+    summary: "Duplikation soll nur dann abstrahiert werden, wenn die gemeinsame Bedeutung wirklich stabil ist."
+    content: "Wiederholte Logik soll konsolidiert werden, wenn sie dasselbe stabile Konzept beschreibt. Ähnlich aussehender Code soll nicht vorschnell zusammengeführt werden, wenn die Gründe für Änderungen noch unterschiedlich sind."
+    rationale: "Vorschnelle Abstraktion erzeugt fragile gemeinsame Strukturen; gerechtfertigte Abstraktion reduziert echte Duplikation."
+    reviewQuestions:
+      - "Repräsentiert die gemeinsame Abstraktion wirklich dasselbe stabile Konzept?"
+      - "Werden unterschiedliche Änderungsgründe in einen Helper gezwungen?"
+      - "Wird echte Duplikation ohne guten Grund mehrfach gepflegt?"
+    positiveExamples:
+      - "Eine gemeinsame Abstraktion wird erst eingeführt, wenn die gemeinsame Bedeutung klar und stabil ist."
+      - "Getrennte Codepfade bleiben getrennt, weil ihre fachlichen Gründe noch verschieden sind."
+    negativeExamples:
+      - "Ein gemeinsamer Helper wächst ständig um Sonderfälle, weil die zusammengeführten Fälle nie wirklich gleich waren."
+      - "Identische Fachregeln werden an vielen Stellen unabhängig angepasst."
+    exceptions:
+      - "Kurzlebige Duplikation darf während der Erkundung bestehen bleiben, bis das stabile Konzept besser verstanden ist."
+    remediation:
+      - "Nur abstrahieren, wenn Bedeutung und Änderungsgründe zusammenpassen."
+      - "Vorschnelle Abstraktionen zurückbauen, die nur oberflächliche Duplikation vermeiden."
+      - "Wirklich identische Regeln hinter einem stabilen Konzept zusammenführen."
     tags:
       - "Duplikation"
       - "Abstraktion"
     keywords:
       - "dry"
-      - "refactoring"
-    aiGuidance:
-      reviewQuestions:
-        - "Beschreibt die gemeinsame Abstraktion ein stabiles Konzept statt bloßer Ähnlichkeit?"
-        - "Würde bewusstes Duplizieren für eine weitere Änderung weniger Kopplung erzeugen?"
-      positiveExamples:
-        - "Zwei Mapper teilen sich eine Normalisierungsfunktion, weil die Regel wirklich identisch ist."
-      negativeExamples:
-        - "Drei fachfremde Workflows werden über einen generischen Helper mit vielen Flags erzwungen."
-      remediation: "Fasse nur stabiles gemeinsames Verhalten zusammen; sonst bleibt Duplikation lokal, bis das Konzept klar ist."
+      - "stabile-abstraktion"
+      - "änderungsgründe"
   - id: "AR-206"
-    title: "Code wird auf Testbarkeit ausgelegt"
-    content: "Code soll über klare Schnittstellen, kontrollierbare Seiteneffekte und kleine Verantwortungen so gestaltet sein, dass automatisierte Tests einfach möglich sind."
+    title: "Code wird für Testbarkeit gestaltet"
+    summary: "Verhalten soll so strukturiert sein, dass es kontrolliert und automatisiert überprüfbar ist."
+    content: "Code soll Zuständigkeiten, Schnittstellen und Abhängigkeiten so offenlegen, dass wichtiges Verhalten ohne unnötigen technischen Aufbau oder versteckten Zustand testbar bleibt."
+    rationale: "Testbares Design verbessert Vertrauen, Refactoring-Sicherheit und die Geschwindigkeit des Feedbacks."
+    reviewQuestions:
+      - "Lässt sich wichtiges Verhalten ohne viel fachfremdes Setup prüfen?"
+      - "Sind Abhängigkeiten und Seiteneffekte im Test kontrollierbar?"
+      - "Erschwert versteckter Zustand die Reproduzierbarkeit des Verhaltens?"
+    positiveExamples:
+      - "Eine Fachregel lässt sich mit fokussierten Tests und kontrollierten Kollaborationen prüfen."
+      - "Seiteneffekte sind so isoliert, dass Verhalten reproduzierbar bleibt."
+    negativeExamples:
+      - "Tests brauchen umfangreiche irrelevante Infrastruktur, um eine einzelne Fachregel zu prüfen."
+      - "Globaler Zustand oder unkontrollierte Seiteneffekte machen Verhalten schwer reproduzierbar."
+    exceptions:
+      - "Ein schmaler End-to-End-Fall darf breiteres Setup nutzen, wenn das Ziel Vollintegration und nicht fokussierte Regelprüfung ist."
+    remediation:
+      - "Nähte für Kollaborationen, Zustand und Seiteneffekte einführen."
+      - "Verstecktes globales Verhalten reduzieren."
+      - "Verhalten so aufteilen, dass die Fachregel ohne irrelevantes Setup geprüft werden kann."
     tags:
       - "Testing"
       - "Design"
     keywords:
-      - "deterministisch"
-      - "testbar"
-    aiGuidance:
-      reviewQuestions:
-        - "Lässt sich das Verhalten mit isolierten automatisierten Tests prüfen, ohne irrelevante Infrastruktur zu booten?"
-        - "Sind Seiteneffekte injiziert oder im Test anderweitig kontrollierbar?"
-      positiveExamples:
-        - "Ein Service erhält Uhr und Repository-Port per Konstruktor für deterministische Tests."
-      negativeExamples:
-        - "Fachlogik liest globalen Zustand statisch aus und macht Live-Netzwerkaufrufe direkt."
-      remediation: "Führe Nähte für Zeit, I/O und Kollaborationen ein und reduziere versteckten globalen Zustand."
+      - "testbarkeit"
+      - "kontrolliertes-verhalten"
+      - "automatisierung"

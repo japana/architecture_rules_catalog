@@ -1,7 +1,7 @@
 ruleSetId: "clean-code"
 locale: "en"
 name: "Clean Code"
-description: "Rule set for readability, maintainability, testability and controlled complexity with operational review guidance."
+description: "Generic rule set for readability, maintainability, explicit behavior, and testability."
 category: "CodeQuality"
 compatibility: "Language-agnostic"
 tags:
@@ -10,110 +10,170 @@ tags:
   - "Testability"
 rules:
   - id: "AR-201"
-    title: "Names Express Intent"
-    content: "Names for classes, methods, modules and variables should express intent clearly and avoid unnecessary abbreviations."
+    title: "Names Make Intent Clear"
+    summary: "Names should communicate business or technical intent clearly."
+    content: "Identifiers for modules, services, functions, variables, and tests should make their purpose and responsibility understandable without forcing readers to infer hidden meaning."
+    rationale: "Good names reduce accidental misunderstanding and lower the mental cost of review, maintenance, and change."
+    reviewQuestions:
+      - "Does the name reveal purpose and responsibility clearly?"
+      - "Would a newcomer understand the term without private team knowledge?"
+      - "Is the name focused on intent instead of incidental mechanics?"
+    positiveExamples:
+      - "A function name makes the business outcome of the action obvious."
+      - "A module name reflects a stable domain or technical responsibility."
+    negativeExamples:
+      - "An identifier hides meaning behind vague wording or personal abbreviations."
+      - "A name focuses on implementation detail although the real intent is broader."
+    exceptions:
+      - "Well-established domain abbreviations can remain when they are widely understood in the team and domain."
+    remediation:
+      - "Rename toward domain or responsibility-oriented terminology."
+      - "Remove abbreviations that are not shared vocabulary."
+      - "Prefer names that describe intent over mechanics."
     tags:
       - "Naming"
       - "Readability"
     keywords:
-      - "intent-revealing"
+      - "intent"
       - "clarity"
-    aiGuidance:
-      reviewQuestions:
-        - "Can a reader infer business intent from the main identifiers without extra comments?"
-        - "Do abbreviations hide meaning that should be spelled out in domain terms?"
-      positiveExamples:
-        - "A method named calculateNetInvoiceTotal makes the business outcome explicit."
-      negativeExamples:
-        - "A method named calcVal or handleData obscures intent."
-      remediation: "Rename identifiers toward domain vocabulary and remove abbreviations that are not team-standard."
+      - "vocabulary"
   - id: "AR-202"
-    title: "Functions Stay Small And Focused"
-    content: "Methods and functions should serve one clear purpose and avoid mixing several business responsibilities."
+    title: "Functions Keep a Clear Responsibility"
+    summary: "Functions and methods should have a responsibility that is easy to recognize."
+    content: "A function or method should serve one coherent purpose. It may coordinate several steps, but those steps should belong together rather than mixing unrelated responsibilities."
+    rationale: "Focused responsibilities improve readability, change safety, and testability without forcing artificial line-count rules."
+    reviewQuestions:
+      - "Is the responsibility of the function obvious without reading many low-level details?"
+      - "Are unrelated concerns mixed together in one operation?"
+      - "Would extracting a concern make the logic easier to understand and test?"
+    positiveExamples:
+      - "A function validates a specific business precondition and then delegates the next collaboration step."
+      - "A method coordinates one workflow without taking ownership of unrelated formatting or storage behavior."
+    negativeExamples:
+      - "One function mixes validation, decision-making, persistence, mapping, and side effects without clear structure."
+      - "The real purpose of the function is only visible after reading many branch-specific details."
+    exceptions:
+      - "A short coordinator may keep several closely related steps together when they form one coherent business action."
+    remediation:
+      - "Split unrelated concerns into collaborators or smaller functions."
+      - "Name helper steps according to the decision or transformation they perform."
+      - "Keep the main function centered on one recognizable responsibility."
     tags:
       - "Functions"
       - "SingleResponsibility"
     keywords:
-      - "small-functions"
-      - "focus"
-    aiGuidance:
-      reviewQuestions:
-        - "Does the function perform one coherent business task?"
-        - "Would the function be easier to test if one branch or concern were extracted?"
-      positiveExamples:
-        - "A method validates a command and delegates persistence to a collaborator."
-      negativeExamples:
-        - "A method validates input, performs authorization, formats HTML and sends mail."
-      remediation: "Split unrelated responsibilities and keep each function centered on one decision or transformation."
+      - "focused-functions"
+      - "responsibility"
+      - "cohesion"
   - id: "AR-203"
-    title: "Modules Hide Internal Detail"
-    content: "Modules and classes should offer a small, stable surface and hide internal technical detail."
+    title: "Modules Hide Internal Details"
+    summary: "Modules should offer stable, narrow surfaces and hide internal workings."
+    content: "A module or class should expose only what external consumers need. Internal workflows, helper structures, and volatile implementation choices should stay behind the module boundary."
+    rationale: "Information hiding reduces ripple effects and lets internals evolve without constantly forcing external change."
+    reviewQuestions:
+      - "Do callers rely only on the stable surface of the module?"
+      - "Are internal helper concepts leaking into public usage?"
+      - "Would an internal refactoring break more consumers than necessary?"
+    positiveExamples:
+      - "A module exposes one stable interface and keeps internal support structures private."
+      - "External callers depend on outcomes and contracts rather than internal sequencing."
+    negativeExamples:
+      - "Consumers must understand internal data shapes or helper routines to use the module safely."
+      - "Internal details become de facto public because external code depends on them directly."
+    exceptions:
+      - "A temporary migration surface can be broader when legacy callers still need time to move, if the target surface is documented."
+    remediation:
+      - "Reduce the public surface to the stable contract."
+      - "Move helpers and volatile structures behind internal boundaries."
+      - "Refactor callers away from internal details."
     tags:
       - "Encapsulation"
       - "Modularity"
     keywords:
-      - "public-api"
-      - "internal-detail"
-    aiGuidance:
-      reviewQuestions:
-        - "Is the exposed API smaller and more stable than the internal implementation detail?"
-        - "Are internal helpers, storage types or temporary representations leaking through public contracts?"
-      positiveExamples:
-        - "A repository module exposes one query interface and keeps SQL mapping private."
-      negativeExamples:
-        - "Callers depend on internal cache keys or storage DTOs."
-      remediation: "Reduce the public surface and move volatile details behind module-private seams."
+      - "information-hiding"
+      - "public-surface"
+      - "encapsulation"
   - id: "AR-204"
     title: "Error Handling Is Explicit"
-    content: "Failure paths should be modeled explicitly; swallowed exceptions, silent fallbacks and opaque null semantics should be avoided."
+    summary: "Failure behavior should be visible, intentional, and understandable."
+    content: "Error paths should be modeled so that callers and reviewers can understand what happens when a step fails. Silent swallowing, opaque fallback behavior, and implicit masking of failure should be avoided."
+    rationale: "Explicit failure handling reduces hidden behavior and makes business risks easier to reason about."
+    reviewQuestions:
+      - "Can a reader understand what happens when the operation fails?"
+      - "Is fallback behavior visible and justified?"
+      - "Could null, empty, or default values be hiding a meaningful failure?"
+    positiveExamples:
+      - "A failure path is made visible through an explicit result, contract, or documented propagation strategy."
+      - "Fallback behavior is deliberate and understandable to reviewers."
+    negativeExamples:
+      - "A failure is swallowed silently."
+      - "Default values hide a business-relevant error condition."
+    exceptions:
+      - "Low-level noise reduction can be acceptable when the ignored condition is harmless, well understood, and explicitly documented."
+    remediation:
+      - "Make failure paths explicit in control flow or contract design."
+      - "Document or surface fallback behavior deliberately."
+      - "Avoid masking failures behind ambiguous default behavior."
     tags:
       - "ErrorHandling"
       - "Robustness"
     keywords:
-      - "exceptions"
-      - "result-types"
-    aiGuidance:
-      reviewQuestions:
-        - "Is the failure contract visible to callers through types, exceptions or documented behavior?"
-        - "Could an error path be missed because null, false or default values hide it?"
-      positiveExamples:
-        - "A use case returns a typed error result when a dependency call fails."
-      negativeExamples:
-        - "An exception is caught, ignored and execution continues with partial data."
-      remediation: "Model failure explicitly and propagate or translate errors intentionally."
+      - "explicit-failure"
+      - "fallbacks"
+      - "error-paths"
   - id: "AR-205"
-    title: "Duplication Is Eliminated At The Right Abstraction Level"
-    content: "Repeated logic and rules should be consolidated only when the shared abstraction is stable enough."
+    title: "Duplicate Only What Has Not Yet Proven Stable"
+    summary: "Duplication should be abstracted only when the shared meaning is genuinely stable."
+    content: "Repeated logic should be consolidated when it reflects the same stable concept. Similar-looking code should not be merged prematurely when the reasons for change are still different."
+    rationale: "Premature abstraction creates brittle shared structures, while justified abstraction reduces true duplication."
+    reviewQuestions:
+      - "Does the shared abstraction represent the same stable concept?"
+      - "Are different reasons for change being forced into one helper?"
+      - "Is true duplication being maintained separately without a good reason?"
+    positiveExamples:
+      - "A shared abstraction is introduced only after the common meaning is clear and stable."
+      - "Separate code paths remain separate because their business reasons are still distinct."
+    negativeExamples:
+      - "A common helper keeps growing exceptions because the merged cases were never truly the same."
+      - "Identical business rules are updated independently in many places."
+    exceptions:
+      - "Short-lived duplication may remain during discovery until the stable concept is better understood."
+    remediation:
+      - "Abstract only when the meaning and change drivers align."
+      - "Undo premature abstractions that mainly exist to avoid superficial duplication."
+      - "Consolidate truly identical rules behind one stable concept."
     tags:
       - "Duplication"
       - "Abstraction"
     keywords:
       - "dry"
-      - "refactoring"
-    aiGuidance:
-      reviewQuestions:
-        - "Is the shared abstraction capturing a stable concept rather than incidental similarity?"
-        - "Would keeping the code duplicated for one more change reduce accidental coupling?"
-      positiveExamples:
-        - "Two mappers share a common normalization function because the rule is truly identical."
-      negativeExamples:
-        - "Three unrelated workflows are forced through one generic helper with many flags."
-      remediation: "Merge only stable common behavior; otherwise keep duplication local until the concept becomes clear."
+      - "stable-abstraction"
+      - "change-drivers"
   - id: "AR-206"
-    title: "Code Is Designed For Testability"
-    content: "Code should be structured through clear interfaces, controlled side effects and narrow responsibilities so that automated tests stay simple."
+    title: "Code Is Designed for Testability"
+    summary: "Behavior should be structured so that it can be verified in a controlled and automated way."
+    content: "Code should expose seams, responsibilities, and dependencies in a way that lets important behavior be tested without unnecessary technical setup or hidden state."
+    rationale: "Testable design improves confidence, refactoring safety, and the speed of feedback."
+    reviewQuestions:
+      - "Can important behavior be verified without large amounts of unrelated setup?"
+      - "Are dependencies and side effects controllable during tests?"
+      - "Does hidden state make the behavior hard to reproduce?"
+    positiveExamples:
+      - "A business rule can be verified with focused tests that control collaborators and inputs."
+      - "Side effects are isolated enough that behavior stays reproducible."
+    negativeExamples:
+      - "Tests need extensive unrelated infrastructure just to verify one business rule."
+      - "Global state or uncontrolled side effects make behavior hard to reproduce."
+    exceptions:
+      - "A narrow end-to-end scenario can use broader setup when the goal is full integration rather than focused rule verification."
+    remediation:
+      - "Introduce seams for collaborators, state, and side effects."
+      - "Reduce hidden global behavior."
+      - "Split behavior so the business rule can be verified without unrelated setup."
     tags:
       - "Testing"
       - "Design"
     keywords:
-      - "deterministic"
-      - "testable"
-    aiGuidance:
-      reviewQuestions:
-        - "Can the behavior be verified with isolated automated tests without booting unrelated infrastructure?"
-        - "Are side effects injected or otherwise controllable during tests?"
-      positiveExamples:
-        - "A service receives a clock and repository port through its constructor for deterministic tests."
-      negativeExamples:
-        - "Business logic reads static global state and makes live network calls directly."
-      remediation: "Introduce seams for time, I/O and collaborators, and reduce hidden shared state."
+      - "testability"
+      - "controlled-behavior"
+      - "automation"

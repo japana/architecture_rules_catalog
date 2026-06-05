@@ -9,6 +9,24 @@ import YAML from "yaml";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const defaultRootDir = path.resolve(__dirname, "..");
+const bannedCoreMarkers = [
+  "quarkus",
+  "spring",
+  "jakarta",
+  "javax",
+  "hibernate",
+  "aspnet",
+  "entityframework",
+  "angular",
+  "react",
+  "vue",
+  "fastapi",
+  "django",
+  "archunit",
+  "eslint",
+  "sonar",
+  "roslyn"
+];
 
 export async function loadYaml(filePath) {
   const content = await fs.readFile(filePath, "utf8");
@@ -35,6 +53,31 @@ function formatAjvErrors(filePath, errors = []) {
 
 function ensureArray(value) {
   return Array.isArray(value) ? value : [];
+}
+
+function visitStrings(value, visitor) {
+  if (typeof value === "string") {
+    visitor(value);
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    for (const entry of value) {
+      visitStrings(entry, visitor);
+    }
+    return;
+  }
+
+  if (value && typeof value === "object") {
+    for (const nested of Object.values(value)) {
+      visitStrings(nested, visitor);
+    }
+  }
+}
+
+function findForbiddenMarker(value) {
+  const lower = value.toLowerCase();
+  return bannedCoreMarkers.find((marker) => lower.includes(marker)) ?? null;
 }
 
 export async function validateCatalog(rootDir = defaultRootDir) {
@@ -79,13 +122,29 @@ export async function validateCatalog(rootDir = defaultRootDir) {
       errors.push(`${ruleSetRef.path}: ruleSetId '${ruleset.ruleSetId}' does not match catalog id '${ruleSetRef.id}'.`);
     }
 
+    visitStrings(ruleset, (text) => {
+      const marker = findForbiddenMarker(text);
+      if (marker) {
+        errors.push(`${ruleSetRef.path}: core catalog must not contain technology-specific marker '${marker}'.`);
+      }
+    });
+
     const ruleIds = new Set();
     for (const rule of ensureArray(ruleset.rules)) {
+      if (rule.abstractionLevel === "technology-profile") {
+        errors.push(`${ruleSetRef.path}: rule '${rule.id}' must not use abstractionLevel 'technology-profile' in the generic core catalog.`);
+      }
+
+      if (ruleIds.has(rule.id)) {
+        errors.push(`${ruleSetRef.path}: duplicate rule id '${rule.id}' within the same ruleset.`);
+      }
+
       if (seenRuleIds.has(rule.id)) {
         errors.push(`${ruleSetRef.path}: duplicate rule id '${rule.id}' also exists in '${seenRuleIds.get(rule.id)}'.`);
       } else {
         seenRuleIds.set(rule.id, ruleSetRef.path);
       }
+
       ruleIds.add(rule.id);
     }
 
@@ -129,6 +188,13 @@ export async function validateCatalog(rootDir = defaultRootDir) {
         errors.push(...formatAjvErrors(path.relative(rootDir, localePath), validateLocale.errors));
       }
 
+      visitStrings(localeDoc, (text) => {
+        const marker = findForbiddenMarker(text);
+        if (marker) {
+          errors.push(`${path.relative(rootDir, localePath)}: core catalog locale content must not contain technology-specific marker '${marker}'.`);
+        }
+      });
+
       if (localeDoc.ruleSetId !== ruleset.ruleSetId) {
         errors.push(`${path.relative(rootDir, localePath)}: ruleSetId '${localeDoc.ruleSetId}' does not match '${ruleset.ruleSetId}'.`);
       }
@@ -149,6 +215,15 @@ export async function validateCatalog(rootDir = defaultRootDir) {
         }
         if (ensureArray(localizedRule.keywords).length === 0) {
           errors.push(`${path.relative(rootDir, localePath)}: localized rule '${localizedRule.id}' must define at least one keyword.`);
+        }
+        if (ensureArray(localizedRule.reviewQuestions).length === 0) {
+          errors.push(`${path.relative(rootDir, localePath)}: localized rule '${localizedRule.id}' must define at least one review question.`);
+        }
+        if (ensureArray(localizedRule.exceptions).length === 0) {
+          errors.push(`${path.relative(rootDir, localePath)}: localized rule '${localizedRule.id}' must define at least one documented exception.`);
+        }
+        if (ensureArray(localizedRule.remediation).length === 0) {
+          errors.push(`${path.relative(rootDir, localePath)}: localized rule '${localizedRule.id}' must define at least one remediation hint.`);
         }
       }
     }

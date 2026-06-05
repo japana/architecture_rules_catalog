@@ -75,3 +75,18 @@ test("validator rejects locale and ruleset id mismatches", async () => {
     assert.ok(errors.some((error) => error.includes("localized rule 'AR-999' does not exist")));
   });
 });
+
+test("validator rejects technology markers in the generic core catalog", async () => {
+  await withCatalogFixture(async (tempDir) => {
+    const rulesetPath = path.join(tempDir, "rulesets", "clean-architecture", "ruleset.yaml");
+    const content = await fs.readFile(rulesetPath, "utf8");
+    const mutated = content.replace(
+      "Business core logic depends on user-interface, persistence, messaging, web, framework, or infrastructure concepts.",
+      "Business core logic depends on Spring infrastructure concepts."
+    );
+    await fs.writeFile(rulesetPath, mutated, "utf8");
+
+    const errors = await validateCatalog(tempDir);
+    assert.ok(errors.some((error) => error.includes("technology-specific marker 'spring'")));
+  });
+});

@@ -13,259 +13,156 @@ rules:
   - id: "AR-101"
     status: "active"
     type: "dependency"
-    severity: "must"
-    enforcementLevel: "blocking"
-    detectability: "static-analysis"
-    priority: 100
-    overridePolicy: "explicit-exception-required"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
     scope:
       - dimension: "architectureStyle"
-        values: ["clean-architecture", "hexagonal"]
-      - dimension: "technology"
-        values: ["java", "kotlin", "spring", "quarkus"]
+        values: ["clean-architecture", "hexagonal", "layered"]
       - dimension: "artifactType"
-        values: ["backend"]
-      - dimension: "criticality"
-        values: ["all"]
-      - dimension: "layer"
-        values: ["domain"]
-    source:
-      type: "book"
-      title: "Clean Architecture"
-      reference: "Robert C. Martin"
-    classification:
-      ruleIntent: "domain-must-not-depend-on-frameworks"
-      decisionImpact: "blocking"
+        values: ["source-code", "module-structure", "architecture-design"]
     appliesTo:
-      packages: ["..domain..", "..core.."]
-      components: ["domain"]
-      artifacts: ["backend"]
-    constraints:
-      - kind: "forbidden-dependency"
-        operator: "forbid"
-        targets:
-          - "org.springframework.."
-          - "io.quarkus.."
-          - "jakarta.persistence.."
-          - "javax.persistence.."
-          - "org.hibernate.."
+      artifactTypes: ["source-code", "module-structure", "architecture-design"]
+      architectureElements: ["domain", "application", "adapter", "infrastructure"]
+    source:
+      type: "architecture-principle"
+      name: "Clean Architecture"
+      reference: "Dependency Rule"
+    violationSignals:
+      - "Business core logic depends on user-interface, persistence, messaging, web, framework, or infrastructure concepts."
+      - "Domain objects require technical runtime concepts in order to be understood, tested, or used."
+      - "Technical annotations, lifecycle assumptions, or base concepts shape the business model."
     relationships:
-      - target: "AR-104"
+      - target: "AR-102"
         type: "supports"
-        rationale: "Ports keep framework-specific persistence and delivery code outside the domain."
-      - target: "AR-106"
-        type: "supports"
-        rationale: "Cross-cutting controls remain outside the business core."
+        rationale: "Technology-independent business logic supports stable dependency direction."
   - id: "AR-102"
     status: "active"
     type: "layering"
-    severity: "must"
-    enforcementLevel: "blocking"
-    detectability: "static-analysis"
-    priority: 95
-    overridePolicy: "explicit-exception-required"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
     scope:
       - dimension: "architectureStyle"
-        values: ["clean-architecture", "hexagonal"]
-      - dimension: "technology"
-        values: ["agnostic"]
+        values: ["clean-architecture", "hexagonal", "layered", "modular-monolith"]
       - dimension: "artifactType"
-        values: ["backend"]
-      - dimension: "criticality"
-        values: ["all"]
-    source:
-      type: "principle"
-      title: "Dependency Rule"
-      reference: "Clean Architecture"
-    classification:
-      ruleIntent: "dependencies-must-point-inward"
-      decisionImpact: "blocking"
+        values: ["source-code", "module-structure", "architecture-design"]
     appliesTo:
-      components: ["domain", "application", "adapters", "infrastructure"]
-      artifacts: ["backend"]
-    constraints:
-      - kind: "required-dependency-direction"
-        operator: "require"
-        targets:
-          - "domain <- application <- interface-adapters <- infrastructure"
-    relationships:
-      - target: "AR-101"
-        type: "supports"
-        rationale: "Inward dependencies protect the framework-independent domain."
+      artifactTypes: ["source-code", "module-structure", "architecture-design"]
+      architectureElements: ["domain", "application", "adapter", "infrastructure", "module"]
+    source:
+      type: "architecture-principle"
+      name: "Dependency Direction"
+      reference: "Stable concepts should not depend on volatile technical concerns."
+    violationSignals:
+      - "Inner business layers depend on outer technical layers."
+      - "Stable business concepts reference volatile technical details."
+      - "Changes in infrastructure or interface concerns force changes in business core logic."
+    relationships: []
   - id: "AR-103"
     status: "active"
     type: "governance"
-    severity: "should"
-    enforcementLevel: "warning"
+    abstractionLevel: "principle"
+    strength: "should"
+    decisionImpact: "warning"
     detectability: "ai-assisted"
-    priority: 80
-    overridePolicy: "more-specific-wins"
     scope:
       - dimension: "architectureStyle"
-        values: ["clean-architecture", "hexagonal"]
-      - dimension: "technology"
-        values: ["agnostic"]
+        values: ["clean-architecture", "hexagonal", "layered"]
       - dimension: "artifactType"
-        values: ["backend"]
-      - dimension: "criticality"
-        values: ["all"]
-      - dimension: "layer"
-        values: ["application"]
-    source:
-      type: "book"
-      title: "Clean Architecture"
-      reference: "Use case interactor guidance"
-    classification:
-      ruleIntent: "application-layer-orchestrates-use-cases"
-      decisionImpact: "non-blocking"
+        values: ["source-code", "module-structure", "architecture-design"]
     appliesTo:
-      components: ["application"]
-      artifacts: ["backend"]
-    constraints:
-      - kind: "allowed-responsibility"
-        operator: "allow"
-        targets:
-          - "use-case orchestration"
-          - "transaction boundary coordination"
-          - "port collaboration"
-      - kind: "forbidden-responsibility"
-        operator: "forbid"
-        targets:
-          - "http handling"
-          - "orm mapping"
-          - "ui composition"
+      artifactTypes: ["source-code", "module-structure", "architecture-design"]
+      architectureElements: ["application", "service", "adapter", "infrastructure"]
+    source:
+      type: "architecture-principle"
+      name: "Use-Case-Centered Application Layer"
+      reference: "Application logic coordinates workflows without absorbing technical concerns."
+    violationSignals:
+      - "Use cases contain concrete technical access details."
+      - "Application logic mixes workflow coordination with infrastructure handling."
+      - "Use cases create or configure concrete adapters directly."
     relationships:
       - target: "AR-105"
-        type: "refines"
-        rationale: "Adapter responsibilities are explicitly separated from application orchestration."
+        type: "relatedTo"
+        rationale: "Clear application boundaries complement thin interface adapters."
   - id: "AR-104"
     status: "active"
     type: "module-boundary"
-    severity: "must"
-    enforcementLevel: "warning"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "warning"
     detectability: "ai-assisted"
-    priority: 90
-    overridePolicy: "higher-priority-wins"
     scope:
       - dimension: "architectureStyle"
-        values: ["clean-architecture", "hexagonal"]
-      - dimension: "technology"
-        values: ["agnostic"]
+        values: ["clean-architecture", "hexagonal", "layered"]
       - dimension: "artifactType"
-        values: ["backend"]
-      - dimension: "criticality"
-        values: ["all"]
-      - dimension: "layer"
-        values: ["infrastructure"]
-    source:
-      type: "principle"
-      title: "Ports and Adapters"
-      reference: "Hexagonal Architecture"
-    classification:
-      ruleIntent: "infrastructure-implements-ports"
-      decisionImpact: "blocking"
+        values: ["source-code", "module-structure", "architecture-design"]
     appliesTo:
-      components: ["infrastructure", "adapters"]
-      artifacts: ["backend"]
-    constraints:
-      - kind: "allowed-responsibility"
-        operator: "allow"
-        targets:
-          - "repository adapter"
-          - "messaging adapter"
-          - "external service adapter"
-      - kind: "forbidden-responsibility"
-        operator: "forbid"
-        targets:
-          - "domain policy ownership"
+      artifactTypes: ["source-code", "module-structure", "architecture-design"]
+      architectureElements: ["application", "adapter", "infrastructure", "external-system"]
+    source:
+      type: "architecture-principle"
+      name: "Ports and Adapters"
+      reference: "Technical infrastructure is connected through business-facing interfaces."
+    violationSignals:
+      - "Business or application layers know concrete infrastructure adapters."
+      - "Adapters define the business-facing interface instead of implementing it."
+      - "Technical integrations bypass declared ports or interfaces."
     relationships:
       - target: "AR-101"
         type: "supports"
-        rationale: "Adapter boundaries keep technical details away from the domain."
+        rationale: "Business-facing interfaces keep technical details away from the business core."
   - id: "AR-105"
     status: "active"
     type: "api"
-    severity: "should"
-    enforcementLevel: "warning"
+    abstractionLevel: "principle"
+    strength: "should"
+    decisionImpact: "warning"
     detectability: "ai-assisted"
-    priority: 75
-    overridePolicy: "more-specific-wins"
     scope:
       - dimension: "architectureStyle"
-        values: ["clean-architecture", "hexagonal"]
-      - dimension: "technology"
-        values: ["web", "rest", "ui"]
+        values: ["clean-architecture", "hexagonal", "layered", "distributed-system"]
       - dimension: "artifactType"
-        values: ["backend", "frontend"]
-      - dimension: "criticality"
-        values: ["all"]
-      - dimension: "layer"
-        values: ["interface-adapters"]
-    source:
-      type: "book"
-      title: "Clean Architecture"
-      reference: "Interface adapters"
-    classification:
-      ruleIntent: "adapters-avoid-business-policy"
-      decisionImpact: "non-blocking"
+        values: ["source-code", "api-contract", "architecture-design"]
     appliesTo:
-      components: ["controllers", "presenters", "resources", "ui-adapters"]
-      artifacts: ["backend", "frontend"]
-    constraints:
-      - kind: "allowed-responsibility"
-        operator: "allow"
-        targets:
-          - "dto mapping"
-          - "request normalization"
-          - "response shaping"
-      - kind: "forbidden-responsibility"
-        operator: "forbid"
-        targets:
-          - "business decision"
-          - "policy branching"
-    relationships:
-      - target: "AR-103"
-        type: "supports"
-        rationale: "Thin adapters preserve use-case orchestration boundaries."
+      artifactTypes: ["source-code", "api-contract", "architecture-design"]
+      architectureElements: ["adapter", "interface", "application"]
+    source:
+      type: "architecture-principle"
+      name: "Interface Adapters"
+      reference: "Adapters translate between outer and inner models."
+    violationSignals:
+      - "Controllers, presenters, UI adapters, or API adapters make business decisions."
+      - "Mapping logic contains business rules."
+      - "Changes to external interfaces change business behavior."
+    relationships: []
   - id: "AR-106"
     status: "active"
     type: "operations"
-    severity: "must"
-    enforcementLevel: "warning"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "warning"
     detectability: "ai-assisted"
-    priority: 85
-    overridePolicy: "explicit-exception-required"
     scope:
       - dimension: "architectureStyle"
-        values: ["clean-architecture", "hexagonal"]
-      - dimension: "technology"
-        values: ["agnostic"]
+        values: ["clean-architecture", "hexagonal", "layered", "distributed-system"]
       - dimension: "artifactType"
-        values: ["backend"]
-      - dimension: "criticality"
-        values: ["all"]
-      - dimension: "layer"
-        values: ["domain"]
-    source:
-      type: "principle"
-      title: "Cross-Cutting Concerns"
-      reference: "Clean Architecture"
-    classification:
-      ruleIntent: "cross-cutting-concerns-stay-outside-domain"
-      decisionImpact: "blocking"
+        values: ["source-code", "runtime-operation", "architecture-design"]
     appliesTo:
-      components: ["domain"]
-      artifacts: ["backend"]
-    constraints:
-      - kind: "forbidden-responsibility"
-        operator: "forbid"
-        targets:
-          - "logging"
-          - "tracing"
-          - "security enforcement"
-          - "cache coordination"
-          - "transaction control"
+      artifactTypes: ["source-code", "runtime-operation", "architecture-design"]
+      architectureElements: ["domain", "application", "adapter", "infrastructure"]
+    source:
+      type: "architecture-principle"
+      name: "Cross-Cutting Concern Placement"
+      reference: "Technical cross-cutting concerns should not dominate business core logic."
+    violationSignals:
+      - "Logging, tracing, security enforcement, caching, or transaction control dominate business core logic."
+      - "Business objects depend on technical cross-cutting services to fulfill their core purpose."
+      - "Technical policies are hard to distinguish from business rules."
     relationships:
       - target: "AR-101"
         type: "supports"
-        rationale: "Keeping cross-cutting concerns outside the domain reinforces isolation."
+        rationale: "Keeping cross-cutting concerns out of the business core preserves business independence."

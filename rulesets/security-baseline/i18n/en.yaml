@@ -1,7 +1,7 @@
 ruleSetId: "security-baseline"
 locale: "en"
 name: "Security Baseline"
-description: "Rule set for secure defaults, access control, secret protection and auditable security events with operational review guidance."
+description: "Generic rule set for secret protection, access control, input handling, auditability, and secure defaults."
 category: "Security"
 compatibility: "Language-agnostic"
 tags:
@@ -10,112 +10,170 @@ tags:
   - "Hardening"
 rules:
   - id: "AR-301"
-    title: "Secrets Never Live In Source Repositories"
-    content: "Passwords, API keys, tokens, private keys and similar secrets must not be stored in source code, sample files, logs or build artifacts."
+    title: "Secrets Never End Up in Versioned, Delivered, or Logged Artifacts"
+    summary: "Secrets must not appear in versioned files, delivered artifacts, sample assets, or logs."
+    content: "Passwords, API keys, tokens, private keys, and similar secrets must be handled so they do not leak into repositories, sample files, test data, logs, build outputs, or published documentation."
+    rationale: "Secret leakage creates immediate operational and security risk, and often spreads quickly through systems and history."
+    reviewQuestions:
+      - "Could a credential or secret be exposed through versioned files, examples, logs, or artifacts?"
+      - "Are placeholder values clearly separated from real access data?"
+      - "Would a routine troubleshooting path accidentally reveal secret material?"
+    positiveExamples:
+      - "Secrets are loaded from a controlled source and are masked in diagnostic output."
+      - "Sample configuration uses obviously fake placeholders rather than realistic live values."
+    negativeExamples:
+      - "A repository, sample asset, or test fixture contains a live or realistic secret."
+      - "Logs or build outputs can expose confidential access material."
+    exceptions:
+      - "Illustrative fake tokens may appear in documentation when they are clearly synthetic and unusable."
+    remediation:
+      - "Move secrets to a managed or locally ignored secret source."
+      - "Replace committed values with obvious placeholders."
+      - "Mask or suppress secret material in logs and generated artifacts."
     tags:
       - "Secrets"
       - "CredentialManagement"
     keywords:
-      - "api-key"
-      - "password"
-      - "token"
-    aiGuidance:
-      reviewQuestions:
-        - "Could a credential or secret value be committed, logged or shipped in an artifact?"
-        - "Are placeholders, examples and local environment files clearly separated from real secrets?"
-      positiveExamples:
-        - "An application loads secrets from a managed secret store and masks them in logs."
-      negativeExamples:
-        - "An .env.example file contains a live API key or a debug log prints a bearer token."
-      remediation: "Move secrets to a secret manager or local ignored config, replace committed values with placeholders and mask log output."
+      - "secret-leakage"
+      - "credentials"
+      - "artifacts"
   - id: "AR-302"
-    title: "Authentication And Authorization Are Separated"
-    content: "Identity verification and permission decisions should be modeled as separate responsibilities so that business permissions are not inferred implicitly from login state."
+    title: "Authentication and Authorization Are Separate Responsibilities"
+    summary: "Proving identity and deciding permissions must remain distinct concerns."
+    content: "Identity proof and permission decisions should be modeled separately so that successful authentication does not silently imply business permissions or access scope."
+    rationale: "Conflating identity and permission makes access control harder to reason about and easier to widen unintentionally."
+    reviewQuestions:
+      - "Is identity proof clearly separated from permission checks?"
+      - "Can business permissions be granted only through explicit authorization decisions?"
+      - "Would a successful sign-in accidentally imply more access than intended?"
+    positiveExamples:
+      - "A system verifies identity through one mechanism and checks business permissions through another explicit decision path."
+      - "Access scope is derived from deliberate entitlement rules rather than from sign-in alone."
+    negativeExamples:
+      - "A successful sign-in is treated as sufficient permission for business-critical actions."
+      - "Authorization decisions are implied rather than checked explicitly."
+    exceptions:
+      - "A narrowly scoped low-risk operation may reuse identity proof as permission only when the risk and rationale are explicit and documented."
+    remediation:
+      - "Introduce explicit authorization checks or policy evaluation."
+      - "Separate identity handling from permission decisions in design and implementation."
+      - "Document which business capabilities require deliberate authorization."
     tags:
       - "Authentication"
       - "Authorization"
     keywords:
       - "authn"
       - "authz"
-      - "least-privilege"
-    aiGuidance:
-      reviewQuestions:
-        - "Is identity verification separated from permission evaluation in code and design?"
-        - "Can a valid session accidentally grant business rights without an explicit policy check?"
-      positiveExamples:
-        - "A service checks identity through one component and evaluates permissions through a policy service."
-      negativeExamples:
-        - "A controller treats any authenticated user as automatically authorized for admin actions."
-      remediation: "Introduce an explicit authorization layer or policy check instead of inferring rights from authentication state."
+      - "access-control"
   - id: "AR-303"
-    title: "External Input Is Validated At System Boundaries"
-    content: "External inputs from HTTP, messaging, CLI, files or integrations should be validated, normalized and rejected in a controlled way at the system boundary."
+    title: "External Input Is Validated, Normalized, and Rejected at the Boundary"
+    summary: "External input should be checked and normalized before it reaches deeper business handling."
+    content: "Input from outside the trust boundary should be validated, normalized, and rejected in a controlled way before it can influence business logic, storage, or downstream integrations."
+    rationale: "Boundary validation prevents inconsistent behavior, reduces attack surface, and keeps inner layers focused on business rules."
+    reviewQuestions:
+      - "Does untrusted input cross into inner layers without a clear validation step?"
+      - "Is invalid input rejected consistently and deliberately?"
+      - "Are normalization and contract checks placed close to the boundary?"
+    positiveExamples:
+      - "Boundary-facing models are checked and normalized before application logic consumes them."
+      - "Invalid input is rejected predictably rather than producing implicit downstream behavior."
+    negativeExamples:
+      - "Untrusted input reaches business logic or persistence without prior checks."
+      - "Validation is scattered through inner layers instead of happening at the boundary."
+    exceptions:
+      - "A trusted internal handoff may reuse a previously validated contract if that trust boundary is explicit and preserved."
+    remediation:
+      - "Add validation and normalization at the system boundary."
+      - "Reject invalid input through explicit, reviewable behavior."
+      - "Keep business rules separate from trust-boundary checking."
     tags:
       - "Validation"
       - "Boundary"
     keywords:
       - "input-validation"
-      - "contracts"
-    aiGuidance:
-      reviewQuestions:
-        - "Is every untrusted input validated before it reaches business logic?"
-        - "Are invalid payloads rejected in a controlled and observable way?"
-      positiveExamples:
-        - "A request DTO is schema-validated and normalized before invoking the use case."
-      negativeExamples:
-        - "Raw request fields pass directly into SQL building or filesystem paths."
-      remediation: "Add boundary validation, normalization and explicit rejection paths before business processing."
+      - "normalization"
+      - "trust-boundary"
   - id: "AR-304"
-    title: "Least Privilege Applies To Users And Services"
-    content: "Users, service identities and background processes should receive only the minimum permissions required, scoped as tightly as possible."
+    title: "Least Privilege Applies to People, Services, and Processes"
+    summary: "Every actor should receive only the permissions required for its purpose."
+    content: "People, service identities, and automated processes should receive the narrowest practical permissions required for their responsibility and operating context."
+    rationale: "Over-broad permissions enlarge the blast radius of mistakes, abuse, and compromise."
+    reviewQuestions:
+      - "Is each actor granted only the access needed for its responsibility?"
+      - "Are elevated permissions broader or longer-lived than necessary?"
+      - "Is the granted access scope justified and understandable?"
+    positiveExamples:
+      - "An identity receives only the permissions needed for one bounded responsibility."
+      - "Higher-risk access is deliberately scoped and justified."
+    negativeExamples:
+      - "A technical identity has broad standing access for convenience."
+      - "The rationale for granted permissions is unclear or missing."
+    exceptions:
+      - "Short-term elevated access may be acceptable when it is time-bounded, justified, and traceable."
+    remediation:
+      - "Reduce permissions to the smallest workable scope."
+      - "Split broad identities into narrower responsibilities."
+      - "Document and review elevated access paths explicitly."
     tags:
       - "Permissions"
-      - "ServiceAccounts"
+      - "LeastPrivilege"
     keywords:
       - "minimum-rights"
-      - "scoped-access"
-    aiGuidance:
-      reviewQuestions:
-        - "Do accounts and services have only the permissions needed for their current responsibility?"
-        - "Are broad wildcard permissions or long-lived elevated roles avoided?"
-      positiveExamples:
-        - "A batch job uses a dedicated service account limited to one storage bucket."
-      negativeExamples:
-        - "One shared admin credential is used by all automation jobs."
-      remediation: "Split identities by responsibility and reduce permissions to the smallest workable scope."
+      - "access-scope"
+      - "blast-radius"
   - id: "AR-305"
-    title: "Security Relevant Events Are Auditable"
-    content: "Authentication events, permission changes, secret rotation and security-relevant configuration changes should be logged in an auditable way."
+    title: "Security-Relevant Events Are Auditable"
+    summary: "Important security actions should be traceable without exposing excessive sensitive data."
+    content: "Security-relevant events such as sign-in outcomes, permission changes, secret handling, and sensitive configuration changes should be recorded in a way that supports trustworthy reconstruction and review."
+    rationale: "Without usable audit trails, security incidents and high-risk changes become harder to detect, explain, and contain."
+    reviewQuestions:
+      - "Can important security actions be reconstructed from available audit information?"
+      - "Does audit data include actor, time, target, and outcome?"
+      - "Is sensitive information controlled so that audit data remains useful but not overexposed?"
+    positiveExamples:
+      - "Security-relevant changes produce traceable records with enough context for review."
+      - "Audit information balances traceability with protection of sensitive content."
+    negativeExamples:
+      - "High-risk actions leave no usable audit trail."
+      - "Audit output either omits critical context or exposes excessive sensitive data."
+    exceptions:
+      - "Very low-risk local development paths may produce lighter audit detail when they cannot affect shared environments or real data."
+    remediation:
+      - "Record actor, time, target, and outcome for security-relevant actions."
+      - "Protect or mask sensitive data in audit output."
+      - "Make audit information durable enough for later review."
     tags:
       - "Audit"
-      - "Observability"
+      - "Traceability"
     keywords:
-      - "audit-log"
+      - "auditability"
+      - "security-events"
       - "traceability"
-    aiGuidance:
-      reviewQuestions:
-        - "Can important security actions be reconstructed after the fact from logs or audit trails?"
-        - "Do logs capture actor, action and outcome without leaking sensitive data?"
-      positiveExamples:
-        - "An admin permission change writes an audit record with actor, target and timestamp."
-      negativeExamples:
-        - "Credential rotation happens silently with no traceable event."
-      remediation: "Add structured audit events for security-sensitive actions and ensure sensitive values stay masked."
   - id: "AR-306"
-    title: "Secure Defaults Override Convenience"
-    content: "Unsafe exception paths such as test bypasses, open debug endpoints or global full access must be disabled by default."
+    title: "Secure Defaults Win Over Convenience"
+    summary: "The safer configuration should be the default, and risky modes must require conscious activation."
+    content: "Unsafe exception paths, broad access modes, and reduced protections should not be the default operating state. Riskier behavior must require conscious, explicit activation."
+    rationale: "Secure defaults reduce accidental exposure and make the safer path the easiest one to follow."
+    reviewQuestions:
+      - "Does a fresh deployment start in the safer operating mode?"
+      - "Do risky capabilities require explicit activation?"
+      - "Is the insecure path easier to use than the secure one?"
+    positiveExamples:
+      - "Higher-risk behavior is available only through explicit and reviewable activation."
+      - "The default operating mode minimizes exposure and privilege."
+    negativeExamples:
+      - "Bypass or debugging behavior is active by default."
+      - "The easiest path to use is also the less secure path."
+    exceptions:
+      - "A tightly isolated local-only development setup may enable riskier defaults when the scope and isolation are explicit."
+    remediation:
+      - "Turn risky behavior into explicit opt-in."
+      - "Make the safer path the default path."
+      - "Document why any risky mode exists and how it is controlled."
     tags:
       - "Defaults"
       - "Hardening"
     keywords:
-      - "safe-defaults"
+      - "secure-defaults"
       - "opt-in-risk"
-    aiGuidance:
-      reviewQuestions:
-        - "Would a fresh deployment start in the safest reasonable mode without extra hardening?"
-        - "Are risky capabilities gated behind explicit opt-in rather than enabled implicitly?"
-      positiveExamples:
-        - "A debug endpoint is disabled unless a local-only development flag is turned on."
-      negativeExamples:
-        - "A production build ships with a test bypass or unrestricted admin mode enabled."
-      remediation: "Flip risky defaults off, require explicit opt-in and document the approved escape hatch."
+      - "safe-baseline"

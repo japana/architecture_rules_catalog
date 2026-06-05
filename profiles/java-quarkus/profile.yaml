@@ -1,0 +1,50 @@
+profileId: "java-quarkus"
+schemaVersion: "ruleset-profile-v1"
+status: "draft"
+displayName: "Java Quarkus Profile"
+description: "Framework-specific mappings for applying the generic architecture catalog in Quarkus-based Java systems."
+baseRuleSets:
+  - "clean-architecture"
+  - "clean-code"
+  - "security-baseline"
+dependsOnProfiles:
+  - "java"
+technology:
+  language: "java"
+  framework: "quarkus"
+  runtime: "jvm"
+mappings:
+  - ruleId: "AR-101"
+    detectionHints:
+      forbiddenDependencyPatterns:
+        - "io.quarkus.."
+        - "jakarta.persistence.."
+        - "jakarta.ws.rs.."
+      indicativeAnnotations:
+        - "@ApplicationScoped inside domain packages"
+        - "@Entity inside domain packages"
+        - "@Path inside domain packages"
+      recommendedTools:
+        - "ArchUnit"
+      notes:
+        - "Domain classes should not depend on Quarkus lifecycle, JAX-RS delivery, or JPA persistence annotations."
+  - ruleId: "AR-103"
+    detectionHints:
+      forbiddenDependencyPatterns:
+        - "io.quarkus.hibernate.orm.panache.."
+      concreteComponentPatterns:
+        - "Panache entity or repository access directly inside use-case classes"
+      recommendedTools:
+        - "ArchUnit"
+      notes:
+        - "Use cases should orchestrate ports rather than perform direct Panache-driven persistence logic."
+  - ruleId: "AR-303"
+    detectionHints:
+      indicativeAnnotations:
+        - "@Path parameter or request body types reaching business logic without validation"
+        - "@Valid missing on boundary DTOs where bean validation is expected"
+      recommendedTools:
+        - "REST-assured"
+        - "Bean Validation"
+      notes:
+        - "Validate and normalize JAX-RS boundary models before they reach application or domain services."

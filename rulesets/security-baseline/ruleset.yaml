@@ -13,211 +13,150 @@ rules:
   - id: "AR-301"
     status: "active"
     type: "security"
-    severity: "must"
-    enforcementLevel: "blocking"
-    detectability: "static-analysis"
-    priority: 100
-    overridePolicy: "explicit-exception-required"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "blocking"
+    detectability: "ai-assisted"
     scope:
-      - dimension: "technology"
-        values: ["agnostic"]
       - dimension: "artifactType"
-        values: ["backend", "frontend", "ci", "infrastructure"]
+        values: ["source-code", "configuration", "build-pipeline", "runtime-operation", "documentation", "test-artifact"]
       - dimension: "criticality"
-        values: ["all", "security-sensitive"]
-    source:
-      type: "practice"
-      title: "Secret Management Baseline"
-      reference: "OWASP and operational hardening practices"
-    classification:
-      ruleIntent: "secrets-never-live-in-repositories-or-logs"
-      decisionImpact: "blocking"
+        values: ["security-sensitive", "business-critical"]
     appliesTo:
-      components: ["repositories", "pipelines", "logs", "sample files"]
-      artifacts: ["backend", "frontend", "ci", "infrastructure"]
-    constraints:
-      - kind: "secret-handling"
-        operator: "forbid"
-        targets:
-          - "committed credentials"
-          - "secrets in example files"
-          - "secrets in logs"
-          - "secrets in build artifacts"
-    relationships:
-      - target: "AR-306"
-        type: "supports"
-        rationale: "Secure defaults reduce accidental secret disclosure paths."
+      artifactTypes: ["source-code", "configuration", "build-pipeline", "runtime-operation", "documentation", "test-artifact"]
+      architectureElements: ["service", "interface", "external-system", "deployment"]
+    source:
+      type: "security-principle"
+      name: "Secret Protection"
+      reference: "Secrets must not leak into versioned, delivered, or logged artifacts."
+    violationSignals:
+      - "Passwords, API keys, tokens, or private keys are present in versioned files."
+      - "Sample configurations contain real or realistic secrets."
+      - "Logs, documentation, or build artifacts can expose confidential access data."
+    relationships: []
   - id: "AR-302"
     status: "active"
     type: "security"
-    severity: "must"
-    enforcementLevel: "warning"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "blocking"
     detectability: "ai-assisted"
-    priority: 90
-    overridePolicy: "explicit-exception-required"
     scope:
-      - dimension: "technology"
-        values: ["agnostic"]
       - dimension: "artifactType"
-        values: ["backend", "frontend"]
+        values: ["source-code", "architecture-design", "api-contract", "runtime-operation"]
       - dimension: "criticality"
-        values: ["security-sensitive", "all"]
-    source:
-      type: "principle"
-      title: "Access Control Principles"
-      reference: "Separate authentication and authorization concerns"
-    classification:
-      ruleIntent: "authentication-and-authorization-stay-separate"
-      decisionImpact: "blocking"
+        values: ["security-sensitive", "business-critical"]
     appliesTo:
-      components: ["identity providers", "policy engines", "application services"]
-      artifacts: ["backend", "frontend"]
-    constraints:
-      - kind: "allowed-responsibility"
-        operator: "allow"
-        targets:
-          - "identity verification"
-          - "explicit permission checks"
-      - kind: "forbidden-responsibility"
-        operator: "forbid"
-        targets:
-          - "implicit role inference from login state"
+      artifactTypes: ["source-code", "architecture-design", "api-contract", "runtime-operation"]
+      architectureElements: ["service", "application", "interface", "external-system"]
+    source:
+      type: "security-principle"
+      name: "Authentication And Authorization Separation"
+      reference: "Identity proof and permission decisions are different responsibilities."
+    violationSignals:
+      - "A successful login automatically implies business permissions."
+      - "Roles, entitlements, or tenant access are not checked explicitly."
+      - "Authentication state is confused with authorization."
     relationships:
       - target: "AR-304"
         type: "supports"
-        rationale: "Separated authorization logic enables least-privilege decisions."
+        rationale: "Separated authorization logic helps enforce least privilege deliberately."
   - id: "AR-303"
     status: "active"
     type: "api"
-    severity: "must"
-    enforcementLevel: "blocking"
-    detectability: "runtime"
-    priority: 95
-    overridePolicy: "explicit-exception-required"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "blocking"
+    detectability: "ai-assisted"
     scope:
-      - dimension: "technology"
-        values: ["http", "messaging", "cli", "files"]
       - dimension: "artifactType"
-        values: ["backend", "frontend", "integrations"]
+        values: ["source-code", "api-contract", "configuration", "runtime-operation", "test-artifact"]
       - dimension: "criticality"
-        values: ["all", "security-sensitive"]
-    source:
-      type: "practice"
-      title: "Secure Input Handling"
-      reference: "Validate at trust boundaries"
-    classification:
-      ruleIntent: "external-input-is-validated-at-boundaries"
-      decisionImpact: "blocking"
+        values: ["any", "security-sensitive", "business-critical"]
     appliesTo:
-      components: ["controllers", "consumers", "cli handlers", "file importers"]
-      artifacts: ["backend", "frontend", "integrations"]
-    constraints:
-      - kind: "boundary-validation"
-        operator: "require"
-        targets:
-          - "schema validation"
-          - "normalization"
-          - "controlled rejection"
+      artifactTypes: ["source-code", "api-contract", "configuration", "runtime-operation", "test-artifact"]
+      architectureElements: ["interface", "adapter", "application", "external-system"]
+    source:
+      type: "security-principle"
+      name: "Boundary Validation"
+      reference: "External input should be validated, normalized, and rejected in a controlled way."
+    violationSignals:
+      - "Unchecked external input reaches business logic or persistence."
+      - "Validation happens inconsistently across inner layers."
+      - "Invalid input leads to implicit behavior instead of controlled rejection."
+    relationships: []
   - id: "AR-304"
     status: "active"
     type: "security"
-    severity: "must"
-    enforcementLevel: "warning"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "warning"
     detectability: "process"
-    priority: 85
-    overridePolicy: "higher-priority-wins"
     scope:
-      - dimension: "technology"
-        values: ["agnostic"]
       - dimension: "artifactType"
-        values: ["backend", "frontend", "infrastructure"]
+        values: ["architecture-design", "configuration", "runtime-operation", "documentation"]
       - dimension: "criticality"
-        values: ["security-sensitive", "all"]
-    source:
-      type: "principle"
-      title: "Least Privilege"
-      reference: "Grant minimal required access"
-    classification:
-      ruleIntent: "least-privilege-applies-to-users-and-services"
-      decisionImpact: "blocking"
+        values: ["security-sensitive", "business-critical", "operationally-critical"]
     appliesTo:
-      components: ["users", "service accounts", "background jobs"]
-      artifacts: ["backend", "frontend", "infrastructure"]
-    constraints:
-      - kind: "allowed-responsibility"
-        operator: "require"
-        targets:
-          - "scoped permissions"
-          - "time-bound elevated access"
-      - kind: "forbidden-responsibility"
-        operator: "forbid"
-        targets:
-          - "global wildcard access"
+      artifactTypes: ["architecture-design", "configuration", "runtime-operation", "documentation"]
+      architectureElements: ["service", "external-system", "deployment"]
+    source:
+      type: "security-principle"
+      name: "Least Privilege"
+      reference: "Actors should receive only the permissions they truly need."
+    violationSignals:
+      - "Technical identities have global or persistently elevated permissions."
+      - "Permissions are granted more broadly than necessary for convenience."
+      - "The granted level of access has no clear rationale."
+    relationships: []
   - id: "AR-305"
     status: "active"
     type: "operations"
-    severity: "should"
-    enforcementLevel: "warning"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "warning"
     detectability: "runtime"
-    priority: 70
-    overridePolicy: "more-specific-wins"
     scope:
-      - dimension: "technology"
-        values: ["agnostic"]
       - dimension: "artifactType"
-        values: ["backend", "ci", "infrastructure"]
+        values: ["source-code", "configuration", "runtime-operation", "documentation"]
       - dimension: "criticality"
-        values: ["security-sensitive", "all"]
-    source:
-      type: "practice"
-      title: "Auditability"
-      reference: "Log security-relevant changes"
-    classification:
-      ruleIntent: "security-relevant-events-are-auditable"
-      decisionImpact: "non-blocking"
+        values: ["security-sensitive", "business-critical", "operationally-critical"]
     appliesTo:
-      components: ["auth flows", "admin APIs", "rotation jobs", "config changes"]
-      artifacts: ["backend", "ci", "infrastructure"]
-    constraints:
-      - kind: "logging-control"
-        operator: "require"
-        targets:
-          - "authentication event logging"
-          - "permission change logging"
-          - "secret rotation logging"
+      artifactTypes: ["source-code", "configuration", "runtime-operation", "documentation"]
+      architectureElements: ["service", "deployment", "external-system"]
+    source:
+      type: "security-principle"
+      name: "Auditability"
+      reference: "Security-relevant events should be understandable and traceable."
+    violationSignals:
+      - "Permission changes, login events, or security-relevant configuration changes are not traceable."
+      - "Audit information lacks actor, time, target object, or outcome."
+      - "Audit logs contain excessive sensitive data or can be changed without control."
+    relationships: []
   - id: "AR-306"
     status: "active"
     type: "governance"
-    severity: "must"
-    enforcementLevel: "warning"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "blocking"
     detectability: "process"
-    priority: 88
-    overridePolicy: "explicit-exception-required"
     scope:
-      - dimension: "technology"
-        values: ["agnostic"]
       - dimension: "artifactType"
-        values: ["backend", "frontend", "ci", "infrastructure"]
+        values: ["configuration", "build-pipeline", "runtime-operation", "documentation"]
       - dimension: "criticality"
-        values: ["all", "security-sensitive"]
-    source:
-      type: "principle"
-      title: "Secure By Default"
-      reference: "Unsafe paths require explicit opt-in"
-    classification:
-      ruleIntent: "secure-defaults-override-convenience"
-      decisionImpact: "blocking"
+        values: ["security-sensitive", "business-critical", "operationally-critical"]
     appliesTo:
-      components: ["feature flags", "config defaults", "debug endpoints"]
-      artifacts: ["backend", "frontend", "ci", "infrastructure"]
-    constraints:
-      - kind: "default-state"
-        operator: "require"
-        targets:
-          - "debug endpoints disabled"
-          - "privileged bypasses disabled"
-          - "unsafe flags opt-in"
+      artifactTypes: ["configuration", "build-pipeline", "runtime-operation", "documentation"]
+      architectureElements: ["deployment", "service", "external-system", "interface"]
+    source:
+      type: "security-principle"
+      name: "Secure Defaults"
+      reference: "The safer operating mode should be the default."
+    violationSignals:
+      - "Debug, test, or bypass capabilities are enabled by default."
+      - "Global access or open interfaces are available without explicit activation."
+      - "Unsafe operating modes are easier to use than safer ones."
     relationships:
       - target: "AR-301"
         type: "supports"
-        rationale: "Safe defaults prevent accidental exposure channels for secrets."
+        rationale: "Safe defaults reduce the chance of accidental exposure of sensitive access data."

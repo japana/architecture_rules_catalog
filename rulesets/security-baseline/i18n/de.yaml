@@ -1,7 +1,7 @@
 ruleSetId: "security-baseline"
 locale: "de"
 name: "Security Baseline"
-description: "Regelwerk für sichere Defaults, Zugriffskontrolle, Secret-Schutz und auditierbare Sicherheitsereignisse mit konkreter Review-Hilfe."
+description: "Generisches Regelwerk für Secret-Schutz, Zugriffskontrolle, Eingabebehandlung, Auditierbarkeit und sichere Defaults."
 category: "Sicherheit"
 compatibility: "Sprachunabhängig"
 tags:
@@ -10,112 +10,170 @@ tags:
   - "Härtung"
 rules:
   - id: "AR-301"
-    title: "Secrets gehören nie in Quellcode-Repositories"
-    content: "Passwörter, API-Keys, Token, Private Keys und vergleichbare Secrets dürfen nicht im Quellcode, in Beispieldateien, Logs oder Build-Artefakten abgelegt werden."
+    title: "Secrets landen nie in versionierten, ausgelieferten oder protokollierten Artefakten"
+    summary: "Secrets dürfen nicht in versionierten Dateien, ausgelieferten Artefakten, Beispielassets oder Logs auftauchen."
+    content: "Passwörter, API-Keys, Token, private Schlüssel und ähnliche Secrets müssen so behandelt werden, dass sie nicht in Repositories, Beispieldateien, Testdaten, Logs, Build-Ergebnissen oder veröffentlichter Dokumentation landen."
+    rationale: "Secret-Leaks erzeugen unmittelbare operative und sicherheitliche Risiken und verbreiten sich oft schnell über Systeme und Historie."
+    reviewQuestions:
+      - "Kann ein Zugangswert oder Secret über versionierte Dateien, Beispiele, Logs oder Artefakte offengelegt werden?"
+      - "Sind Platzhalterwerte klar von echten Zugangsdaten getrennt?"
+      - "Würde ein typischer Troubleshooting-Pfad versehentlich Secret-Material preisgeben?"
+    positiveExamples:
+      - "Secrets werden aus einer kontrollierten Quelle geladen und in Diagnoseausgaben maskiert."
+      - "Beispielkonfiguration nutzt klar erkennbare Fake-Platzhalter statt realistisch wirkender Live-Werte."
+    negativeExamples:
+      - "Ein Repository, Beispielasset oder Test-Fixture enthält ein echtes oder echt wirkendes Secret."
+      - "Logs oder Build-Ausgaben können vertrauliches Zugangsmaterial offenlegen."
+    exceptions:
+      - "Illustrative Fake-Tokens dürfen in Dokumentation erscheinen, wenn sie klar synthetisch und unbrauchbar sind."
+    remediation:
+      - "Secrets in eine verwaltete oder lokal ignorierte Secret-Quelle verschieben."
+      - "Committete Werte durch eindeutige Platzhalter ersetzen."
+      - "Secret-Material in Logs und generierten Artefakten maskieren oder unterdrücken."
     tags:
       - "Secrets"
       - "CredentialManagement"
     keywords:
-      - "api-key"
-      - "passwort"
-      - "token"
-    aiGuidance:
-      reviewQuestions:
-        - "Kann ein Zugangswert oder Secret versehentlich committet, geloggt oder mit Artefakten ausgeliefert werden?"
-        - "Sind Platzhalter, Beispiele und lokale Umgebungsdateien klar von echten Secrets getrennt?"
-      positiveExamples:
-        - "Eine Anwendung lädt Secrets aus einem Secret Store und maskiert sie in Logs."
-      negativeExamples:
-        - "Eine .env.example-Datei enthält einen echten API-Key oder ein Debug-Log druckt ein Bearer-Token aus."
-      remediation: "Verschiebe Secrets in Secret-Manager oder lokal ignorierte Konfiguration, ersetze committete Werte durch Platzhalter und maskiere Logausgaben."
+      - "secret-leakage"
+      - "zugangsdaten"
+      - "artefakte"
   - id: "AR-302"
-    title: "Authentifizierung und Autorisierung sind getrennt"
-    content: "Identitätsprüfung und Rechteentscheidung sollen als getrennte Verantwortungen modelliert werden, damit Fachrechte nicht implizit aus Login-Zuständen abgeleitet werden."
+    title: "Authentifizierung und Autorisierung sind getrennte Verantwortungen"
+    summary: "Identitätsprüfung und Berechtigungsentscheidung müssen getrennte Belange bleiben."
+    content: "Identitätsprüfung und Berechtigungsentscheidung sollen getrennt modelliert werden, damit erfolgreiche Authentifizierung nicht stillschweigend fachliche Berechtigungen oder Zugriffsumfang impliziert."
+    rationale: "Wenn Identität und Berechtigung vermischt werden, wird Zugriffskontrolle schwerer nachvollziehbar und leichter versehentlich aufgeweitet."
+    reviewQuestions:
+      - "Ist Identitätsprüfung klar von Berechtigungsprüfungen getrennt?"
+      - "Können fachliche Berechtigungen nur über explizite Autorisierungsentscheidungen gewährt werden?"
+      - "Würde ein erfolgreicher Login versehentlich mehr Zugriff implizieren als beabsichtigt?"
+    positiveExamples:
+      - "Ein System prüft Identität über einen Mechanismus und fachliche Berechtigungen über einen separaten expliziten Entscheidungsweg."
+      - "Zugriffsumfang wird aus bewussten Berechtigungsregeln abgeleitet und nicht nur aus dem Login."
+    negativeExamples:
+      - "Ein erfolgreicher Login gilt automatisch als ausreichende Berechtigung für fachkritische Aktionen."
+      - "Autorisierungsentscheidungen werden impliziert statt explizit geprüft."
+    exceptions:
+      - "Eine eng begrenzte risikoarme Operation kann Identitätsprüfung ausnahmsweise als Berechtigung wiederverwenden, wenn Risiko und Begründung explizit dokumentiert sind."
+    remediation:
+      - "Explizite Autorisierungsprüfungen oder Policy-Auswertung einführen."
+      - "Identitätsbehandlung in Design und Implementierung von Berechtigungsentscheidungen trennen."
+      - "Dokumentieren, welche fachlichen Fähigkeiten bewusste Autorisierung erfordern."
     tags:
       - "Authentifizierung"
       - "Autorisierung"
     keywords:
       - "authn"
       - "authz"
-      - "least-privilege"
-    aiGuidance:
-      reviewQuestions:
-        - "Sind Identitätsprüfung und Berechtigungsentscheidung in Code und Design getrennt?"
-        - "Kann eine gültige Session versehentlich Fachrechte verleihen, ohne dass eine explizite Policy geprüft wird?"
-      positiveExamples:
-        - "Ein Service prüft Identität über eine Komponente und Berechtigungen über einen Policy-Service."
-      negativeExamples:
-        - "Ein Controller behandelt jeden authentifizierten Benutzer automatisch als für Admin-Aktionen berechtigt."
-      remediation: "Führe eine explizite Autorisierungsschicht oder Policy-Prüfung ein, statt Rechte aus Authentifizierungszustand abzuleiten."
+      - "zugriffskontrolle"
   - id: "AR-303"
-    title: "Externe Eingaben werden an Systemgrenzen validiert"
-    content: "Externe Eingaben aus HTTP, Messaging, CLI, Dateien oder Integrationen sollen an der Grenze validiert, normalisiert und bei Verstößen kontrolliert abgewiesen werden."
+    title: "Externe Eingaben werden an der Grenze validiert, normalisiert und kontrolliert abgewiesen"
+    summary: "Externe Eingaben sollen geprüft und normalisiert werden, bevor sie tiefere fachliche Verarbeitung erreichen."
+    content: "Eingaben außerhalb der Vertrauensgrenze sollen validiert, normalisiert und kontrolliert abgewiesen werden, bevor sie Fachlogik, Speicherung oder nachgelagerte Integrationen beeinflussen können."
+    rationale: "Boundary-Validierung verhindert inkonsistentes Verhalten, reduziert Angriffsfläche und hält innere Schichten auf Fachregeln fokussiert."
+    reviewQuestions:
+      - "Überquert unvertrauenswürdige Eingabe die innere Grenze ohne klaren Validierungsschritt?"
+      - "Wird ungültige Eingabe konsistent und bewusst zurückgewiesen?"
+      - "Liegen Normalisierung und Vertragsprüfung nah an der Grenze?"
+    positiveExamples:
+      - "Grenznahe Modelle werden geprüft und normalisiert, bevor die Application-Logik sie verarbeitet."
+      - "Ungültige Eingaben werden vorhersehbar zurückgewiesen, statt implizites Folge-Verhalten zu erzeugen."
+    negativeExamples:
+      - "Unvertrauenswürdige Eingaben erreichen Fachlogik oder Persistenz ohne vorherige Prüfung."
+      - "Validierung ist über innere Schichten verstreut, statt an der Grenze zu liegen."
+    exceptions:
+      - "Ein vertrauenswürdiger interner Übergabepunkt kann einen bereits validierten Vertrag wiederverwenden, wenn diese Vertrauensgrenze explizit und intakt bleibt."
+    remediation:
+      - "Validierung und Normalisierung an der Systemgrenze ergänzen."
+      - "Ungültige Eingaben über explizites und reviewbares Verhalten ablehnen."
+      - "Fachregeln getrennt von Vertrauensgrenzen-Prüfungen halten."
     tags:
       - "Validierung"
       - "Grenze"
     keywords:
       - "input-validation"
-      - "verträge"
-    aiGuidance:
-      reviewQuestions:
-        - "Wird jede unvertrauenswürdige Eingabe validiert, bevor sie Fachlogik erreicht?"
-        - "Werden ungültige Nutzdaten kontrolliert und beobachtbar zurückgewiesen?"
-      positiveExamples:
-        - "Ein Request-DTO wird per Schema validiert und normalisiert, bevor der Use Case aufgerufen wird."
-      negativeExamples:
-        - "Rohe Request-Felder fließen direkt in SQL-Aufbau oder Dateisystempfade."
-      remediation: "Ergänze Boundary-Validierung, Normalisierung und explizite Ablehnungspfade vor der Fachverarbeitung."
+      - "normalisierung"
+      - "vertrauensgrenze"
   - id: "AR-304"
-    title: "Least Privilege gilt für Benutzer und Dienste"
-    content: "Benutzer, technische Identitäten und Hintergrundprozesse sollen nur die minimal erforderlichen Rechte erhalten und möglichst eng begrenzt werden."
+    title: "Least Privilege gilt für Menschen, Dienste und Prozesse"
+    summary: "Jede Identität soll nur die Rechte erhalten, die sie für ihren Zweck benötigt."
+    content: "Menschen, technische Identitäten und automatisierte Prozesse sollen nur die engstmöglichen sinnvollen Berechtigungen für ihre Verantwortung und ihren Nutzungskontext erhalten."
+    rationale: "Zu breite Berechtigungen vergrößern die Auswirkungen von Fehlern, Missbrauch und Kompromittierung."
+    reviewQuestions:
+      - "Erhält jede Identität nur den Zugriff, den sie für ihre Verantwortung wirklich benötigt?"
+      - "Sind erhöhte Berechtigungen breiter oder langlebiger als nötig?"
+      - "Ist der gewährte Zugriffsumfang begründet und nachvollziehbar?"
+    positiveExamples:
+      - "Eine Identität erhält nur die Rechte für eine klar begrenzte Verantwortung."
+      - "Höher riskanter Zugriff ist bewusst eingegrenzt und begründet."
+    negativeExamples:
+      - "Eine technische Identität besitzt aus Bequemlichkeit weitreichenden Dauerzugriff."
+      - "Die Begründung für gewährte Berechtigungen ist unklar oder fehlt."
+    exceptions:
+      - "Kurzzeitig erhöhter Zugriff kann vertretbar sein, wenn er zeitlich begrenzt, begründet und nachvollziehbar ist."
+    remediation:
+      - "Berechtigungen auf den kleinstmöglichen praktikablen Umfang reduzieren."
+      - "Breite Identitäten in engere Verantwortungen aufteilen."
+      - "Erhöhte Zugriffswege explizit dokumentieren und überprüfen."
     tags:
       - "Berechtigungen"
-      - "ServiceAccounts"
+      - "LeastPrivilege"
     keywords:
       - "minimale-rechte"
       - "zugriffsumfang"
-    aiGuidance:
-      reviewQuestions:
-        - "Haben Accounts und Dienste nur die Rechte, die sie für ihre aktuelle Verantwortung wirklich brauchen?"
-        - "Werden breite Wildcard-Rechte oder langlebige erhöhte Rollen vermieden?"
-      positiveExamples:
-        - "Ein Batch-Job nutzt einen dedizierten Service-Account, der auf einen Storage-Bucket begrenzt ist."
-      negativeExamples:
-        - "Ein gemeinsamer Admin-Zugang wird von allen Automatisierungsjobs verwendet."
-      remediation: "Schneide Identitäten nach Verantwortung und reduziere Berechtigungen auf den kleinstmöglichen sinnvollen Umfang."
+      - "blast-radius"
   - id: "AR-305"
     title: "Sicherheitsrelevante Ereignisse sind auditierbar"
-    content: "Anmeldeereignisse, Rechteänderungen, Secret-Rotation und sicherheitsrelevante Konfigurationswechsel sollen nachvollziehbar protokolliert werden."
+    summary: "Wichtige Sicherheitsaktionen sollen nachvollziehbar sein, ohne übermäßig sensible Daten offenzulegen."
+    content: "Sicherheitsrelevante Ereignisse wie Login-Ergebnisse, Berechtigungsänderungen, Secret-Behandlung und sensible Konfigurationsänderungen sollen so protokolliert werden, dass spätere Rekonstruktion und Review verlässlich möglich sind."
+    rationale: "Ohne brauchbare Audit-Trails werden Sicherheitsvorfälle und risikoreiche Änderungen schwerer erkennbar, erklärbar und beherrschbar."
+    reviewQuestions:
+      - "Lassen sich wichtige Sicherheitsaktionen aus verfügbaren Auditinformationen rekonstruieren?"
+      - "Enthalten Auditdaten Akteur, Zeitpunkt, Ziel und Ergebnis?"
+      - "Werden sensible Informationen so kontrolliert, dass Auditdaten nützlich bleiben, aber nicht zu viel preisgeben?"
+    positiveExamples:
+      - "Sicherheitsrelevante Änderungen erzeugen nachvollziehbare Einträge mit ausreichend Kontext für Review."
+      - "Auditinformationen balancieren Nachvollziehbarkeit und Schutz sensibler Inhalte."
+    negativeExamples:
+      - "Risikoreiche Aktionen hinterlassen keinen brauchbaren Audit-Trail."
+      - "Audit-Ausgaben lassen entweder kritischen Kontext weg oder legen zu viele sensible Details offen."
+    exceptions:
+      - "Sehr risikoarme lokale Entwicklungswege dürfen geringere Audit-Tiefe haben, wenn sie keine geteilten Umgebungen oder echten Daten betreffen können."
+    remediation:
+      - "Akteur, Zeitpunkt, Ziel und Ergebnis für sicherheitsrelevante Aktionen protokollieren."
+      - "Sensible Daten in Audit-Ausgaben schützen oder maskieren."
+      - "Auditinformationen ausreichend haltbar für spätere Prüfung machen."
     tags:
       - "Audit"
       - "Nachvollziehbarkeit"
     keywords:
-      - "audit-log"
-      - "traceability"
-    aiGuidance:
-      reviewQuestions:
-        - "Lassen sich wichtige Sicherheitsaktionen nachträglich aus Logs oder Audit-Trails rekonstruieren?"
-        - "Erfassen Logs Akteur, Aktion und Ergebnis, ohne sensible Daten preiszugeben?"
-      positiveExamples:
-        - "Eine Admin-Berechtigungsänderung schreibt einen Audit-Eintrag mit Akteur, Ziel und Zeitstempel."
-      negativeExamples:
-        - "Eine Credential-Rotation läuft still durch und hinterlässt kein nachvollziehbares Ereignis."
-      remediation: "Füge strukturierte Audit-Ereignisse für sicherheitskritische Aktionen hinzu und maskiere sensible Werte konsequent."
+      - "auditierbarkeit"
+      - "sicherheitsereignisse"
+      - "nachvollziehbarkeit"
   - id: "AR-306"
     title: "Sichere Defaults gehen vor Bequemlichkeit"
-    content: "Unsichere Sonderpfade wie Test-Bypasses, offene Debug-Schnittstellen oder globale Vollzugriffe müssen standardmäßig deaktiviert sein."
+    summary: "Der sicherere Betriebsmodus soll Standard sein, und riskante Modi erfordern bewusste Aktivierung."
+    content: "Unsichere Ausnahmewege, breite Zugriffsmodi und reduzierte Schutzmechanismen dürfen nicht der Standardzustand sein. Riskanteres Verhalten muss bewusste, explizite Aktivierung verlangen."
+    rationale: "Sichere Defaults reduzieren versehentliche Offenlegung und machen den sicheren Pfad zum einfachsten Pfad."
+    reviewQuestions:
+      - "Startet ein frisches Deployment im sichereren Betriebsmodus?"
+      - "Benötigen riskante Fähigkeiten explizite Aktivierung?"
+      - "Ist der unsichere Pfad leichter nutzbar als der sichere?"
+    positiveExamples:
+      - "Risikoreicheres Verhalten ist nur über explizite und reviewbare Aktivierung verfügbar."
+      - "Der Standardmodus minimiert Offenlegung und Privilegien."
+    negativeExamples:
+      - "Bypass- oder Debug-Verhalten ist standardmäßig aktiv."
+      - "Der einfachste Nutzungsweg ist zugleich der weniger sichere Weg."
+    exceptions:
+      - "Ein strikt isoliertes rein lokales Entwicklungssetup darf riskantere Defaults nutzen, wenn Umfang und Isolation explizit sind."
+    remediation:
+      - "Riskantes Verhalten in explizites Opt-in umwandeln."
+      - "Den sichereren Pfad zum Default machen."
+      - "Dokumentieren, warum ein riskanter Modus existiert und wie er kontrolliert wird."
     tags:
       - "Defaults"
       - "Härtung"
     keywords:
       - "sichere-defaults"
       - "opt-in-risiko"
-    aiGuidance:
-      reviewQuestions:
-        - "Startet ein frisches Deployment ohne Zusatzarbeit im sichersten vernünftigen Modus?"
-        - "Sind riskante Fähigkeiten hinter explizitem Opt-in statt implizit aktiv?"
-      positiveExamples:
-        - "Ein Debug-Endpunkt ist deaktiviert, solange kein lokaler Entwicklungs-Flag gesetzt wird."
-      negativeExamples:
-        - "Ein Produktions-Build liefert einen Test-Bypass oder einen uneingeschränkten Admin-Modus aktiviert aus."
-      remediation: "Drehe riskante Defaults auf aus, verlange explizites Opt-in und dokumentiere den freigegebenen Escape Hatch."
+      - "safe-baseline"

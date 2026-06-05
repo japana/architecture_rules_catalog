@@ -27,8 +27,8 @@
     "availableLocales": {
       "type": "array",
       "minItems": 1,
-      "items": { "type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$" },
-      "uniqueItems": true
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$" }
     },
     "approvals": {
       "type": "array",
@@ -38,10 +38,7 @@
         "properties": {
           "maintainer": { "type": "string", "minLength": 1 },
           "approvedAt": { "type": "string", "format": "date-time" },
-          "referenceType": {
-            "type": "string",
-            "enum": ["commit", "review", "event"]
-          },
+          "referenceType": { "type": "string", "enum": ["commit", "review", "event"] },
           "reference": { "type": "string", "minLength": 1 }
         },
         "additionalProperties": false
@@ -56,16 +53,15 @@
           "id",
           "status",
           "type",
-          "severity",
-          "enforcementLevel",
+          "abstractionLevel",
+          "strength",
+          "decisionImpact",
           "detectability",
-          "priority",
-          "overridePolicy",
           "scope",
-          "source",
-          "classification",
           "appliesTo",
-          "constraints"
+          "source",
+          "violationSignals",
+          "relationships"
         ],
         "properties": {
           "id": { "type": "string", "pattern": "^AR-[0-9]{3}$" },
@@ -89,26 +85,21 @@
               "governance"
             ]
           },
-          "severity": {
+          "abstractionLevel": {
+            "type": "string",
+            "enum": ["principle", "practice", "technology-profile"]
+          },
+          "strength": {
             "type": "string",
             "enum": ["must", "should", "may"]
           },
-          "enforcementLevel": {
+          "decisionImpact": {
             "type": "string",
-            "enum": ["manual", "advisory", "warning", "blocking"]
+            "enum": ["blocking", "warning", "advisory"]
           },
           "detectability": {
             "type": "string",
-            "enum": ["manual", "ai-assisted", "static-analysis", "runtime", "process"]
-          },
-          "priority": { "type": "integer", "minimum": 0 },
-          "overridePolicy": {
-            "type": "string",
-            "enum": [
-              "more-specific-wins",
-              "higher-priority-wins",
-              "explicit-exception-required"
-            ]
+            "enum": ["manual", "ai-assisted", "static-analysis", "process", "runtime"]
           },
           "scope": {
             "type": "array",
@@ -119,113 +110,86 @@
               "properties": {
                 "dimension": {
                   "type": "string",
-                  "enum": [
-                    "architectureStyle",
-                    "technology",
-                    "artifactType",
-                    "criticality",
-                    "layer",
-                    "runtime"
-                  ]
+                  "enum": ["architectureStyle", "artifactType", "criticality"]
                 },
                 "values": {
                   "type": "array",
                   "minItems": 1,
-                  "items": { "type": "string", "minLength": 1 },
-                  "uniqueItems": true
+                  "uniqueItems": true,
+                  "items": { "type": "string", "minLength": 1 }
                 }
               },
               "additionalProperties": false
             }
           },
+          "appliesTo": {
+            "type": "object",
+            "required": ["artifactTypes", "architectureElements"],
+            "properties": {
+              "artifactTypes": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "source-code",
+                    "module-structure",
+                    "architecture-design",
+                    "api-contract",
+                    "configuration",
+                    "build-pipeline",
+                    "runtime-operation",
+                    "documentation",
+                    "test-artifact"
+                  ]
+                }
+              },
+              "architectureElements": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "domain",
+                    "application",
+                    "adapter",
+                    "infrastructure",
+                    "interface",
+                    "module",
+                    "service",
+                    "data-store",
+                    "external-system",
+                    "deployment"
+                  ]
+                }
+              }
+            },
+            "additionalProperties": false
+          },
           "source": {
             "type": "object",
-            "required": ["type", "title", "reference"],
+            "required": ["type", "name", "reference"],
             "properties": {
               "type": {
                 "type": "string",
-                "enum": ["book", "standard", "principle", "practice", "guideline"]
+                "enum": [
+                  "architecture-principle",
+                  "engineering-practice",
+                  "security-principle",
+                  "governance-guideline"
+                ]
               },
-              "title": { "type": "string", "minLength": 1 },
-              "reference": { "type": "string", "minLength": 1 },
-              "url": { "type": "string", "format": "uri" }
+              "name": { "type": "string", "minLength": 1 },
+              "reference": { "type": "string", "minLength": 1 }
             },
             "additionalProperties": false
           },
-          "classification": {
-            "type": "object",
-            "required": ["ruleIntent"],
-            "properties": {
-              "ruleIntent": { "type": "string", "minLength": 1 },
-              "decisionImpact": {
-                "type": "string",
-                "enum": ["informational", "non-blocking", "blocking"]
-              }
-            },
-            "additionalProperties": false
-          },
-          "appliesTo": {
-            "type": "object",
-            "properties": {
-              "packages": {
-                "type": "array",
-                "items": { "type": "string", "minLength": 1 },
-                "uniqueItems": true
-              },
-              "components": {
-                "type": "array",
-                "items": { "type": "string", "minLength": 1 },
-                "uniqueItems": true
-              },
-              "artifacts": {
-                "type": "array",
-                "items": { "type": "string", "minLength": 1 },
-                "uniqueItems": true
-              },
-              "entryPoints": {
-                "type": "array",
-                "items": { "type": "string", "minLength": 1 },
-                "uniqueItems": true
-              }
-            },
-            "additionalProperties": false
-          },
-          "constraints": {
+          "violationSignals": {
             "type": "array",
             "minItems": 1,
-            "items": {
-              "type": "object",
-              "required": ["kind", "operator", "targets"],
-              "properties": {
-                "kind": {
-                  "type": "string",
-                  "enum": [
-                    "forbidden-dependency",
-                    "required-dependency-direction",
-                    "allowed-responsibility",
-                    "forbidden-responsibility",
-                    "boundary-validation",
-                    "secret-handling",
-                    "logging-control",
-                    "default-state",
-                    "testability",
-                    "naming"
-                  ]
-                },
-                "operator": {
-                  "type": "string",
-                  "enum": ["forbid", "require", "allow", "document"]
-                },
-                "targets": {
-                  "type": "array",
-                  "minItems": 1,
-                  "items": { "type": "string", "minLength": 1 },
-                  "uniqueItems": true
-                },
-                "notes": { "type": "string" }
-              },
-              "additionalProperties": false
-            }
+            "items": { "type": "string", "minLength": 1 }
           },
           "relationships": {
             "type": "array",
@@ -237,12 +201,13 @@
                 "type": {
                   "type": "string",
                   "enum": [
-                    "dependsOn",
                     "supports",
+                    "refines",
+                    "dependsOn",
                     "conflictsWith",
                     "supersedes",
-                    "refines",
-                    "duplicates"
+                    "duplicates",
+                    "relatedTo"
                   ]
                 },
                 "rationale": { "type": "string", "minLength": 1 }

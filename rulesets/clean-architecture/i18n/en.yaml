@@ -1,7 +1,7 @@
 ruleSetId: "clean-architecture"
 locale: "en"
 name: "Clean Architecture"
-description: "Rule set for layering, dependency direction and use-case-centered architecture with review-ready guidance."
+description: "Generic rule set for layering, dependency direction, and use-case-centered architecture."
 category: "Architecture"
 compatibility: "Language-agnostic"
 tags:
@@ -10,110 +10,171 @@ tags:
   - "PortsAndAdapters"
 rules:
   - id: "AR-101"
-    title: "Domain Core Depends On No Framework"
-    content: "The business core must not depend on web, UI, ORM, framework or infrastructure libraries."
+    title: "Business Core Logic Remains Independent From Technical Details"
+    summary: "The business core should not depend on user-interface, persistence, messaging, web, framework, or infrastructure details."
+    content: "Business core logic should be modeled so that it can be understood, tested, and evolved without relying on concrete technical infrastructure. Technical details may be connected through interfaces, adapters, or outer layers, but they should not shape the business model or business decisions."
+    rationale: "Business concepts usually outlive concrete technologies. When business logic depends on technical details, replaceability, testability, and long-term maintainability all become weaker."
+    reviewQuestions:
+      - "Can the business logic be understood and tested without concrete technical infrastructure?"
+      - "Could the persistence, user-interface, or messaging technology be changed without materially changing the business core?"
+      - "Have technical details become part of the business language even though they are not business concepts?"
+    positiveExamples:
+      - "A use case depends on a business-named interface instead of a concrete technical adapter."
+      - "A domain object describes business states and rules without carrying storage or transport concerns."
+    negativeExamples:
+      - "A business entity needs persistence, transport, or delivery concepts in order to be used meaningfully."
+      - "Business decisions are triggered or shaped by technical lifecycle mechanisms."
+    exceptions:
+      - "In very small or deliberately short-lived systems, pragmatic coupling can be acceptable when it is documented and locally contained."
+    remediation:
+      - "Move technical details into adapter or infrastructure modules."
+      - "Introduce business-named interfaces between core logic and technical implementation."
+      - "Separate business terminology from technical terminology."
     tags:
       - "Domain"
       - "Isolation"
+      - "Dependencies"
     keywords:
       - "framework-independent"
-      - "domain-core"
-    aiGuidance:
-      reviewQuestions:
-        - "Does any domain type import framework or persistence packages directly?"
-        - "Can the domain be executed in a plain unit test without web or ORM bootstrapping?"
-      positiveExamples:
-        - "A domain service depends on a repository port interface declared inside the core."
-      negativeExamples:
-        - "A domain entity imports jakarta.persistence.Entity or Spring annotations."
-      remediation: "Move framework annotations and integration code into an adapter model or mapping layer."
+      - "business-core"
+      - "technical-details"
   - id: "AR-102"
-    title: "Dependencies Point Inward"
-    content: "Dependencies between layers must point toward inner, more stable layers and never outward."
+    title: "Dependencies Point Toward More Stable Concepts"
+    summary: "Dependencies should flow toward more stable business concepts rather than outward to volatile technical concerns."
+    content: "Dependencies between layers and modules should point toward the concepts that change less often and carry the core business meaning. Outer technical concerns may depend on inner business concepts, but the inverse should be avoided."
+    rationale: "Stable business concepts should not be forced to change whenever a delivery mechanism, infrastructure choice, or operational concern changes."
+    reviewQuestions:
+      - "Do inner business layers remain independent from outer technical layers?"
+      - "Would a change in infrastructure or delivery style force a change in core business logic?"
+      - "Are stable concepts referencing details that are expected to change often?"
+    positiveExamples:
+      - "An outer adapter depends on an application-facing port."
+      - "A business service can be reused regardless of how requests arrive or results are stored."
+    negativeExamples:
+      - "A business service knows about a concrete delivery or infrastructure component."
+      - "A volatile technical concern dictates the structure of a stable business module."
+    exceptions:
+      - "Temporary migration seams can be acceptable if the dependency inversion target and removal plan are explicit."
+    remediation:
+      - "Invert outward dependencies through ports or abstract interfaces."
+      - "Move volatile concerns behind adapter boundaries."
+      - "Re-check which concepts are expected to be stable over time."
     tags:
       - "DependencyRule"
+      - "Stability"
     keywords:
       - "inward-dependencies"
-      - "stable-core"
-    aiGuidance:
-      reviewQuestions:
-        - "Do adapter or infrastructure modules depend on inner abstractions rather than the other way around?"
-        - "Is any inner layer importing a type that belongs to an outer delivery or infrastructure layer?"
-      positiveExamples:
-        - "A REST controller depends on an application use case interface."
-      negativeExamples:
-        - "An application service imports a concrete HTTP controller or SQL client."
-      remediation: "Invert the dependency through ports or move the outward concern into an adapter."
+      - "stable-concepts"
+      - "layering"
   - id: "AR-103"
-    title: "Application Layer Orchestrates Use Cases"
-    content: "The application layer coordinates use cases but does not contain technical adapter details."
+    title: "The Application Layer Orchestrates Use Cases"
+    summary: "Application logic should coordinate use cases without absorbing concrete adapter behavior."
+    content: "The application layer is responsible for workflow coordination, use-case execution, and collaboration between business-facing abstractions. It should not take over technical adapter concerns or direct infrastructure handling."
+    rationale: "When application logic absorbs technical details, business workflows become harder to understand, review, and reuse."
+    reviewQuestions:
+      - "Does the application layer focus on use-case flow rather than technical mechanics?"
+      - "Are technical access details leaking into business workflow orchestration?"
+      - "Do use cases create or configure concrete adapters directly?"
+    positiveExamples:
+      - "A use case coordinates validation, business decisions, and collaboration through declared ports."
+      - "Workflow order is expressed in application logic without depending on concrete infrastructure classes."
+    negativeExamples:
+      - "A use case performs direct technical access steps instead of delegating them through ports."
+      - "Application logic mixes business flow with concrete adapter setup or protocol handling."
+    exceptions:
+      - "A narrow composition concern may briefly live in the application layer when no stable adapter boundary exists yet and the tradeoff is documented."
+    remediation:
+      - "Push technical mechanics behind ports or adapter interfaces."
+      - "Keep application services centered on workflow order and business coordination."
+      - "Extract direct infrastructure handling into dedicated adapters."
     tags:
       - "UseCase"
       - "Application"
     keywords:
       - "orchestration"
+      - "workflow"
       - "use-case"
-    aiGuidance:
-      reviewQuestions:
-        - "Does the application layer focus on workflow coordination and transactional boundaries?"
-        - "Are HTTP, ORM or UI-specific details leaking into use-case orchestration?"
-      positiveExamples:
-        - "An application service loads ports, enforces workflow order and returns a use-case result."
-      negativeExamples:
-        - "An application service builds SQL queries or reads servlet request state."
-      remediation: "Keep orchestration in the application layer and push technical mechanics into dedicated adapters."
   - id: "AR-104"
-    title: "Infrastructure Implements Ports"
-    content: "Technical infrastructure should be integrated via ports and implemented by adapters."
+    title: "Technical Infrastructure Is Connected Through Business-Facing Interfaces"
+    summary: "Infrastructure should implement interfaces defined from the inside out, not dictate them from the outside in."
+    content: "Technical infrastructure should be attached through interfaces or ports that reflect business or application needs. The technical integration exists to serve those needs, not to define them."
+    rationale: "If technical integrations dictate the shape of the core interface, business design becomes constrained by the current technology choice."
+    reviewQuestions:
+      - "Are concrete technical integrations hidden behind interfaces that reflect inner-layer needs?"
+      - "Does a technical adapter implement a contract, or does it define the contract by itself?"
+      - "Can integrations be replaced without reshaping business workflows?"
+    positiveExamples:
+      - "A persistence adapter implements a repository interface named in business terms."
+      - "An external integration is wrapped behind an interface used by the application layer."
+    negativeExamples:
+      - "A business service references a concrete infrastructure adapter directly."
+      - "The shape of the business-facing contract is determined mainly by one external system."
+    exceptions:
+      - "A short-lived integration spike may use a direct connection while the target interface is still being clarified."
+    remediation:
+      - "Define business-facing ports before finalizing concrete adapters."
+      - "Move concrete integration details behind adapter modules."
+      - "Refactor contracts so they reflect inner needs rather than outer limitations."
     tags:
       - "PortsAndAdapters"
       - "Infrastructure"
     keywords:
-      - "port-implementation"
+      - "port"
       - "adapter"
-    aiGuidance:
-      reviewQuestions:
-        - "Are external systems accessed through ports defined by the inner layers?"
-        - "Is infrastructure code implementing contracts instead of inventing business behavior?"
-      positiveExamples:
-        - "A persistence adapter implements a repository port defined in the application or domain layer."
-      negativeExamples:
-        - "Business policy is hidden inside a JDBC repository implementation."
-      remediation: "Define or refine a port in the inner layer and move technical integration behind that contract."
+      - "integration"
   - id: "AR-105"
-    title: "Interface Adapters Do Not Contain Business Policy"
-    content: "Controllers, presenters, resources or UI adapters should encapsulate mapping, not core business policy."
+    title: "Interface Adapters Translate But Do Not Own Business Logic"
+    summary: "Adapters should translate between outer and inner models without becoming the home of business policy."
+    content: "Interface adapters such as controllers, presenters, UI adapters, or API adapters should translate, normalize, and shape data at boundaries. They should not become the place where business rules or core business decisions are made."
+    rationale: "When business policy moves into adapters, changes at external boundaries start changing business behavior and the core model becomes harder to trust."
+    reviewQuestions:
+      - "Are adapters limited to translation, normalization handoff, and response shaping?"
+      - "Is any business decision made because of adapter-local branching?"
+      - "Would a change to an external boundary accidentally change business policy?"
+    positiveExamples:
+      - "An adapter converts boundary data and delegates a business command inward."
+      - "Boundary-specific validation is kept separate from core business decisions."
+    negativeExamples:
+      - "An adapter decides eligibility, pricing, or approval outcomes."
+      - "Mapping logic changes the underlying business rule instead of just translating data."
+    exceptions:
+      - "Presentation-only formatting and boundary-specific fallback behavior may remain in adapters if they do not change business decisions."
+    remediation:
+      - "Extract business rules into use cases or domain services."
+      - "Keep adapters focused on translation and boundary concerns."
+      - "Separate business validation from transport-specific normalization."
     tags:
       - "Adapter"
       - "Boundary"
     keywords:
-      - "controller"
-      - "dto-mapping"
-    aiGuidance:
-      reviewQuestions:
-        - "Are controllers and presenters limited to translation, validation handoff and response shaping?"
-        - "Do adapters contain branching that should belong to a use case or domain policy?"
-      positiveExamples:
-        - "A controller maps request DTOs to a command and delegates to an application use case."
-      negativeExamples:
-        - "A controller decides discount eligibility directly from business rules."
-      remediation: "Extract the business decision into the use case or domain layer and leave only mapping in the adapter."
+      - "mapping"
+      - "business-policy"
+      - "translation"
   - id: "AR-106"
-    title: "Cross-Cutting Concerns Stay Outside The Domain"
-    content: "Logging, tracing, security enforcement, caching and transaction control should be modeled outside the domain core."
+    title: "Cross-Cutting Concerns Must Not Technically Pollute the Business Core"
+    summary: "Cross-cutting concerns should be placed so that they do not dominate or distort the business core."
+    content: "Logging, tracing, technical security enforcement, caching, and transaction control should be placed so that they support the business core without turning business models into technical coordination points. Business security rules may belong in the core; technical enforcement should not."
+    rationale: "The business core loses clarity when technical policies and business rules become hard to distinguish."
+    reviewQuestions:
+      - "Do cross-cutting mechanisms dominate the shape of business logic?"
+      - "Can business rules be distinguished clearly from technical enforcement or operational policies?"
+      - "Do business objects require technical support services in order to perform their main purpose?"
+    positiveExamples:
+      - "A transaction boundary surrounds a use case without changing the business model."
+      - "Business authorization rules are modeled separately from technical enforcement mechanisms."
+    negativeExamples:
+      - "A business object cannot do its core work without technical cross-cutting services being embedded in it."
+      - "Technical enforcement logic and business rules are intertwined in the same decision flow."
+    exceptions:
+      - "A business rule may reference security, traceability, or audit concepts when those concepts are genuinely part of the domain language."
+    remediation:
+      - "Move technical cross-cutting implementation to decorators, middleware, or outer adapters."
+      - "Keep business rules explicit and separate from operational enforcement."
+      - "Revisit whether a concern is truly business-facing or only technically necessary."
     tags:
       - "CrossCutting"
       - "Operations"
     keywords:
-      - "logging"
-      - "metrics"
-      - "transactions"
-    aiGuidance:
-      reviewQuestions:
-        - "Does the domain contain operational code such as logging, tracing or cache control?"
-        - "Are technical security checks implemented outside the business model while business rules stay inside?"
-      positiveExamples:
-        - "A transaction decorator wraps an application use case without modifying domain entities."
-      negativeExamples:
-        - "A domain entity writes log lines or checks framework security context."
-      remediation: "Move operational concerns into decorators, middleware or adapters and keep only business rules in the domain."
+      - "cross-cutting"
+      - "technical-pollution"
+      - "domain-clarity"

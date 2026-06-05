@@ -1,66 +1,84 @@
 # Catalog Seed v1
 
-Dieser Ordner ist ein upload-fähiger Seed für ein öffentliches APMDB-
-Catalog-Repository im `ruleset-catalog-v1`-Format mit separaten
-Locale-Dateien, maschinenlesbaren Regelkernen und lokalisierter
-AI-Review-Hilfe.
+This repository contains a generic architecture-rule catalog seed for APMDB.
+It is intentionally technology-, framework-, and programming-language-neutral
+in its core.
 
-## Struktur
+The core catalog is meant for:
 
-```text
-catalog-seed/
-├─ catalog.yaml
-├─ schemas/
-│  ├─ ruleset.schema.json
-│  └─ ruleset-locale.schema.json
-└─ rulesets/
-   ├─ clean-architecture/
-   │  ├─ ruleset.yaml
-   │  └─ i18n/
-   │     ├─ de.yaml
-   │     └─ en.yaml
-   ├─ clean-code/
-   │  ├─ ruleset.yaml
-   │  └─ i18n/
-   │     ├─ de.yaml
-   │     └─ en.yaml
-   └─ security-baseline/
-      ├─ ruleset.yaml
-      └─ i18n/
-         ├─ de.yaml
-         └─ en.yaml
-```
+- human architecture reviews
+- AI-assisted requirement reviews
+- AI-assisted ticket and testable-artifact generation
+- AI-assisted code reviews
+- architecture governance
+- later companion profiles and marketplace-style catalog scenarios
 
-## Prinzip
+It is not primarily a linter rule set. The core catalog describes architectural
+intent, typical violation signals, review questions, rationale, exceptions, and
+remediation guidance.
 
-- `ruleset.yaml` enthält sprachneutrale Struktur-, Governance- und
-  Enforcement-Daten.
-- `i18n/<locale>.yaml` enthält nur Anzeigeinhalte, Beispiele und
-  AI-Review-Hinweise.
-- Locale-Dateien referenzieren Regeln immer über `id`.
-- Locale-Dateien dürfen keine strukturellen Felder wie `type`, `scope`,
-  `status`, `severity` oder `relationships` überschreiben.
+## Generic Core
 
-## Modell
+The files under `rulesets/*/ruleset.yaml` contain only technology-neutral rule
+metadata:
 
-- `rules[*].severity`, `enforcementLevel`, `detectability` und `priority`
-  machen Regeln priorisierbar und operationalisierbar.
-- `classification`, `appliesTo` und `constraints` bilden einen
-  maschinenlesbaren Regelkern für spätere statische Analysen,
-  AI-Reviews und Governance-Checks.
-- `relationships` sind auf feste Typen begrenzt, damit Konflikte und
-  Verfeinerungen konsistent modelliert werden können.
-- `aiGuidance` ergänzt pro lokalisierter Regel Review-Fragen, Positiv- und
-  Negativbeispiele sowie Remediation.
+- rule identity and lifecycle
+- abstraction level
+- rule strength and decision impact
+- generic scope
+- generic `appliesTo` categories
+- generic `violationSignals`
+- source and rule relationships
 
-## Vor dem Upload anpassen
+The files under `rulesets/*/i18n/*.yaml` contain localized rule content:
 
-- `publisher`
-- `status` und `approvals`, sobald echte Review-Artefakte existieren
-- Scope-Werte für echte Zieltechnologien und Artefakte
-- Regel-Constraints für projektspezifische Durchsetzung
+- title and summary
+- rule description
+- rationale
+- review questions
+- positive and negative examples
+- documented exceptions
+- remediation guidance
+- tags and keywords
 
-## Validierung
+The generic core catalog must not contain:
+
+- framework package names
+- language-specific syntax
+- tool-specific lint rules
+- concrete dependency patterns
+- framework-only rules
+
+## Optional Profiles
+
+Technology-specific mappings live outside the core in `profiles/`.
+
+Those profiles may contain:
+
+- framework-specific dependency patterns
+- concrete annotations or namespace hints
+- suggested static-analysis tooling
+- technology-specific examples
+
+Current starter profiles:
+
+- `profiles/java/`
+- `profiles/java-quarkus/`
+- `profiles/java-spring-boot/`
+
+These profiles are intentionally not registered in `catalog.yaml`. They are
+companion artifacts, not part of the generic core catalog.
+
+## Identity Model
+
+Rule IDs remain readable inside each ruleset, for example `AR-101` or `AR-301`.
+For global identification, combine `ruleSetId` and `rule.id`, for example:
+
+- `clean-architecture:AR-101`
+- `clean-code:AR-201`
+- `security-baseline:AR-301`
+
+## Validation
 
 ```bash
 npm install
@@ -68,20 +86,20 @@ npm test
 npm run validate
 ```
 
-Der Validator prüft unter anderem:
+The validator checks:
 
-- referenzierte RuleSet- und Locale-Dateien
-- Schema-Konformität
-- Locale-/RuleSet-ID-Konsistenz
-- doppelte Rule-IDs
-- fehlende oder überzählige Lokalisierungen
-- SemVer für `ruleSetVersion`
-- Platzhalter-URLs in Governance-Feldern
-- Relationships auf existierende Regeln
-- Tags und Keywords in jeder lokalisierten Regel
+- `catalog.yaml` structure
+- referenced ruleset and locale files
+- schema compliance
+- locale and ruleset ID consistency
+- duplicate rule IDs
+- missing or extra localized rules
+- SemVer for `ruleSetVersion`
+- placeholder governance URLs
+- relationship targets
+- required localized review fields
+- forbidden technology markers in the generic core catalog
 
-## Consumer-Regel
+## Authoring
 
-1. `ruleset.yaml` laden
-2. passende `i18n/<locale>.yaml` laden
-3. falls nicht vorhanden, auf `defaultLocale` oder Basislocale ausweichen
+See [docs/rule-authoring-guidelines.md](C:/Users/jpnac/OneDrive/Desktop/catalog-seed/docs/rule-authoring-guidelines.md) for guidance on adding new generic rules or optional technology profiles.

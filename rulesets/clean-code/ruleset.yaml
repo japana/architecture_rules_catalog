@@ -13,222 +13,138 @@ rules:
   - id: "AR-201"
     status: "active"
     type: "naming"
-    severity: "should"
-    enforcementLevel: "advisory"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "advisory"
     detectability: "ai-assisted"
-    priority: 55
-    overridePolicy: "more-specific-wins"
     scope:
-      - dimension: "technology"
-        values: ["agnostic"]
       - dimension: "artifactType"
-        values: ["backend", "frontend", "scripts"]
-      - dimension: "criticality"
-        values: ["all"]
-    source:
-      type: "book"
-      title: "Clean Code"
-      reference: "Meaningful names"
-    classification:
-      ruleIntent: "names-must-express-intent"
-      decisionImpact: "informational"
+        values: ["source-code", "documentation", "test-artifact"]
     appliesTo:
-      components: ["classes", "functions", "modules", "variables"]
-      artifacts: ["backend", "frontend", "scripts"]
-    constraints:
-      - kind: "naming"
-        operator: "require"
-        targets:
-          - "intent-revealing names"
-          - "domain vocabulary"
-      - kind: "naming"
-        operator: "forbid"
-        targets:
-          - "opaque abbreviations"
-          - "misleading generic names"
+      artifactTypes: ["source-code", "documentation", "test-artifact"]
+      architectureElements: ["module", "service", "application", "domain", "interface"]
+    source:
+      type: "engineering-practice"
+      name: "Clean Code"
+      reference: "Meaningful naming"
+    violationSignals:
+      - "Identifiers hide purpose, responsibility, or business meaning."
+      - "Abbreviations are understandable only to a small subset of contributors."
+      - "Names emphasize implementation mechanics although business intent would be more useful."
+    relationships: []
   - id: "AR-202"
     status: "active"
     type: "governance"
-    severity: "should"
-    enforcementLevel: "warning"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "warning"
     detectability: "ai-assisted"
-    priority: 65
-    overridePolicy: "more-specific-wins"
     scope:
-      - dimension: "technology"
-        values: ["agnostic"]
       - dimension: "artifactType"
-        values: ["backend", "frontend", "scripts"]
-      - dimension: "criticality"
-        values: ["all"]
-    source:
-      type: "book"
-      title: "Clean Code"
-      reference: "Functions"
-    classification:
-      ruleIntent: "functions-stay-small-and-focused"
-      decisionImpact: "non-blocking"
+        values: ["source-code", "test-artifact"]
     appliesTo:
-      components: ["functions", "methods"]
-      artifacts: ["backend", "frontend", "scripts"]
-    constraints:
-      - kind: "allowed-responsibility"
-        operator: "allow"
-        targets:
-          - "single business purpose"
-      - kind: "forbidden-responsibility"
-        operator: "forbid"
-        targets:
-          - "multiple unrelated decisions"
-          - "mixed orchestration and low-level formatting"
+      artifactTypes: ["source-code", "test-artifact"]
+      architectureElements: ["service", "application", "module", "interface"]
+    source:
+      type: "engineering-practice"
+      name: "Clean Code"
+      reference: "Focused responsibilities"
+    violationSignals:
+      - "A function mixes several business responsibilities."
+      - "A function combines validation, decision-making, persistence, mapping, and side effects without clear separation."
+      - "The purpose of a function is only understandable after reading many low-level details."
     relationships:
       - target: "AR-206"
         type: "supports"
-        rationale: "Small responsibilities make automated tests simpler."
+        rationale: "Focused responsibilities make behavior easier to test."
   - id: "AR-203"
     status: "active"
     type: "module-boundary"
-    severity: "must"
-    enforcementLevel: "warning"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
     detectability: "ai-assisted"
-    priority: 70
-    overridePolicy: "higher-priority-wins"
     scope:
-      - dimension: "technology"
-        values: ["agnostic"]
       - dimension: "artifactType"
-        values: ["backend", "frontend", "libraries"]
-      - dimension: "criticality"
-        values: ["all"]
-    source:
-      type: "principle"
-      title: "Information Hiding"
-      reference: "Parnas modularity principles"
-    classification:
-      ruleIntent: "modules-hide-internal-detail"
-      decisionImpact: "non-blocking"
+        values: ["source-code", "module-structure", "architecture-design"]
     appliesTo:
-      components: ["modules", "classes", "packages"]
-      artifacts: ["backend", "frontend", "libraries"]
-    constraints:
-      - kind: "allowed-responsibility"
-        operator: "allow"
-        targets:
-          - "stable public interface"
-      - kind: "forbidden-responsibility"
-        operator: "forbid"
-        targets:
-          - "leaking internal storage choices"
-          - "exposing unstable helper APIs"
+      artifactTypes: ["source-code", "module-structure", "architecture-design"]
+      architectureElements: ["module", "service", "interface"]
+    source:
+      type: "engineering-practice"
+      name: "Information Hiding"
+      reference: "Stable, narrow interfaces protect internals."
+    violationSignals:
+      - "Callers must understand internal data structures or internal workflows to use a module."
+      - "Internal helpers become part of public usage."
+      - "Changes to internal details unnecessarily break external consumers."
+    relationships: []
   - id: "AR-204"
     status: "active"
     type: "api"
-    severity: "must"
-    enforcementLevel: "warning"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
     detectability: "ai-assisted"
-    priority: 75
-    overridePolicy: "explicit-exception-required"
     scope:
-      - dimension: "technology"
-        values: ["agnostic"]
       - dimension: "artifactType"
-        values: ["backend", "frontend", "scripts"]
-      - dimension: "criticality"
-        values: ["all"]
-    source:
-      type: "principle"
-      title: "Robustness Principles"
-      reference: "Explicit failure handling"
-    classification:
-      ruleIntent: "error-handling-must-be-explicit"
-      decisionImpact: "blocking"
+        values: ["source-code", "api-contract", "runtime-operation", "test-artifact"]
     appliesTo:
-      components: ["functions", "api boundaries", "jobs"]
-      artifacts: ["backend", "frontend", "scripts"]
-    constraints:
-      - kind: "allowed-responsibility"
-        operator: "allow"
-        targets:
-          - "typed error result"
-          - "documented exception propagation"
-      - kind: "forbidden-responsibility"
-        operator: "forbid"
-        targets:
-          - "swallowed exception"
-          - "silent fallback"
-          - "ambiguous null contract"
+      artifactTypes: ["source-code", "api-contract", "runtime-operation", "test-artifact"]
+      architectureElements: ["service", "application", "interface", "module"]
+    source:
+      type: "engineering-practice"
+      name: "Explicit Error Handling"
+      reference: "Failure behavior should be intentional and understandable."
+    violationSignals:
+      - "Errors are silently swallowed."
+      - "Fallbacks change behavior without being visible or understandable."
+      - "Null, empty, or default values hide business-relevant failures."
+    relationships: []
   - id: "AR-205"
     status: "active"
     type: "build"
-    severity: "should"
-    enforcementLevel: "advisory"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "advisory"
     detectability: "ai-assisted"
-    priority: 50
-    overridePolicy: "more-specific-wins"
     scope:
-      - dimension: "technology"
-        values: ["agnostic"]
       - dimension: "artifactType"
-        values: ["backend", "frontend", "scripts"]
-      - dimension: "criticality"
-        values: ["all"]
-    source:
-      type: "principle"
-      title: "DRY"
-      reference: "Avoid accidental duplication"
-    classification:
-      ruleIntent: "duplication-is-removed-at-stable-abstractions"
-      decisionImpact: "informational"
+        values: ["source-code", "module-structure", "test-artifact"]
     appliesTo:
-      components: ["modules", "functions", "pipelines"]
-      artifacts: ["backend", "frontend", "scripts"]
-    constraints:
-      - kind: "allowed-responsibility"
-        operator: "allow"
-        targets:
-          - "temporary duplication during discovery"
-          - "shared abstraction with stable concept"
-      - kind: "forbidden-responsibility"
-        operator: "forbid"
-        targets:
-          - "premature shared abstraction"
+      artifactTypes: ["source-code", "module-structure", "test-artifact"]
+      architectureElements: ["module", "service", "application", "domain"]
+    source:
+      type: "engineering-practice"
+      name: "DRY With Stable Meaning"
+      reference: "Avoid premature abstraction."
+    violationSignals:
+      - "Similar logic is merged too early although it exists for different business reasons."
+      - "A shared abstraction keeps growing special cases to serve unrelated scenarios."
+      - "Truly identical business rules are maintained separately in multiple places."
     relationships:
       - target: "AR-202"
-        type: "supports"
-        rationale: "Stable abstractions help functions stay focused instead of parameter-heavy."
+        type: "relatedTo"
+        rationale: "Premature abstraction often hides the real responsibility of a function or module."
   - id: "AR-206"
     status: "active"
     type: "testing"
-    severity: "must"
-    enforcementLevel: "warning"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
     detectability: "ai-assisted"
-    priority: 85
-    overridePolicy: "higher-priority-wins"
     scope:
-      - dimension: "technology"
-        values: ["agnostic"]
       - dimension: "artifactType"
-        values: ["backend", "frontend", "libraries"]
-      - dimension: "criticality"
-        values: ["all"]
-    source:
-      type: "principle"
-      title: "Testability"
-      reference: "Design for automated testing"
-    classification:
-      ruleIntent: "code-is-structured-for-testability"
-      decisionImpact: "blocking"
+        values: ["source-code", "test-artifact", "architecture-design"]
     appliesTo:
-      components: ["modules", "services", "hooks", "classes"]
-      artifacts: ["backend", "frontend", "libraries"]
-    constraints:
-      - kind: "testability"
-        operator: "require"
-        targets:
-          - "clear seams"
-          - "controlled side effects"
-          - "deterministic behavior"
-      - kind: "forbidden-responsibility"
-        operator: "forbid"
-        targets:
-          - "hidden global state dependency"
+      artifactTypes: ["source-code", "test-artifact", "architecture-design"]
+      architectureElements: ["domain", "application", "service", "module", "interface"]
+    source:
+      type: "engineering-practice"
+      name: "Testability"
+      reference: "Behavior should be controllable and automatable."
+    violationSignals:
+      - "Business behavior is testable only through hard-to-control infrastructure."
+      - "Strong coupling, global state, or uncontrolled side effects make tests difficult."
+      - "Tests must prepare many irrelevant details to verify one business rule."
+    relationships: []

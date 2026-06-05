@@ -1,0 +1,42 @@
+profileId: "java"
+schemaVersion: "ruleset-profile-v1"
+status: "draft"
+displayName: "Java Core Profile"
+description: "Language-specific interpretation hints for applying the generic architecture catalog to Java codebases."
+baseRuleSets:
+  - "clean-architecture"
+  - "clean-code"
+  - "security-baseline"
+technology:
+  language: "java"
+  runtime: "jvm"
+mappings:
+  - ruleId: "AR-101"
+    detectionHints:
+      indicativeAnnotations:
+        - "Persistence annotations in domain classes"
+        - "Web or serialization annotations in domain classes"
+      indicativeBaseTypes:
+        - "Framework-specific base classes in domain types"
+      recommendedTools:
+        - "ArchUnit"
+        - "jdeps"
+      notes:
+        - "Check whether domain packages depend on framework namespaces or technology annotations."
+  - ruleId: "AR-104"
+    detectionHints:
+      concreteComponentPatterns:
+        - "Repository or client implementations referenced directly from application or domain packages"
+      recommendedTools:
+        - "ArchUnit"
+      notes:
+        - "Look for concrete adapter construction in use cases instead of injection through interfaces."
+  - ruleId: "AR-206"
+    detectionHints:
+      indicativeBaseTypes:
+        - "Static global utility access for time, environment, or network"
+      recommendedTools:
+        - "JUnit"
+        - "Mockito"
+      notes:
+        - "Highlight hardwired static collaborators or hidden global state that block isolated tests."

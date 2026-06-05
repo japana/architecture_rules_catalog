@@ -1,0 +1,46 @@
+profileId: "java-spring-boot"
+schemaVersion: "ruleset-profile-v1"
+status: "draft"
+displayName: "Java Spring Boot Profile"
+description: "Framework-specific mappings for applying the generic architecture catalog in Spring Boot systems."
+baseRuleSets:
+  - "clean-architecture"
+  - "clean-code"
+  - "security-baseline"
+dependsOnProfiles:
+  - "java"
+technology:
+  language: "java"
+  framework: "spring-boot"
+  runtime: "jvm"
+mappings:
+  - ruleId: "AR-101"
+    detectionHints:
+      forbiddenDependencyPatterns:
+        - "org.springframework.."
+        - "jakarta.persistence.."
+      indicativeAnnotations:
+        - "@Component inside domain packages"
+        - "@Entity inside domain packages"
+        - "@RestController inside domain packages"
+      recommendedTools:
+        - "ArchUnit"
+      notes:
+        - "Domain code should not take on Spring component, web, or persistence stereotypes."
+  - ruleId: "AR-104"
+    detectionHints:
+      concreteComponentPatterns:
+        - "JpaRepository implementations or RestTemplate/WebClient clients referenced directly from application services"
+      recommendedTools:
+        - "ArchUnit"
+      notes:
+        - "Adapters should implement interfaces defined inward rather than leak repository or client implementations into business workflows."
+  - ruleId: "AR-302"
+    detectionHints:
+      concreteComponentPatterns:
+        - "Authenticated principal treated as automatically authorized"
+        - "Method security absent where business permission checks are expected"
+      recommendedTools:
+        - "Spring Security tests"
+      notes:
+        - "Separate authentication from business authorization and verify permission checks explicitly."
