@@ -1,0 +1,65 @@
+ruleSetId: "clean-code"
+locale: "en"
+name: "Clean Code"
+description: "Generic rule set for readability, maintainability, testability and controlled complexity."
+category: "CodeQuality"
+compatibility: "Language-agnostic"
+tags:
+  - "CodeQuality"
+  - "Maintainability"
+  - "Testability"
+rules:
+  - id: "AR-201"
+    title: "Names Express Intent"
+    content: "Names for classes, methods, modules and variables should express intent clearly and avoid unnecessary abbreviations."
+    tags:
+      - "Naming"
+      - "Readability"
+    keywords:
+      - "intent-revealing"
+      - "clarity"
+  - id: "AR-202"
+    title: "Functions Stay Small And Focused"
+    content: "Methods and functions should serve one clear purpose and avoid mixing several business responsibilities."
+    tags:
+      - "Functions"
+      - "SingleResponsibility"
+    keywords:
+      - "small-functions"
+      - "focus"
+  - id: "AR-203"
+    title: "Modules Hide Internal Detail"
+    content: "Modules and classes should offer a small, stable surface and hide internal technical detail."
+    tags:
+      - "Encapsulation"
+      - "Modularity"
+    keywords:
+      - "public-api"
+      - "internal-detail"
+  - id: "AR-204"
+    title: "Error Handling Is Explicit"
+    content: "Failure paths should be modeled explicitly; swallowed exceptions, silent fallbacks and opaque null semantics should be avoided."
+    tags:
+      - "ErrorHandling"
+      - "Robustness"
+    keywords:
+      - "exceptions"
+      - "result-types"
+  - id: "AR-205"
+    title: "Duplication Is Eliminated At The Right Abstraction Level"
+    content: "Repeated logic and rules should be consolidated only when the shared abstraction is stable enough."
+    tags:
+      - "Duplication"
+      - "Abstraction"
+    keywords:
+      - "dry"
+      - "refactoring"
+  - id: "AR-206"
+    title: "Code Is Designed For Testability"
+    content: "Code should be structured through clear interfaces, controlled side effects and narrow responsibilities so that automated tests stay simple."
+    tags:
+      - "Testing"
+      - "Design"
+    keywords:
+      - "deterministic"
+      - "testable"

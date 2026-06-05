@@ -1,0 +1,67 @@
+ruleSetId: "security-baseline"
+locale: "de"
+name: "Security Baseline"
+description: "Generisches Regelwerk fuer sichere Defaults, Zugriffskontrolle, Secret-Schutz und nachvollziehbare Sicherheitsereignisse."
+category: "Sicherheit"
+compatibility: "Sprachunabhaengig"
+tags:
+  - "Sicherheit"
+  - "Baseline"
+  - "Haertung"
+rules:
+  - id: "AR-301"
+    title: "Secrets gehoeren nie in Quellcode-Repositories"
+    content: "Passwoerter, API-Keys, Token, Private Keys und vergleichbare Secrets duerfen nicht im Quellcode, in Beispieldateien, Logs oder Build-Artefakten abgelegt werden."
+    tags:
+      - "Secrets"
+      - "CredentialManagement"
+    keywords:
+      - "api-key"
+      - "passwort"
+      - "token"
+  - id: "AR-302"
+    title: "Authentifizierung und Autorisierung sind getrennt"
+    content: "Identitaetspruefung und Rechteentscheidung sollen als getrennte Verantwortungen modelliert werden, damit Fachrechte nicht implizit aus Login-Zustaenden abgeleitet werden."
+    tags:
+      - "Authentifizierung"
+      - "Autorisierung"
+    keywords:
+      - "authn"
+      - "authz"
+      - "least-privilege"
+  - id: "AR-303"
+    title: "Externe Eingaben werden an Systemgrenzen validiert"
+    content: "Externe Eingaben aus HTTP, Messaging, CLI, Dateien oder Integrationen sollen an der Grenze validiert, normalisiert und bei Verstoessen kontrolliert abgewiesen werden."
+    tags:
+      - "Validierung"
+      - "Grenze"
+    keywords:
+      - "input-validation"
+      - "vertraege"
+  - id: "AR-304"
+    title: "Least Privilege gilt fuer Benutzer und Dienste"
+    content: "Benutzer, technische Identitaeten und Hintergrundprozesse sollen nur die minimal erforderlichen Rechte erhalten und moeglichst eng begrenzt werden."
+    tags:
+      - "Berechtigungen"
+      - "ServiceAccounts"
+    keywords:
+      - "minimale-rechte"
+      - "zugriffsumfang"
+  - id: "AR-305"
+    title: "Sicherheitsrelevante Ereignisse sind auditierbar"
+    content: "Anmeldeereignisse, Rechteaenderungen, Secret-Rotation und sicherheitsrelevante Konfigurationswechsel sollen nachvollziehbar protokolliert werden."
+    tags:
+      - "Audit"
+      - "Nachvollziehbarkeit"
+    keywords:
+      - "audit-log"
+      - "traceability"
+  - id: "AR-306"
+    title: "Sichere Defaults gehen vor Bequemlichkeit"
+    content: "Unsichere Sonderpfade wie Test-Bypasses, offene Debug-Schnittstellen oder globale Vollzugriffe muessen standardmaessig deaktiviert sein."
+    tags:
+      - "Defaults"
+      - "Haertung"
+    keywords:
+      - "sichere-defaults"
+      - "opt-in-risiko"

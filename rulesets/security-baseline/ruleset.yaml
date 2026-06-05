@@ -1,0 +1,70 @@
+ruleSetId: "security-baseline"
+schemaVersion: "ruleset-catalog-v1"
+ruleSetVersion: "1.0.0"
+publisher: "APMDB Catalog Seed"
+license: "Apache-2.0"
+status: "published"
+defaultLocale: "en"
+availableLocales:
+  - "en"
+  - "de"
+approvals:
+  - maintainer: "catalog-maintainer"
+    approvedAt: "2026-06-05T18:00:00Z"
+    referenceType: "review"
+    reference: "https://example.org/catalog/reviews/security-baseline-v1"
+rules:
+  - id: "AR-301"
+    status: "Active"
+    type: "security"
+    scope:
+      - dimension: "system"
+        values:
+          - "Any"
+    source: "Security Baseline"
+    relationships: []
+  - id: "AR-302"
+    status: "Active"
+    type: "security"
+    scope:
+      - dimension: "system"
+        values:
+          - "Any"
+    source: "Access Control Principles"
+    relationships: []
+  - id: "AR-303"
+    status: "Active"
+    type: "api"
+    scope:
+      - dimension: "system"
+        values:
+          - "Any"
+    source: "Secure Input Handling"
+    relationships: []
+  - id: "AR-304"
+    status: "Active"
+    type: "security"
+    scope:
+      - dimension: "system"
+        values:
+          - "Any"
+    source: "Least Privilege"
+    relationships: []
+  - id: "AR-305"
+    status: "Active"
+    type: "operations"
+    scope:
+      - dimension: "system"
+        values:
+          - "Any"
+    source: "Auditability"
+    relationships: []
+  - id: "AR-306"
+    status: "Active"
+    type: "governance"
+    scope:
+      - dimension: "system"
+        values:
+          - "Any"
+    source: "Secure By Default"
+    relationships: []

@@ -1,0 +1,70 @@
+ruleSetId: "clean-architecture"
+schemaVersion: "ruleset-catalog-v1"
+ruleSetVersion: "1.0.0"
+publisher: "APMDB Catalog Seed"
+license: "Apache-2.0"
+status: "published"
+defaultLocale: "en"
+availableLocales:
+  - "en"
+  - "de"
+approvals:
+  - maintainer: "catalog-maintainer"
+    approvedAt: "2026-06-05T18:00:00Z"
+    referenceType: "review"
+    reference: "https://example.org/catalog/reviews/clean-architecture-v1"
+rules:
+  - id: "AR-101"
+    status: "Active"
+    type: "layering"
+    scope:
+      - dimension: "system"
+        values:
+          - "Any"
+    source: "Clean Architecture"
+    relationships: []
+  - id: "AR-102"
+    status: "Active"
+    type: "dependency"
+    scope:
+      - dimension: "system"
+        values:
+          - "Any"
+    source: "Clean Architecture"
+    relationships: []
+  - id: "AR-103"
+    status: "Active"
+    type: "governance"
+    scope:
+      - dimension: "system"
+        values:
+          - "Any"
+    source: "Clean Architecture"
+    relationships: []
+  - id: "AR-104"
+    status: "Active"
+    type: "module-boundary"
+    scope:
+      - dimension: "system"
+        values:
+          - "Any"
+    source: "Ports and Adapters"
+    relationships: []
+  - id: "AR-105"
+    status: "Active"
+    type: "api"
+    scope:
+      - dimension: "system"
+        values:
+          - "Any"
+    source: "Clean Architecture"
+    relationships: []
+  - id: "AR-106"
+    status: "Active"
+    type: "operations"
+    scope:
+      - dimension: "system"
+        values:
+          - "Any"
+    source: "Clean Architecture"
+    relationships: []

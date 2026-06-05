@@ -1,0 +1,65 @@
+ruleSetId: "clean-code"
+locale: "de"
+name: "Sauberer Code"
+description: "Generisches Regelwerk fuer Lesbarkeit, Wartbarkeit, Testbarkeit und kontrollierte Komplexitaet."
+category: "CodeQualitaet"
+compatibility: "Sprachunabhaengig"
+tags:
+  - "CodeQualitaet"
+  - "Wartbarkeit"
+  - "Testbarkeit"
+rules:
+  - id: "AR-201"
+    title: "Namen machen die Absicht klar"
+    content: "Bezeichner fuer Klassen, Methoden, Module und Variablen sollen ihre fachliche Absicht klar ausdruecken und keine unnoetigen Abkuerzungen enthalten."
+    tags:
+      - "Benennung"
+      - "Lesbarkeit"
+    keywords:
+      - "absicht"
+      - "klarheit"
+  - id: "AR-202"
+    title: "Funktionen bleiben klein und fokussiert"
+    content: "Methoden und Funktionen sollen einen klaren Zweck verfolgen und nicht mehrere fachliche Verantwortungen vermischen."
+    tags:
+      - "Funktionen"
+      - "SingleResponsibility"
+    keywords:
+      - "kleine-funktionen"
+      - "fokus"
+  - id: "AR-203"
+    title: "Module verbergen interne Details"
+    content: "Module und Klassen sollen eine kleine, stabile Oberflaeche anbieten und interne technische Details verbergen."
+    tags:
+      - "Kapselung"
+      - "Modularitaet"
+    keywords:
+      - "oeffentliche-api"
+      - "internes-detail"
+  - id: "AR-204"
+    title: "Fehlerbehandlung ist explizit"
+    content: "Fehlerfaelle sollen bewusst modelliert werden; verschluckte Ausnahmen, stille Fallbacks und intransparente Null-Semantik sind zu vermeiden."
+    tags:
+      - "Fehlerbehandlung"
+      - "Robustheit"
+    keywords:
+      - "ausnahmen"
+      - "result-typen"
+  - id: "AR-205"
+    title: "Duplikation wird auf der richtigen Abstraktionsebene eliminiert"
+    content: "Wiederholte Logik und Regeln sollen nur dann konsolidiert werden, wenn die gemeinsame Abstraktion stabil genug ist."
+    tags:
+      - "Duplikation"
+      - "Abstraktion"
+    keywords:
+      - "dry"
+      - "refactoring"
+  - id: "AR-206"
+    title: "Code wird auf Testbarkeit ausgelegt"
+    content: "Code soll ueber klare Schnittstellen, kontrollierbare Seiteneffekte und kleine Verantwortungen so gestaltet sein, dass automatisierte Tests einfach moeglich sind."
+    tags:
+      - "Testing"
+      - "Design"
+    keywords:
+      - "deterministisch"
+      - "testbar"

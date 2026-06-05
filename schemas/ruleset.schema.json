@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "ruleSetId",
+    "schemaVersion",
+    "ruleSetVersion",
+    "publisher",
+    "license",
+    "status",
+    "approvals",
+    "rules"
+  ],
+  "properties": {
+    "ruleSetId": { "type": "string", "minLength": 1 },
+    "schemaVersion": { "type": "string", "const": "ruleset-catalog-v1" },
+    "ruleSetVersion": { "type": "string", "minLength": 1 },
+    "publisher": { "type": "string", "minLength": 1 },
+    "license": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["draft", "review", "published", "deprecated", "invalid"] },
+    "defaultLocale": { "type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$" },
+    "availableLocales": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$" }
+    },
+    "approvals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["maintainer", "approvedAt", "referenceType", "reference"],
+        "properties": {
+          "maintainer": { "type": "string", "minLength": 1 },
+          "approvedAt": { "type": "string", "format": "date-time" },
+          "referenceType": { "type": "string", "enum": ["commit", "review", "event"] },
+          "reference": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "type", "scope", "source", "relationships"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^AR-[0-9]{3}$" },
+          "status": { "type": "string", "enum": ["Draft", "Active", "Deprecated", "Superseded"] },
+          "type": {
+            "type": "string",
+            "enum": ["layering", "module-boundary", "dependency", "naming", "api", "persistence", "security", "testing", "build", "operations", "governance"]
+          },
+          "scope": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["dimension", "values"],
+              "properties": {
+                "dimension": { "type": "string", "minLength": 1 },
+                "values": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "type": "string", "minLength": 1 }
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "source": { "type": "string", "minLength": 1 },
+          "relationships": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["target", "type"],
+              "properties": {
+                "target": { "type": "string", "minLength": 1 },
+                "type": { "type": "string", "minLength": 1 },
+                "rationale": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

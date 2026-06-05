@@ -1,0 +1,23 @@
+schemaVersion: "ruleset-catalog-v1"
+catalogId: "apmdb-public-catalog"
+defaultLocale: "en"
+supportedLocales:
+  - "en"
+  - "de"
+documentationBaseUrl: "https://example.org/catalog"
+ruleSets:
+  - id: "clean-architecture"
+    path: "rulesets/clean-architecture/ruleset.yaml"
+    locales:
+      - "en"
+      - "de"
+  - id: "clean-code"
+    path: "rulesets/clean-code/ruleset.yaml"
+    locales:
+      - "en"
+      - "de"
+  - id: "security-baseline"
+    path: "rulesets/security-baseline/ruleset.yaml"
+    locales:
+      - "en"
+      - "de"

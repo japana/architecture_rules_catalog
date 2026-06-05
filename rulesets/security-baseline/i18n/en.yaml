@@ -1,0 +1,67 @@
+ruleSetId: "security-baseline"
+locale: "en"
+name: "Security Baseline"
+description: "Generic rule set for secure defaults, access control, secret protection and auditable security events."
+category: "Security"
+compatibility: "Language-agnostic"
+tags:
+  - "Security"
+  - "Baseline"
+  - "Hardening"
+rules:
+  - id: "AR-301"
+    title: "Secrets Never Live In Source Repositories"
+    content: "Passwords, API keys, tokens, private keys and similar secrets must not be stored in source code, sample files, logs or build artifacts."
+    tags:
+      - "Secrets"
+      - "CredentialManagement"
+    keywords:
+      - "api-key"
+      - "password"
+      - "token"
+  - id: "AR-302"
+    title: "Authentication And Authorization Are Separated"
+    content: "Identity verification and permission decisions should be modeled as separate responsibilities so that business permissions are not inferred implicitly from login state."
+    tags:
+      - "Authentication"
+      - "Authorization"
+    keywords:
+      - "authn"
+      - "authz"
+      - "least-privilege"
+  - id: "AR-303"
+    title: "External Input Is Validated At System Boundaries"
+    content: "External inputs from HTTP, messaging, CLI, files or integrations should be validated and normalized at the system boundary."
+    tags:
+      - "Validation"
+      - "Boundary"
+    keywords:
+      - "input-validation"
+      - "contracts"
+  - id: "AR-304"
+    title: "Least Privilege Applies To Users And Services"
+    content: "Users, service identities and background processes should receive only the minimum permissions required, scoped as tightly as possible."
+    tags:
+      - "Permissions"
+      - "ServiceAccounts"
+    keywords:
+      - "minimum-rights"
+      - "scoped-access"
+  - id: "AR-305"
+    title: "Security Relevant Events Are Auditable"
+    content: "Authentication events, permission changes, secret rotation and security-relevant configuration changes should be logged in an auditable way."
+    tags:
+      - "Audit"
+      - "Observability"
+    keywords:
+      - "audit-log"
+      - "traceability"
+  - id: "AR-306"
+    title: "Secure Defaults Override Convenience"
+    content: "Unsafe exception paths such as test bypasses, open debug endpoints or global full access must be disabled by default."
+    tags:
+      - "Defaults"
+      - "Hardening"
+    keywords:
+      - "safe-defaults"
+      - "opt-in-risk"

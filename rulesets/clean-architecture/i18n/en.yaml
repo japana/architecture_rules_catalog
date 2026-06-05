@@ -1,0 +1,65 @@
+ruleSetId: "clean-architecture"
+locale: "en"
+name: "Clean Architecture"
+description: "Generic rule set for layering, dependency direction and use-case-centered architecture."
+category: "Architecture"
+compatibility: "Language-agnostic"
+tags:
+  - "Architecture"
+  - "Layering"
+  - "PortsAndAdapters"
+rules:
+  - id: "AR-101"
+    title: "Domain Core Depends On No Framework"
+    content: "The business core must not depend on web, UI, ORM, framework or infrastructure libraries."
+    tags:
+      - "Domain"
+      - "Isolation"
+    keywords:
+      - "framework-independent"
+      - "domain-core"
+  - id: "AR-102"
+    title: "Dependencies Point Inward"
+    content: "Dependencies between layers must point toward inner, more stable layers and never outward."
+    tags:
+      - "DependencyRule"
+    keywords:
+      - "inward-dependencies"
+      - "stable-core"
+  - id: "AR-103"
+    title: "Application Layer Orchestrates Use Cases"
+    content: "The application layer coordinates use cases but does not contain technical adapter details."
+    tags:
+      - "UseCase"
+      - "Application"
+    keywords:
+      - "orchestration"
+      - "use-case"
+  - id: "AR-104"
+    title: "Infrastructure Implements Ports"
+    content: "Technical infrastructure should be integrated via ports and implemented by adapters."
+    tags:
+      - "PortsAndAdapters"
+      - "Infrastructure"
+    keywords:
+      - "port-implementation"
+      - "adapter"
+  - id: "AR-105"
+    title: "Interface Adapters Do Not Contain Business Policy"
+    content: "Controllers, presenters, resources or UI adapters should encapsulate mapping, not core business policy."
+    tags:
+      - "Adapter"
+      - "Boundary"
+    keywords:
+      - "controller"
+      - "dto-mapping"
+  - id: "AR-106"
+    title: "Cross-Cutting Concerns Stay Outside The Domain"
+    content: "Logging, tracing, security enforcement, caching and transaction control should be modeled outside the domain core."
+    tags:
+      - "CrossCutting"
+      - "Operations"
+    keywords:
+      - "logging"
+      - "metrics"
+      - "transactions"

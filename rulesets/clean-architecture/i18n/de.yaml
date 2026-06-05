@@ -1,0 +1,65 @@
+ruleSetId: "clean-architecture"
+locale: "de"
+name: "Saubere Architektur"
+description: "Generisches Regelwerk fuer Schichtentrennung, Abhaengigkeitsrichtung und use-case-zentrierte Architektur."
+category: "Architektur"
+compatibility: "Sprachunabhaengig"
+tags:
+  - "Architektur"
+  - "Schichten"
+  - "PortsUndAdapter"
+rules:
+  - id: "AR-101"
+    title: "Der Domaenenkern haengt von keinem Framework ab"
+    content: "Der fachliche Kern darf keine Web-, UI-, ORM-, Framework- oder Infrastrukturabhaengigkeiten besitzen."
+    tags:
+      - "Domaene"
+      - "Isolation"
+    keywords:
+      - "framework-unabhaengig"
+      - "domaenenkern"
+  - id: "AR-102"
+    title: "Abhaengigkeiten zeigen nach innen"
+    content: "Abhaengigkeiten zwischen Schichten muessen auf stabilere, innere Schichten zeigen und nie nach aussen."
+    tags:
+      - "Abhaengigkeitsregel"
+    keywords:
+      - "nach-innen"
+      - "stabiler-kern"
+  - id: "AR-103"
+    title: "Die Application-Schicht orchestriert Use Cases"
+    content: "Die Application-Schicht orchestriert Anwendungsfaelle, enthaelt aber keine technischen Adapterdetails."
+    tags:
+      - "UseCase"
+      - "Application"
+    keywords:
+      - "orchestrierung"
+      - "anwendungsfall"
+  - id: "AR-104"
+    title: "Infrastruktur implementiert Ports"
+    content: "Technische Infrastruktur soll ueber Ports eingebunden und durch Adapter implementiert werden."
+    tags:
+      - "PortsUndAdapter"
+      - "Infrastruktur"
+    keywords:
+      - "port-implementierung"
+      - "adapter"
+  - id: "AR-105"
+    title: "Interface Adapter enthalten keine fachliche Kernlogik"
+    content: "Controller, Presenter, Resources oder UI-Adapter sollen Mapping kapseln, nicht aber fachliche Kernregeln."
+    tags:
+      - "Adapter"
+      - "Grenze"
+    keywords:
+      - "controller"
+      - "dto-mapping"
+  - id: "AR-106"
+    title: "Querschnittsthemen bleiben ausserhalb der Domaene"
+    content: "Logging, Tracing, Security Enforcement, Caching und Transaktionssteuerung sollen ausserhalb des Domaenenkerns modelliert werden."
+    tags:
+      - "Querschnitt"
+      - "Betrieb"
+    keywords:
+      - "logging"
+      - "metriken"
+      - "transaktionen"
