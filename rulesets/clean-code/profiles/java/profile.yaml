@@ -1,0 +1,19 @@
+profileId: "java"
+ruleSetId: "clean-code"
+schemaVersion: "ruleset-profile-v1"
+status: "draft"
+displayName: "Java Profile for Clean Code"
+description: "Java-specific interpretation hints for the clean-code ruleset."
+technology:
+  language: "java"
+  runtime: "jvm"
+mappings:
+  - ruleId: "AR-206"
+    detectionHints:
+      indicativeBaseTypes:
+        - "Static global utility access for time, environment, or network"
+      recommendedTools:
+        - "JUnit"
+        - "Mockito"
+      notes:
+        - "Highlight hardwired static collaborators or hidden global state that block isolated tests."

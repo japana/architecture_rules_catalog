@@ -1,14 +1,10 @@
 profileId: "java-quarkus"
+ruleSetId: "clean-architecture"
 schemaVersion: "ruleset-profile-v1"
 status: "draft"
-displayName: "Java Quarkus Profile"
-description: "Framework-specific mappings for applying the generic architecture catalog in Quarkus-based Java systems."
-baseRuleSets:
-  - "clean-architecture"
-  - "clean-code"
-  - "security-baseline"
-dependsOnProfiles:
-  - "java"
+displayName: "Java Quarkus Profile for Clean Architecture"
+description: "Quarkus-specific interpretation hints for the clean-architecture ruleset."
+extendsProfile: "java"
 technology:
   language: "java"
   framework: "quarkus"
@@ -38,13 +34,3 @@ mappings:
         - "ArchUnit"
       notes:
         - "Use cases should orchestrate ports rather than perform direct Panache-driven persistence logic."
-  - ruleId: "AR-303"
-    detectionHints:
-      indicativeAnnotations:
-        - "@Path parameter or request body types reaching business logic without validation"
-        - "@Valid missing on boundary DTOs where bean validation is expected"
-      recommendedTools:
-        - "REST-assured"
-        - "Bean Validation"
-      notes:
-        - "Validate and normalize JAX-RS boundary models before they reach application or domain services."

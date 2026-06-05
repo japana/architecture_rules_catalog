@@ -29,7 +29,8 @@ Do not put the following into the generic core catalog:
 - rules that only make sense for one framework
 - framework-specific annotations, base classes, or namespace patterns
 
-These belong in optional profiles, not in `rulesets/*`.
+These belong in optional profiles under `rulesets/<ruleSetId>/profiles/`, not
+in the generic `ruleset.yaml` or `i18n/*.yaml`.
 
 ## What Belongs in Optional Profiles
 
@@ -44,14 +45,23 @@ Optional profiles may contain:
 Example structure:
 
 ```text
-profiles/
-├─ java/
-├─ java-quarkus/
-└─ java-spring-boot/
+rulesets/
+├─ clean-architecture/
+│  └─ profiles/
+│     ├─ java/
+│     ├─ java-quarkus/
+│     └─ java-spring-boot/
+├─ clean-code/
+│  └─ profiles/
+│     └─ java/
+└─ security-baseline/
+   └─ profiles/
+      ├─ java-quarkus/
+      └─ java-spring-boot/
 ```
 
-Profiles are companion artifacts. They are not part of the generic core
-catalog and should not be registered in `catalog.yaml`.
+Profiles are rule-set-local companion artifacts. They are not part of the
+generic core catalog and should not be registered in `catalog.yaml`.
 
 ## Quality Check for a New Generic Rule
 
@@ -88,7 +98,8 @@ For `i18n/*.yaml`:
 
 For optional profiles:
 
-- keep them outside the core catalog
+- keep them outside the core catalog payload
+- place them under the ruleset they refine
 - name the base rules they refine
 - document the target language/framework clearly
 - keep concrete dependency patterns in the profile only

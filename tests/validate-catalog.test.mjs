@@ -90,3 +90,22 @@ test("validator rejects technology markers in the generic core catalog", async (
     assert.ok(errors.some((error) => error.includes("technology-specific marker 'spring'")));
   });
 });
+
+test("validator rejects profile mappings that reference unknown rules", async () => {
+  await withCatalogFixture(async (tempDir) => {
+    const profilePath = path.join(
+      tempDir,
+      "rulesets",
+      "clean-architecture",
+      "profiles",
+      "java",
+      "profile.yaml"
+    );
+    const content = await fs.readFile(profilePath, "utf8");
+    const mutated = content.replace('ruleId: "AR-101"', 'ruleId: "AR-999"');
+    await fs.writeFile(profilePath, mutated, "utf8");
+
+    const errors = await validateCatalog(tempDir);
+    assert.ok(errors.some((error) => error.includes("mapping rule 'AR-999' does not exist")));
+  });
+});

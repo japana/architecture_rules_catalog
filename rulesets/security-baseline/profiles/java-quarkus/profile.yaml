@@ -1,0 +1,21 @@
+profileId: "java-quarkus"
+ruleSetId: "security-baseline"
+schemaVersion: "ruleset-profile-v1"
+status: "draft"
+displayName: "Java Quarkus Profile for Security Baseline"
+description: "Quarkus-specific interpretation hints for the security-baseline ruleset."
+technology:
+  language: "java"
+  framework: "quarkus"
+  runtime: "jvm"
+mappings:
+  - ruleId: "AR-303"
+    detectionHints:
+      indicativeAnnotations:
+        - "@Path parameter or request body types reaching business logic without validation"
+        - "@Valid missing on boundary DTOs where bean validation is expected"
+      recommendedTools:
+        - "REST-assured"
+        - "Bean Validation"
+      notes:
+        - "Validate and normalize JAX-RS boundary models before they reach application or domain services."

@@ -1,0 +1,20 @@
+profileId: "java-spring-boot"
+ruleSetId: "security-baseline"
+schemaVersion: "ruleset-profile-v1"
+status: "draft"
+displayName: "Java Spring Boot Profile for Security Baseline"
+description: "Spring Boot-specific interpretation hints for the security-baseline ruleset."
+technology:
+  language: "java"
+  framework: "spring-boot"
+  runtime: "jvm"
+mappings:
+  - ruleId: "AR-302"
+    detectionHints:
+      concreteComponentPatterns:
+        - "Authenticated principal treated as automatically authorized"
+        - "Method security absent where business permission checks are expected"
+      recommendedTools:
+        - "Spring Security tests"
+      notes:
+        - "Separate authentication from business authorization and verify permission checks explicitly."

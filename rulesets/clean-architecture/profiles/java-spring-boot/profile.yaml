@@ -1,14 +1,10 @@
 profileId: "java-spring-boot"
+ruleSetId: "clean-architecture"
 schemaVersion: "ruleset-profile-v1"
 status: "draft"
-displayName: "Java Spring Boot Profile"
-description: "Framework-specific mappings for applying the generic architecture catalog in Spring Boot systems."
-baseRuleSets:
-  - "clean-architecture"
-  - "clean-code"
-  - "security-baseline"
-dependsOnProfiles:
-  - "java"
+displayName: "Java Spring Boot Profile for Clean Architecture"
+description: "Spring Boot-specific interpretation hints for the clean-architecture ruleset."
+extendsProfile: "java"
 technology:
   language: "java"
   framework: "spring-boot"
@@ -35,12 +31,3 @@ mappings:
         - "ArchUnit"
       notes:
         - "Adapters should implement interfaces defined inward rather than leak repository or client implementations into business workflows."
-  - ruleId: "AR-302"
-    detectionHints:
-      concreteComponentPatterns:
-        - "Authenticated principal treated as automatically authorized"
-        - "Method security absent where business permission checks are expected"
-      recommendedTools:
-        - "Spring Security tests"
-      notes:
-        - "Separate authentication from business authorization and verify permission checks explicitly."

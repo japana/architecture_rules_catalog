@@ -3,31 +3,22 @@
   "type": "object",
   "required": [
     "profileId",
+    "ruleSetId",
     "schemaVersion",
     "status",
     "displayName",
     "description",
-    "baseRuleSets",
     "technology",
     "mappings"
   ],
   "properties": {
     "profileId": { "type": "string", "minLength": 1 },
+    "ruleSetId": { "type": "string", "minLength": 1 },
     "schemaVersion": { "type": "string", "const": "ruleset-profile-v1" },
     "status": { "type": "string", "enum": ["draft", "review", "published", "deprecated"] },
     "displayName": { "type": "string", "minLength": 1 },
     "description": { "type": "string", "minLength": 1 },
-    "baseRuleSets": {
-      "type": "array",
-      "minItems": 1,
-      "uniqueItems": true,
-      "items": { "type": "string", "minLength": 1 }
-    },
-    "dependsOnProfiles": {
-      "type": "array",
-      "uniqueItems": true,
-      "items": { "type": "string", "minLength": 1 }
-    },
+    "extendsProfile": { "type": "string", "minLength": 1 },
     "technology": {
       "type": "object",
       "required": ["language"],

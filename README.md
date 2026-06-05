@@ -51,7 +51,8 @@ The generic core catalog must not contain:
 
 ## Optional Profiles
 
-Technology-specific mappings live outside the core in `profiles/`.
+Technology-specific mappings live next to the ruleset they refine under
+`rulesets/<ruleSetId>/profiles/`.
 
 Those profiles may contain:
 
@@ -60,14 +61,26 @@ Those profiles may contain:
 - suggested static-analysis tooling
 - technology-specific examples
 
-Current starter profiles:
+Example structure:
 
-- `profiles/java/`
-- `profiles/java-quarkus/`
-- `profiles/java-spring-boot/`
+```text
+rulesets/
+  clean-architecture/
+    profiles/
+      java/
+      java-quarkus/
+      java-spring-boot/
+  clean-code/
+    profiles/
+      java/
+  security-baseline/
+    profiles/
+      java-quarkus/
+      java-spring-boot/
+```
 
 These profiles are intentionally not registered in `catalog.yaml`. They are
-companion artifacts, not part of the generic core catalog.
+rule-set-local companion artifacts, not part of the generic core catalog.
 
 ## Identity Model
 
@@ -99,6 +112,7 @@ The validator checks:
 - relationship targets
 - required localized review fields
 - forbidden technology markers in the generic core catalog
+- optional profile schema compliance and profile-to-ruleset rule mappings
 
 ## Authoring
 

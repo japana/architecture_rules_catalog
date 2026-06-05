@@ -85,15 +85,18 @@ export async function validateCatalog(rootDir = defaultRootDir) {
   const catalogPath = path.join(rootDir, "catalog.yaml");
   const rulesetSchemaPath = path.join(rootDir, "schemas", "ruleset.schema.json");
   const localeSchemaPath = path.join(rootDir, "schemas", "ruleset-locale.schema.json");
+  const profileSchemaPath = path.join(rootDir, "schemas", "profile.schema.json");
 
-  const [catalog, rulesetSchema, localeSchema] = await Promise.all([
+  const [catalog, rulesetSchema, localeSchema, profileSchema] = await Promise.all([
     loadYaml(catalogPath),
     loadJson(rulesetSchemaPath),
-    loadJson(localeSchemaPath)
+    loadJson(localeSchemaPath),
+    loadJson(profileSchemaPath)
   ]);
 
   const validateRuleset = ajv.compile(rulesetSchema);
   const validateLocale = ajv.compile(localeSchema);
+  const validateProfile = ajv.compile(profileSchema);
 
   const errors = [];
   const seenRuleIds = new Map();
@@ -146,6 +149,47 @@ export async function validateCatalog(rootDir = defaultRootDir) {
       }
 
       ruleIds.add(rule.id);
+    }
+
+    const profilesDir = path.join(rootDir, "rulesets", ruleSetRef.id, "profiles");
+    try {
+      await fs.access(profilesDir);
+      const technologyDirs = await fs.readdir(profilesDir, { withFileTypes: true });
+      for (const technologyDir of technologyDirs) {
+        if (!technologyDir.isDirectory()) {
+          continue;
+        }
+
+        const profilePath = path.join(profilesDir, technologyDir.name, "profile.yaml");
+        try {
+          await fs.access(profilePath);
+        } catch {
+          errors.push(`${ruleSetRef.path}: missing profile.yaml under rulesets/${ruleSetRef.id}/profiles/${technologyDir.name}/.`);
+          continue;
+        }
+
+        const profileDoc = await loadYaml(profilePath);
+        const relativeProfilePath = path.relative(rootDir, profilePath);
+        if (!validateProfile(profileDoc)) {
+          errors.push(...formatAjvErrors(relativeProfilePath, validateProfile.errors));
+        }
+
+        if (profileDoc.ruleSetId !== ruleset.ruleSetId) {
+          errors.push(`${relativeProfilePath}: ruleSetId '${profileDoc.ruleSetId}' does not match '${ruleset.ruleSetId}'.`);
+        }
+
+        if (profileDoc.profileId !== technologyDir.name) {
+          errors.push(`${relativeProfilePath}: profileId '${profileDoc.profileId}' does not match enclosing technology directory '${technologyDir.name}'.`);
+        }
+
+        for (const mapping of ensureArray(profileDoc.mappings)) {
+          if (!ruleIds.has(mapping.ruleId)) {
+            errors.push(`${relativeProfilePath}: mapping rule '${mapping.ruleId}' does not exist in ruleset '${ruleset.ruleSetId}'.`);
+          }
+        }
+      }
+    } catch {
+      // Profiles are optional per ruleset.
     }
 
     for (const approval of ensureArray(ruleset.approvals)) {
