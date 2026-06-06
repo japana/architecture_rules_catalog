@@ -1,6 +1,6 @@
 ruleSetId: "clean-architecture"
 locale: "de"
-name: "Saubere Architektur"
+name: "Clean Architecture"
 description: "Generisches Regelwerk für Schichtentrennung, Abhängigkeitsrichtung und Use-Case-zentrierte Architektur."
 category: "Architektur"
 compatibility: "Sprachunabhängig"
