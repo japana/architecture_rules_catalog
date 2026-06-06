@@ -151,6 +151,18 @@ export async function validateCatalog(rootDir = defaultRootDir) {
       ruleIds.add(rule.id);
     }
 
+    if (ruleset.status === "published") {
+      if (ensureArray(ruleset.approvals).length === 0) {
+        errors.push(`${ruleSetRef.path}: published rulesets require at least one approval.`);
+      }
+
+      for (const rule of ensureArray(ruleset.rules)) {
+        if (rule.status === "draft") {
+          errors.push(`${ruleSetRef.path}: published rulesets must not contain rules in status 'draft' (rule '${rule.id}').`);
+        }
+      }
+    }
+
     const profilesDir = path.join(rootDir, "rulesets", ruleSetRef.id, "profiles");
     try {
       await fs.access(profilesDir);

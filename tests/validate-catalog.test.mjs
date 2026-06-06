@@ -49,17 +49,49 @@ test("validator rejects placeholder approval references", async () => {
   await withCatalogFixture(async (tempDir) => {
     const rulesetPath = path.join(tempDir, "rulesets", "clean-code", "ruleset.yaml");
     const content = await fs.readFile(rulesetPath, "utf8");
-    const mutated = content.replace("approvals: []", [
-      "approvals:",
-      "  - maintainer: \"catalog-maintainer\"",
-      "    approvedAt: \"2026-06-05T18:00:00Z\"",
-      "    referenceType: \"review\"",
-      "    reference: \"https://example.org/catalog/reviews/clean-code-v1\""
-    ].join("\n"));
+    const mutated = content.replace(
+      "https://github.com/japana/architecture_rules_catalog/commit/2d941e2045be814ea7961d4fc3f07e89cbdadbe9",
+      "https://example.org/catalog/reviews/clean-code-v1"
+    );
     await fs.writeFile(rulesetPath, mutated, "utf8");
 
     const errors = await validateCatalog(tempDir);
     assert.ok(errors.some((error) => error.includes("must not use example.org")));
+  });
+});
+
+test("validator rejects published rulesets without approvals", async () => {
+  await withCatalogFixture(async (tempDir) => {
+    const rulesetPath = path.join(tempDir, "rulesets", "clean-code", "ruleset.yaml");
+    const content = await fs.readFile(rulesetPath, "utf8");
+    const mutated = content.replace(
+      [
+        "approvals:",
+        "  - maintainer: \"japana\"",
+        "    approvedAt: \"2026-06-06T10:00:00Z\"",
+        "    referenceType: \"commit\"",
+        "    reference: \"https://github.com/japana/architecture_rules_catalog/commit/2d941e2045be814ea7961d4fc3f07e89cbdadbe9\""
+      ].join("\n"),
+      "approvals: []"
+    );
+    await fs.writeFile(rulesetPath, mutated, "utf8");
+
+    const errors = await validateCatalog(tempDir);
+    assert.ok(errors.some((error) => error.includes("published rulesets require at least one approval")));
+  });
+});
+
+test("validator rejects published rulesets with draft rules", async () => {
+  await withCatalogFixture(async (tempDir) => {
+    const rulesetPath = path.join(tempDir, "rulesets", "clean-code", "ruleset.yaml");
+    const content = await fs.readFile(rulesetPath, "utf8");
+    const mutated = content
+      .replace('    status: "active"', '    status: "draft"')
+      ;
+    await fs.writeFile(rulesetPath, mutated, "utf8");
+
+    const errors = await validateCatalog(tempDir);
+    assert.ok(errors.some((error) => error.includes("published rulesets must not contain rules in status 'draft'")));
   });
 });
 

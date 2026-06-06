@@ -3,12 +3,16 @@ schemaVersion: "ruleset-catalog-v1"
 ruleSetVersion: "1.1.0"
 publisher: "APMDB Catalog Seed"
 license: "Apache-2.0"
-status: "draft"
+status: "published"
 defaultLocale: "en"
 availableLocales:
   - "en"
   - "de"
-approvals: []
+approvals:
+  - maintainer: "japana"
+    approvedAt: "2026-06-06T10:00:00Z"
+    referenceType: "commit"
+    reference: "https://github.com/japana/architecture_rules_catalog/commit/2d941e2045be814ea7961d4fc3f07e89cbdadbe9"
 rules:
   - id: "AR-201"
     status: "active"

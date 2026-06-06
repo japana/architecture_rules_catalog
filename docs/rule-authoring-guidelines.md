@@ -94,6 +94,15 @@ For `i18n/*.yaml`:
 - provide `exceptions`
 - provide `remediation`
 
+## Publication Readiness
+
+Before a generic ruleset moves to `published`:
+
+- record at least one non-placeholder approval in `approvals`
+- keep all contained rules out of `draft`
+- run `npm run validate`
+- run `npm test`
+
 ## Profile Authoring Checklist
 
 For optional profiles:
