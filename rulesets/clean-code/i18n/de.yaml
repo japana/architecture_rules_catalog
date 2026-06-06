@@ -1,6 +1,6 @@
 ruleSetId: "clean-code"
 locale: "de"
-name: "Sauberer Code"
+name: "Clean Code"
 description: "Generisches Regelwerk für Lesbarkeit, Wartbarkeit, explizites Verhalten und Testbarkeit."
 category: "CodeQualität"
 compatibility: "Sprachunabhängig"
