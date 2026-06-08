@@ -20,3 +20,28 @@ ruleSets:
     locales:
       - "en"
       - "de"
+  - id: "api-design"
+    path: "rulesets/api-design/ruleset.yaml"
+    locales:
+      - "en"
+      - "de"
+  - id: "data-management"
+    path: "rulesets/data-management/ruleset.yaml"
+    locales:
+      - "en"
+      - "de"
+  - id: "observability"
+    path: "rulesets/observability/ruleset.yaml"
+    locales:
+      - "en"
+      - "de"
+  - id: "resilience-and-reliability"
+    path: "rulesets/resilience-and-reliability/ruleset.yaml"
+    locales:
+      - "en"
+      - "de"
+  - id: "testing-and-quality-gates"
+    path: "rulesets/testing-and-quality-gates/ruleset.yaml"
+    locales:
+      - "en"
+      - "de"
