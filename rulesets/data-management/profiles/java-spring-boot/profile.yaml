@@ -1,0 +1,37 @@
+profileId: "java-spring-boot"
+ruleSetId: "data-management"
+schemaVersion: "ruleset-profile-v1"
+status: "draft"
+displayName: "Java Spring Boot Profile for Data Management"
+description: "Spring Boot-specific detection hints for the data-management ruleset."
+technology:
+  language: "java"
+  framework: "spring-boot"
+  runtime: "jvm"
+mappings:
+  - ruleId: "AR-501"
+    detectionHints:
+      concreteComponentPatterns: ["Multiple services write the same repository or table", "Repository used across unrelated modules"]
+      recommendedTools: ["ArchUnit", "module dependency review"]
+  - ruleId: "AR-502"
+    detectionHints:
+      indicativeAnnotations: ["@Entity", "@Embeddable", "@Transactional"]
+      concreteComponentPatterns: ["Invariant enforced only in controller", "Entity permits invalid state through public setters"]
+      recommendedTools: ["domain tests", "persistence tests"]
+  - ruleId: "AR-503"
+    detectionHints:
+      concreteComponentPatterns: ["Schema generated implicitly in production", "Migration missing for entity change"]
+      recommendedTools: ["Flyway", "Liquibase", "migration smoke tests"]
+  - ruleId: "AR-504"
+    detectionHints:
+      indicativeAnnotations: ["@Transactional"]
+      concreteComponentPatterns: ["Transaction spans unrelated ownership boundaries", "External call inside transaction without failure strategy"]
+      recommendedTools: ["integration tests", "transaction review"]
+  - ruleId: "AR-505"
+    detectionHints:
+      concreteComponentPatterns: ["Projection table or cache without refresh strategy", "Read model updated without reconciliation path"]
+      recommendedTools: ["cache tests", "projection rebuild tests"]
+  - ruleId: "AR-506"
+    detectionHints:
+      concreteComponentPatterns: ["Repository findAll in request path", "Lazy loading causes N+1 behavior"]
+      recommendedTools: ["SQL logging", "performance smoke tests"]
