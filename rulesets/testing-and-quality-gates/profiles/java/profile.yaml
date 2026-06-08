@@ -1,0 +1,30 @@
+profileId: "java"
+ruleSetId: "testing-and-quality-gates"
+schemaVersion: "ruleset-profile-v1"
+status: "draft"
+displayName: "Java Profile for Testing and Quality Gates"
+description: "Java-specific detection hints for the testing-and-quality-gates ruleset."
+technology:
+  language: "java"
+  runtime: "jvm"
+mappings:
+  - ruleId: "AR-801"
+    detectionHints:
+      concreteComponentPatterns: ["Critical branch without unit, integration, or contract test", "Security-sensitive behavior without negative test"]
+      recommendedTools: ["JUnit", "integration tests", "coverage review"]
+  - ruleId: "AR-802"
+    detectionHints:
+      concreteComponentPatterns: ["Test asserts private implementation detail", "Mock verifies incidental call order instead of outcome"]
+      recommendedTools: ["JUnit", "Mockito review"]
+  - ruleId: "AR-803"
+    detectionHints:
+      concreteComponentPatterns: ["Bugfix commit without failing regression test", "Reproduced defect only manually checked"]
+      recommendedTools: ["JUnit", "regression test review"]
+  - ruleId: "AR-804"
+    detectionHints:
+      recommendedTools: ["Maven build", "Gradle build", "CI quality gate review"]
+      notes: ["Connect build gates to actual risk, not only aggregate metrics."]
+  - ruleId: "AR-805"
+    detectionHints:
+      concreteComponentPatterns: ["Manual test description lacks setup or expected result"]
+      recommendedTools: ["test artifact review"]
