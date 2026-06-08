@@ -1,0 +1,123 @@
+ruleSetId: "data-management"
+schemaVersion: "ruleset-catalog-v1"
+ruleSetVersion: "0.1.0"
+publisher: "APMDB Catalog Seed"
+license: "Apache-2.0"
+status: "draft"
+defaultLocale: "en"
+availableLocales: ["en", "de"]
+rules:
+  - id: "AR-501"
+    status: "draft"
+    type: "persistence"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["architecture-design", "source-code", "documentation"]
+    appliesTo:
+      artifactTypes: ["architecture-design", "source-code", "documentation"]
+      architectureElements: ["domain", "application", "data-store", "service"]
+    source:
+      type: "architecture-principle"
+      name: "Data Ownership"
+      reference: "Business data should have clear ownership and responsibility."
+    violationSignals: ["Multiple components change the same business data without clear ownership.", "No component is responsible for enforcing data meaning or lifecycle.", "Data ownership is inferred from storage location only."]
+    relationships: []
+  - id: "AR-502"
+    status: "draft"
+    type: "persistence"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["architecture-design", "source-code", "test-artifact"]
+    appliesTo:
+      artifactTypes: ["architecture-design", "source-code", "test-artifact"]
+      architectureElements: ["domain", "application", "data-store"]
+    source:
+      type: "architecture-principle"
+      name: "Invariant Protection"
+      reference: "Data models should protect business invariants, not merely store fields."
+    violationSignals: ["Invalid business states can be persisted without controlled validation.", "Important invariants exist only in UI logic or informal documentation.", "Persistence structures permit combinations that the business domain forbids."]
+    relationships: []
+  - id: "AR-503"
+    status: "draft"
+    type: "persistence"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "blocking"
+    detectability: "process"
+    scope:
+      - dimension: "artifactType"
+        values: ["configuration", "build-pipeline", "runtime-operation", "documentation"]
+    appliesTo:
+      artifactTypes: ["configuration", "build-pipeline", "runtime-operation", "documentation"]
+      architectureElements: ["data-store", "deployment", "service"]
+    source:
+      type: "engineering-practice"
+      name: "Schema Change Safety"
+      reference: "Persistent data changes should be migratable and operationally safe."
+    violationSignals: ["Schema changes lack migration or rollback considerations.", "Existing data compatibility is not assessed.", "Deployment requires manual, undocumented data manipulation."]
+    relationships: []
+  - id: "AR-504"
+    status: "draft"
+    type: "persistence"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["architecture-design", "source-code", "runtime-operation"]
+    appliesTo:
+      artifactTypes: ["architecture-design", "source-code", "runtime-operation"]
+      architectureElements: ["application", "service", "data-store", "external-system"]
+    source:
+      type: "architecture-principle"
+      name: "Consistency Boundary"
+      reference: "Write operations should define transactional and consistency boundaries deliberately."
+    violationSignals: ["A business operation updates multiple data owners without consistency strategy.", "Partial failure can leave business state unclear.", "Transactional assumptions are hidden in infrastructure behavior."]
+    relationships: []
+  - id: "AR-505"
+    status: "draft"
+    type: "persistence"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "architecture-design", "runtime-operation", "documentation"]
+    appliesTo:
+      artifactTypes: ["source-code", "architecture-design", "runtime-operation", "documentation"]
+      architectureElements: ["data-store", "service", "application"]
+    source:
+      type: "architecture-principle"
+      name: "Derived Data Integrity"
+      reference: "Derived data should not be treated as truth without an update strategy."
+    violationSignals: ["Cached, indexed, or projected data becomes authoritative without reconciliation.", "Stale derived data is indistinguishable from source data.", "Rebuild or refresh behavior is missing for derived stores."]
+    relationships: []
+  - id: "AR-506"
+    status: "draft"
+    type: "persistence"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "architecture-design", "runtime-operation", "test-artifact"]
+    appliesTo:
+      artifactTypes: ["source-code", "architecture-design", "runtime-operation", "test-artifact"]
+      architectureElements: ["data-store", "service"]
+    source:
+      type: "engineering-practice"
+      name: "Access Path Awareness"
+      reference: "Data access should consider expected volume and query paths."
+    violationSignals: ["A query path grows with data volume without limits or indexes.", "N+1 or full-scan behavior is introduced in critical paths.", "Data access assumptions are untested for realistic volumes."]
+    relationships: []
