@@ -1,0 +1,38 @@
+profileId: "java-quarkus"
+ruleSetId: "api-design"
+schemaVersion: "ruleset-profile-v1"
+status: "draft"
+displayName: "Java Quarkus Profile for API Design"
+description: "Quarkus-specific detection hints for the api-design ruleset."
+technology:
+  language: "java"
+  framework: "quarkus"
+  runtime: "jvm"
+mappings:
+  - ruleId: "AR-401"
+    detectionHints:
+      indicativeAnnotations: ["@Path", "@GET", "@POST", "@PUT", "@DELETE"]
+      recommendedTools: ["OpenAPI contract validation", "REST-assured tests"]
+      notes: ["Check whether resource behavior is represented by an explicit API contract."]
+  - ruleId: "AR-402"
+    detectionHints:
+      indicativeBaseTypes: ["ExceptionMapper"]
+      indicativeAnnotations: ["@Provider"]
+      recommendedTools: ["REST-assured tests", "API error contract tests"]
+  - ruleId: "AR-403"
+    detectionHints:
+      indicativeAnnotations: ["@Entity", "@Table", "@Path"]
+      concreteComponentPatterns: ["Persistence entity returned directly from resource", "Panache entity used as request or response model"]
+      recommendedTools: ["ArchUnit", "API review"]
+  - ruleId: "AR-404"
+    detectionHints:
+      recommendedTools: ["OpenAPI diff", "contract tests"]
+      notes: ["Compare generated or maintained OpenAPI descriptions for breaking changes."]
+  - ruleId: "AR-405"
+    detectionHints:
+      concreteComponentPatterns: ["Command endpoint without duplicate handling", "Retryable command without idempotency key"]
+      recommendedTools: ["REST-assured integration tests"]
+  - ruleId: "AR-406"
+    detectionHints:
+      concreteComponentPatterns: ["Unbounded list endpoint", "Repository listAll exposed through resource"]
+      recommendedTools: ["REST-assured tests", "performance smoke tests"]
