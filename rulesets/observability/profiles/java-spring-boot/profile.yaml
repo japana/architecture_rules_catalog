@@ -1,0 +1,32 @@
+profileId: "java-spring-boot"
+ruleSetId: "observability"
+schemaVersion: "ruleset-profile-v1"
+status: "draft"
+displayName: "Java Spring Boot Profile for Observability"
+description: "Spring Boot-specific detection hints for the observability ruleset."
+technology:
+  language: "java"
+  framework: "spring-boot"
+  runtime: "jvm"
+mappings:
+  - ruleId: "AR-601"
+    detectionHints:
+      concreteComponentPatterns: ["Critical service method without log, metric, trace, or status signal", "Scheduled job without outcome signal"]
+      recommendedTools: ["Micrometer", "Spring Boot Actuator", "OpenTelemetry"]
+  - ruleId: "AR-602"
+    detectionHints:
+      concreteComponentPatterns: ["Exception logged without operation or correlation context", "Sensitive payload logged as diagnostic context"]
+      recommendedTools: ["structured logging", "log redaction tests"]
+  - ruleId: "AR-603"
+    detectionHints:
+      concreteComponentPatterns: ["Missing correlation id propagation across HTTP clients", "Async execution loses diagnostic context"]
+      recommendedTools: ["OpenTelemetry", "MDC propagation tests"]
+  - ruleId: "AR-604"
+    detectionHints:
+      recommendedTools: ["Actuator health indicators", "alert rule review"]
+      notes: ["Connect alerts to user or service impact rather than raw technical noise."]
+  - ruleId: "AR-605"
+    detectionHints:
+      indicativeAnnotations: ["@Scheduled", "@Async"]
+      concreteComponentPatterns: ["Background job without persisted status or failure summary"]
+      recommendedTools: ["job status tests", "operational dashboard review"]
