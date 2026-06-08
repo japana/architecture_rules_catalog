@@ -1,0 +1,36 @@
+profileId: "csharp-dotnet"
+ruleSetId: "api-design"
+schemaVersion: "ruleset-profile-v1"
+status: "draft"
+displayName: "C# .NET Profile for API Design"
+description: ".NET-specific detection hints for the api-design ruleset."
+technology:
+  language: "csharp"
+  framework: "dotnet"
+  runtime: "dotnet"
+mappings:
+  - ruleId: "AR-401"
+    detectionHints:
+      indicativeAnnotations: ["[ApiController]", "[Route]", "[HttpGet]", "[HttpPost]"]
+      recommendedTools: ["OpenAPI contract validation", "ASP.NET Core integration tests"]
+      notes: ["Check whether controller behavior is represented by an explicit API contract."]
+  - ruleId: "AR-402"
+    detectionHints:
+      concreteComponentPatterns: ["Unmapped exception exposed to API client", "Inconsistent ProblemDetails response"]
+      recommendedTools: ["ASP.NET Core integration tests", "API error contract tests"]
+  - ruleId: "AR-403"
+    detectionHints:
+      concreteComponentPatterns: ["Entity Framework entity returned directly from controller", "Persistence entity used as request or response model"]
+      recommendedTools: ["architecture tests", "API review"]
+  - ruleId: "AR-404"
+    detectionHints:
+      recommendedTools: ["OpenAPI diff", "contract tests"]
+      notes: ["Compare generated or maintained OpenAPI descriptions for breaking changes."]
+  - ruleId: "AR-405"
+    detectionHints:
+      concreteComponentPatterns: ["POST command without duplicate handling", "Retryable command without idempotency key"]
+      recommendedTools: ["integration tests"]
+  - ruleId: "AR-406"
+    detectionHints:
+      concreteComponentPatterns: ["IQueryable exposed directly through controller", "List response without explicit limit"]
+      recommendedTools: ["integration tests", "performance smoke tests"]
