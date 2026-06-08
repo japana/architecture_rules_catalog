@@ -1,0 +1,68 @@
+ruleSetId: "observability"
+locale: "en"
+name: "Observability"
+description: "Generic rule set for operational visibility, diagnostics, correlation, alerting, and background work status."
+category: "Operations"
+compatibility: "Technology-agnostic"
+tags: ["Operations", "Observability", "Diagnostics"]
+rules:
+  - id: "AR-601"
+    title: "Critical Behavior Is Observable"
+    summary: "Critical system behavior should be visible during operation."
+    content: "Important workflows, services, and operational processes should expose enough signals to understand whether they are healthy, delayed, failed, or degraded."
+    rationale: "Systems that cannot be observed are difficult to operate, support, and improve safely."
+    reviewQuestions: ["Which behavior is operationally critical?", "How can operators see whether it is working?", "Is source-code debugging required to understand runtime behavior?"]
+    positiveExamples: ["A critical workflow emits metrics, logs, and status transitions."]
+    negativeExamples: ["A core background process can fail without any visible signal."]
+    exceptions: ["Short-lived local-only utilities may need minimal observability when operational risk is negligible."]
+    remediation: ["Add logs, metrics, traces, status endpoints, or health signals for critical behavior."]
+    tags: ["Observability"]
+    keywords: ["observable-behavior", "operations", "runtime-visibility"]
+  - id: "AR-602"
+    title: "Failures Include Diagnostic Context"
+    summary: "Failures should provide enough context to diagnose causes safely."
+    content: "Error diagnostics should include stable operation, target, correlation, and outcome context without exposing sensitive data."
+    rationale: "Useful diagnostics reduce incident duration while protecting confidentiality."
+    reviewQuestions: ["Can operators identify what failed?", "Is correlation information available?", "Does diagnostic context avoid sensitive values?"]
+    positiveExamples: ["A failed operation logs a correlation id, stable operation name, target type, and outcome."]
+    negativeExamples: ["An error log only says failure occurred or exposes raw confidential payloads."]
+    exceptions: ["Highly sensitive operations may intentionally reduce detail when alternative secure diagnostics exist."]
+    remediation: ["Standardize diagnostic context and redact sensitive values."]
+    tags: ["Diagnostics"]
+    keywords: ["error-context", "correlation", "redaction"]
+  - id: "AR-603"
+    title: "Work Is Correlated Across Boundaries"
+    summary: "Related work across components should be connectable during diagnosis."
+    content: "Requests, jobs, events, and downstream calls should preserve or recreate correlation context so incidents can be traced across boundaries."
+    rationale: "Correlation turns isolated signals into an understandable operational story."
+    reviewQuestions: ["Can one request or job be followed across components?", "Is async context preserved?", "Can logs, metrics, and traces be connected?"]
+    positiveExamples: ["A correlation id is propagated from the incoming request to downstream calls and asynchronous work."]
+    negativeExamples: ["Async processing loses all initiating context."]
+    exceptions: ["Air-gapped or batch imports may use batch identifiers instead of request correlation ids."]
+    remediation: ["Propagate correlation identifiers or introduce stable job and batch identifiers."]
+    tags: ["Correlation"]
+    keywords: ["correlation-id", "traceability", "distributed-diagnostics"]
+  - id: "AR-604"
+    title: "Alerts Are Actionable"
+    summary: "Alerts should represent actionable risk or degradation."
+    content: "Alerting should focus on conditions that require attention and should provide enough context to decide the next step."
+    rationale: "Noisy or missing alerts reduce operational trust and increase incident risk."
+    reviewQuestions: ["What action should this alert trigger?", "Does this condition represent user or service impact?", "Are critical failures covered?"]
+    positiveExamples: ["An alert fires when a critical queue remains backed up beyond an impact threshold."]
+    negativeExamples: ["An alert fires frequently for harmless fluctuations and is routinely ignored."]
+    exceptions: ["Exploratory dashboards may contain non-actionable signals when they are not configured as alerts."]
+    remediation: ["Tune thresholds, add runbook context, and align alerts with service impact."]
+    tags: ["Alerting"]
+    keywords: ["alerts", "runbook", "service-impact"]
+  - id: "AR-605"
+    title: "Background Work Exposes Status"
+    summary: "Long-running and asynchronous work should expose status, result, and failure state."
+    content: "Background jobs and long-running actions should make pending, running, completed, failed, cancelled, and retried states visible where operationally relevant."
+    rationale: "Invisible background work creates uncertainty for users and operators and hides failure or data loss."
+    reviewQuestions: ["Can users or operators see job state?", "Are result and failure reasons visible?", "Can retries be distinguished from fresh work?"]
+    positiveExamples: ["An import job records status, start time, completion time, outcome, and error summary."]
+    negativeExamples: ["A background job silently fails and leaves users waiting indefinitely."]
+    exceptions: ["Very small fire-and-forget telemetry may remain untracked when loss is acceptable and documented."]
+    remediation: ["Add job state, result recording, failure summaries, and retry visibility."]
+    tags: ["BackgroundWork"]
+    keywords: ["job-status", "async-work", "long-running-operation"]
