@@ -1,0 +1,104 @@
+ruleSetId: "observability"
+schemaVersion: "ruleset-catalog-v1"
+ruleSetVersion: "0.1.0"
+publisher: "APMDB Catalog Seed"
+license: "Apache-2.0"
+status: "draft"
+defaultLocale: "en"
+availableLocales: ["en", "de"]
+rules:
+  - id: "AR-601"
+    status: "draft"
+    type: "operations"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "configuration", "runtime-operation", "architecture-design", "documentation"]
+    appliesTo:
+      artifactTypes: ["source-code", "configuration", "runtime-operation", "architecture-design", "documentation"]
+      architectureElements: ["service", "application", "infrastructure", "deployment"]
+    source:
+      type: "architecture-principle"
+      name: "Observable Critical Behavior"
+      reference: "Critical system behavior should be visible during operation."
+    violationSignals: ["Critical workflows have no logs, metrics, status, or trace signals.", "Operators cannot tell whether an important process is running, stuck, or failed.", "Only source-code debugging can explain production behavior."]
+    relationships: []
+  - id: "AR-602"
+    status: "draft"
+    type: "operations"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "runtime-operation", "documentation"]
+    appliesTo:
+      artifactTypes: ["source-code", "runtime-operation", "documentation"]
+      architectureElements: ["service", "application", "external-system"]
+    source:
+      type: "engineering-practice"
+      name: "Diagnostic Error Context"
+      reference: "Failures should provide enough context to diagnose causes safely."
+    violationSignals: ["Errors lack operation, correlation, target, or outcome context.", "Diagnostics expose sensitive data to provide context.", "Equivalent failures produce unrelated diagnostic signals."]
+    relationships: []
+  - id: "AR-603"
+    status: "draft"
+    type: "operations"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "advisory"
+    detectability: "runtime"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "configuration", "runtime-operation"]
+    appliesTo:
+      artifactTypes: ["source-code", "configuration", "runtime-operation"]
+      architectureElements: ["service", "application", "external-system", "deployment"]
+    source:
+      type: "engineering-practice"
+      name: "Correlation Across Boundaries"
+      reference: "Related work across components should be connectable during diagnosis."
+    violationSignals: ["A request or job cannot be followed across services or components.", "Async processing loses the initiating context without replacement.", "Logs, metrics, and traces cannot be linked for the same incident."]
+    relationships: []
+  - id: "AR-604"
+    status: "draft"
+    type: "operations"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "warning"
+    detectability: "runtime"
+    scope:
+      - dimension: "artifactType"
+        values: ["configuration", "runtime-operation", "documentation"]
+    appliesTo:
+      artifactTypes: ["configuration", "runtime-operation", "documentation"]
+      architectureElements: ["service", "deployment", "infrastructure"]
+    source:
+      type: "engineering-practice"
+      name: "Actionable Alerting"
+      reference: "Alerts should represent actionable risk or degradation."
+    violationSignals: ["Alerts fire for noisy conditions without clear action.", "Critical failures have no alert or only user reports reveal them.", "Alert thresholds are disconnected from service impact."]
+    relationships: []
+  - id: "AR-605"
+    status: "draft"
+    type: "operations"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "runtime-operation", "documentation"]
+    appliesTo:
+      artifactTypes: ["source-code", "runtime-operation", "documentation"]
+      architectureElements: ["service", "application", "deployment"]
+    source:
+      type: "engineering-practice"
+      name: "Background Work Visibility"
+      reference: "Long-running and asynchronous work should expose status, result, and failure state."
+    violationSignals: ["A background job can fail silently.", "Users or operators cannot distinguish pending, running, completed, failed, and retried work.", "Long-running actions provide no status or completion signal."]
+    relationships: []
