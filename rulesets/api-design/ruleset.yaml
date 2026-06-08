@@ -3,7 +3,7 @@ schemaVersion: "ruleset-catalog-v1"
 ruleSetVersion: "0.1.0"
 publisher: "APMDB Catalog Seed"
 license: "Apache-2.0"
-status: "draft"
+status: "published"
 defaultLocale: "en"
 availableLocales:
   - "en"
