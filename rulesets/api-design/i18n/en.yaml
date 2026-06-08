@@ -1,0 +1,80 @@
+ruleSetId: "api-design"
+locale: "en"
+name: "API Design"
+description: "Generic rule set for stable, understandable, and evolvable interface contracts."
+category: "Architecture"
+compatibility: "Technology-agnostic"
+tags: ["API", "Contracts", "Compatibility"]
+rules:
+  - id: "AR-401"
+    title: "Interfaces Have Explicit Contracts"
+    summary: "Shared interfaces should define request, response, error, and compatibility behavior explicitly."
+    content: "Interfaces used across system or organizational boundaries should have contracts that can be reviewed independently from implementation code."
+    rationale: "Explicit contracts reduce accidental coupling and make consumer impact visible before release."
+    reviewQuestions: ["Can consumers understand the operation without reading implementation code?", "Are request, response, error, and compatibility expectations documented?", "Do tests, documentation, and implementation agree?"]
+    positiveExamples: ["An API contract describes inputs, outputs, failures, and compatibility expectations."]
+    negativeExamples: ["Consumers infer behavior from controller or handler code."]
+    exceptions: ["A purely private helper interface may remain undocumented when it has no independent consumers."]
+    remediation: ["Document the contract and align implementation, tests, and examples with it."]
+    tags: ["API", "Contract"]
+    keywords: ["interface-contract", "compatibility", "api-design"]
+  - id: "AR-402"
+    title: "Errors Follow a Consistent Contract"
+    summary: "Equivalent interface failures should be represented consistently and safely."
+    content: "Interfaces should expose failure information in a stable shape that lets consumers distinguish validation, authorization, conflict, and system failures."
+    rationale: "Consistent errors make clients simpler, support operations, and prevent internal details from becoming public contracts."
+    reviewQuestions: ["Can consumers distinguish failure classes?", "Are equivalent failures represented consistently?", "Does the error contract avoid leaking internals?"]
+    positiveExamples: ["Validation errors contain stable codes and field-specific details."]
+    negativeExamples: ["Different operations return unrelated structures for the same failure."]
+    exceptions: ["Constrained internal protocols may use compact errors if their semantics are documented."]
+    remediation: ["Define common error categories and map internal failures to stable external meanings."]
+    tags: ["API", "ErrorHandling"]
+    keywords: ["error-contract", "failure-semantics", "api-errors"]
+  - id: "AR-403"
+    title: "Contracts Do Not Leak Internal Representations"
+    summary: "External contracts should not unintentionally expose persistence or implementation internals."
+    content: "API and integration contracts should present stable consumer-oriented representations rather than directly mirroring internal entities or tables."
+    rationale: "Representation encapsulation protects internal evolution and reduces accidental exposure of irrelevant or sensitive fields."
+    reviewQuestions: ["Would an internal model refactoring break consumers?", "Are storage-only fields exposed for convenience?", "Is the representation shaped around consumer meaning?"]
+    positiveExamples: ["Dedicated contract models are used for public responses."]
+    negativeExamples: ["Database entities are serialized directly as API responses."]
+    exceptions: ["Restricted diagnostic interfaces may expose technical details when purpose and access are explicit."]
+    remediation: ["Introduce dedicated contract models and review exposed fields deliberately."]
+    tags: ["API", "Encapsulation"]
+    keywords: ["dto", "representation", "entity-leak"]
+  - id: "AR-404"
+    title: "Breaking Changes Are Controlled"
+    summary: "Consumer-visible incompatible changes should be versioned, migrated, or explicitly accepted."
+    content: "Removing, renaming, retyping, or reinterpreting contract elements should be treated as a breaking change unless compatibility is preserved."
+    rationale: "Breaking change control prevents unexpected consumer failures and makes migration effort visible."
+    reviewQuestions: ["Does the change alter existing consumer-visible behavior?", "Is there a versioning, migration, or deprecation path?", "Have affected consumers been identified?"]
+    positiveExamples: ["A deprecated field remains available during a documented migration period."]
+    negativeExamples: ["A field is removed because no current test failed."]
+    exceptions: ["A private pre-release contract may change incompatibly when all consumers are updated together."]
+    remediation: ["Add deprecation, compatibility handling, or a new version and update contract tests."]
+    tags: ["API", "Compatibility"]
+    keywords: ["breaking-change", "versioning", "migration"]
+  - id: "AR-405"
+    title: "Repeatable Operations Define Idempotency"
+    summary: "Operations that may be retried should define duplicate and retry behavior deliberately."
+    content: "Commands and write operations should make clear whether repeated requests are safe, rejected as duplicates, or intentionally produce additional effects."
+    rationale: "Explicit idempotency prevents retries from creating hidden duplicate business effects."
+    reviewQuestions: ["Can clients safely retry after a timeout?", "Is duplicate detection required?", "Are idempotency keys or uniqueness constraints needed?"]
+    positiveExamples: ["A payment command uses an idempotency key to prevent duplicate charges."]
+    negativeExamples: ["A retry after timeout creates a second order without detection."]
+    exceptions: ["A deliberately non-idempotent operation may remain so when the contract states that behavior clearly."]
+    remediation: ["Define retry semantics and add idempotency keys, uniqueness constraints, or conflict responses where appropriate."]
+    tags: ["API", "Reliability"]
+    keywords: ["idempotency", "retry", "duplicates"]
+  - id: "AR-406"
+    title: "Large Results Are Controlled"
+    summary: "Interfaces that can return large result sets should define limits, paging, streaming, or filtering."
+    content: "Operations with potentially growing result sizes should avoid unbounded responses and make data access behavior explicit."
+    rationale: "Controlled result sizes protect clients, services, and data stores from accidental load and unpredictable latency."
+    reviewQuestions: ["Can this operation return unbounded data?", "Are paging, sorting, filtering, or streaming semantics defined?", "Are default and maximum limits explicit?"]
+    positiveExamples: ["A list operation defines default limit, maximum limit, stable sorting, and continuation behavior."]
+    negativeExamples: ["A list endpoint returns all rows because the current dataset is small."]
+    exceptions: ["A bounded enumeration with a small guaranteed maximum may not need paging."]
+    remediation: ["Add limits and define paging or streaming behavior."]
+    tags: ["API", "Performance"]
+    keywords: ["pagination", "large-results", "limits"]
