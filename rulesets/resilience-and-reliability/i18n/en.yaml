@@ -1,0 +1,68 @@
+ruleSetId: "resilience-and-reliability"
+locale: "en"
+name: "Resilience and Reliability"
+description: "Generic rule set for dependency failure handling, retry safety, fallbacks, recovery, and graceful degradation."
+category: "Operations"
+compatibility: "Technology-agnostic"
+tags: ["Reliability", "Resilience", "Operations"]
+rules:
+  - id: "AR-701"
+    title: "Dependency Failures Are Controlled"
+    summary: "External and unreliable dependencies should fail in bounded, understandable ways."
+    content: "Calls to services, databases, networks, queues, file systems, and other dependencies should define timeout, failure, and resource behavior deliberately."
+    rationale: "Unbounded dependency failure can cascade into resource exhaustion, user-visible outages, and operational uncertainty."
+    reviewQuestions: ["What happens if the dependency is slow or unavailable?", "Are timeouts and resource limits explicit?", "Is the failure visible and understandable?"]
+    positiveExamples: ["A remote call has a timeout, mapped failure result, and diagnostic context."]
+    negativeExamples: ["A dependency call can block indefinitely using default settings."]
+    exceptions: ["A local in-memory dependency may not require timeout handling when it cannot block on external resources."]
+    remediation: ["Define timeouts, bounded waits, error mapping, and resource limits for unreliable dependencies."]
+    tags: ["DependencyFailure"]
+    keywords: ["timeout", "dependency", "bounded-failure"]
+  - id: "AR-702"
+    title: "Retries Are Safe and Bounded"
+    summary: "Retries should be limited and safe for the business operation."
+    content: "Retry behavior should distinguish transient from permanent failures, use bounded attempts, and avoid duplicate business effects."
+    rationale: "Uncontrolled retries amplify failures and can corrupt business state."
+    reviewQuestions: ["Is the failure transient?", "Are retry count and backoff bounded?", "Can retries duplicate business effects?"]
+    positiveExamples: ["A transient read operation retries with capped exponential backoff."]
+    negativeExamples: ["A write operation retries indefinitely and can create duplicates."]
+    exceptions: ["A manually triggered retry may use different limits when operator intent and impact are explicit."]
+    remediation: ["Add retry limits, backoff, classification, idempotency, or duplicate detection."]
+    tags: ["Retry"]
+    keywords: ["retry", "backoff", "idempotency"]
+  - id: "AR-703"
+    title: "Fallbacks Are Honest"
+    summary: "Fallback behavior should not hide business-relevant failure."
+    content: "Fallbacks should preserve or explicitly communicate reduced confidence, staleness, or degraded behavior instead of silently presenting failure as normal success."
+    rationale: "Hidden fallback behavior can mislead users and downstream systems."
+    reviewQuestions: ["Does the fallback change business meaning?", "Can consumers see that fallback data was used?", "Is stale or partial data labeled?"]
+    positiveExamples: ["A cached response is marked as stale when the source system is unavailable."]
+    negativeExamples: ["Default values make a failed calculation appear successful."]
+    exceptions: ["A harmless visual fallback may be silent when it has no business impact."]
+    remediation: ["Surface fallback state, freshness, confidence, or degraded capability explicitly."]
+    tags: ["Fallback"]
+    keywords: ["fallback", "degradation", "stale-data"]
+  - id: "AR-704"
+    title: "Recovery Is Prepared"
+    summary: "Critical operations should be recoverable, repeatable, or compensatable."
+    content: "Important business and operational processes should have a defined recovery path for partial failure, interruption, and inconsistent intermediate state."
+    rationale: "Prepared recovery reduces manual repair risk and incident duration."
+    reviewQuestions: ["What happens after partial failure?", "Can the operation be safely repeated?", "Is manual repair documented and tested?"]
+    positiveExamples: ["A failed import can be resumed or rolled back from a checkpoint."]
+    negativeExamples: ["A mid-operation crash leaves data requiring undocumented manual SQL repair."]
+    exceptions: ["Low-value one-off operations may accept manual recovery when impact is documented."]
+    remediation: ["Add checkpoints, compensation, reconciliation, repeatability, or documented recovery procedures."]
+    tags: ["Recovery"]
+    keywords: ["recovery", "compensation", "repeatability"]
+  - id: "AR-705"
+    title: "Degradation Modes Are Defined"
+    summary: "Systems should define acceptable reduced modes instead of failing uncontrolled."
+    content: "When parts of a system are unavailable, behavior should degrade according to known priorities rather than fail unpredictably."
+    rationale: "Deliberate degradation keeps essential capabilities available and makes incidents easier to manage."
+    reviewQuestions: ["Which capabilities are essential?", "What can be disabled or reduced?", "Can users and operators distinguish degraded mode from defects?"]
+    positiveExamples: ["Search is degraded while write operations remain available and the UI communicates the limitation."]
+    negativeExamples: ["A non-critical recommendation service outage blocks checkout."]
+    exceptions: ["A safety-critical operation may fail closed rather than degrade when partial behavior would be unsafe."]
+    remediation: ["Define degradation priorities, feature behavior, communication, and operational controls."]
+    tags: ["Degradation"]
+    keywords: ["graceful-degradation", "fail-closed", "service-continuity"]
