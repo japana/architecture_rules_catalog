@@ -1,0 +1,104 @@
+ruleSetId: "testing-and-quality-gates"
+schemaVersion: "ruleset-catalog-v1"
+ruleSetVersion: "0.1.0"
+publisher: "APMDB Catalog Seed"
+license: "Apache-2.0"
+status: "published"
+defaultLocale: "en"
+availableLocales: ["en", "de"]
+rules:
+  - id: "AR-801"
+    status: "draft"
+    type: "testing"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "process"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "test-artifact", "architecture-design"]
+    appliesTo:
+      artifactTypes: ["source-code", "test-artifact", "architecture-design"]
+      architectureElements: ["domain", "application", "service", "module"]
+    source:
+      type: "engineering-practice"
+      name: "Risk-Based Test Coverage"
+      reference: "Critical behavior should be protected by appropriate tests."
+    violationSignals: ["Critical behavior has no automated or documented verification.", "Test depth is unrelated to business or operational risk.", "Important edge cases are left to informal manual checking."]
+    relationships: []
+  - id: "AR-802"
+    status: "draft"
+    type: "testing"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "advisory"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "test-artifact"]
+    appliesTo:
+      artifactTypes: ["source-code", "test-artifact"]
+      architectureElements: ["domain", "application", "service", "interface"]
+    source:
+      type: "engineering-practice"
+      name: "Behavior-Oriented Tests"
+      reference: "Tests should verify observable behavior rather than incidental implementation details."
+    violationSignals: ["Tests mostly assert private structure or incidental call order.", "Refactoring breaks tests without changing behavior.", "Business outcomes are not visible in assertions."]
+    relationships: []
+  - id: "AR-803"
+    status: "draft"
+    type: "testing"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "process"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "test-artifact", "documentation"]
+    appliesTo:
+      artifactTypes: ["source-code", "test-artifact", "documentation"]
+      architectureElements: ["service", "application", "module"]
+    source:
+      type: "engineering-practice"
+      name: "Regression Protection"
+      reference: "Reproducible defects should add verification that prevents recurrence."
+    violationSignals: ["A bug fix has no test or documented verification for the failing scenario.", "The same defect can recur without a quality gate catching it.", "Regression risk is accepted implicitly rather than reviewed."]
+    relationships: []
+  - id: "AR-804"
+    status: "draft"
+    type: "testing"
+    abstractionLevel: "principle"
+    strength: "should"
+    decisionImpact: "warning"
+    detectability: "process"
+    scope:
+      - dimension: "artifactType"
+        values: ["build-pipeline", "test-artifact", "documentation"]
+    appliesTo:
+      artifactTypes: ["build-pipeline", "test-artifact", "documentation"]
+      architectureElements: ["deployment", "service", "module"]
+    source:
+      type: "governance-guideline"
+      name: "Meaningful Quality Gates"
+      reference: "Quality gates should protect relevant risks, not only formal metrics."
+    violationSignals: ["A gate passes while known critical risks remain unchecked.", "Metrics are enforced without relation to product or architecture risk.", "Gate failures are routinely bypassed without rationale."]
+    relationships: []
+  - id: "AR-805"
+    status: "draft"
+    type: "testing"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "manual"
+    scope:
+      - dimension: "artifactType"
+        values: ["test-artifact", "documentation"]
+    appliesTo:
+      artifactTypes: ["test-artifact", "documentation"]
+      architectureElements: ["application", "service", "interface"]
+    source:
+      type: "engineering-practice"
+      name: "Explicit Manual Verification"
+      reference: "Manual tests should be reproducible and reviewable."
+    violationSignals: ["Manual verification lacks preconditions, steps, or expected results.", "A reviewer cannot repeat the test from the artifact.", "Expected outcomes are subjective or ambiguous."]
+    relationships: []

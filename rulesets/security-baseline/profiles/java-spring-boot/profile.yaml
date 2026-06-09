@@ -5,7 +5,7 @@ status: "draft"
 displayName: "Java Spring Boot Profile for Security Baseline"
 description: "Spring Boot-specific interpretation hints for the security-baseline ruleset."
 technology:
-  language: "java"
+  language: "published"
   framework: "spring-boot"
   runtime: "jvm"
 mappings:

@@ -1,7 +1,7 @@
 profileId: "java-quarkus"
 ruleSetId: "clean-architecture"
 schemaVersion: "ruleset-profile-v1"
-status: "draft"
+status: "published"
 displayName: "Java Quarkus Profile for Clean Architecture"
 description: "Quarkus-specific interpretation hints for the clean-architecture ruleset."
 extendsProfile: "java"

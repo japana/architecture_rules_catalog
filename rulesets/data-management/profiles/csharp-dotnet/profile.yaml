@@ -1,0 +1,35 @@
+profileId: "csharp-dotnet"
+ruleSetId: "data-management"
+schemaVersion: "ruleset-profile-v1"
+status: "published"
+displayName: "C# .NET Profile for Data Management"
+description: ".NET-specific detection hints for the data-management ruleset."
+technology:
+  language: "csharp"
+  framework: "dotnet"
+  runtime: "dotnet"
+mappings:
+  - ruleId: "AR-501"
+    detectionHints:
+      concreteComponentPatterns: ["Multiple services write the same DbSet", "DbContext shared across unrelated modules"]
+      recommendedTools: ["architecture tests", "module dependency review"]
+  - ruleId: "AR-502"
+    detectionHints:
+      concreteComponentPatterns: ["Invariant enforced only in controller", "Entity permits invalid state through public setters"]
+      recommendedTools: ["domain tests", "persistence tests"]
+  - ruleId: "AR-503"
+    detectionHints:
+      concreteComponentPatterns: ["Migration missing for entity change", "Schema generated implicitly in production"]
+      recommendedTools: ["EF Core migrations", "migration smoke tests"]
+  - ruleId: "AR-504"
+    detectionHints:
+      concreteComponentPatterns: ["Transaction spans unrelated ownership boundaries", "External call inside transaction without failure strategy"]
+      recommendedTools: ["integration tests", "transaction review"]
+  - ruleId: "AR-505"
+    detectionHints:
+      concreteComponentPatterns: ["Projection table or cache without refresh strategy", "Read model updated without reconciliation path"]
+      recommendedTools: ["cache tests", "projection rebuild tests"]
+  - ruleId: "AR-506"
+    detectionHints:
+      concreteComponentPatterns: ["IQueryable exposed beyond intended boundary", "N+1 query behavior in request path"]
+      recommendedTools: ["SQL logging", "performance smoke tests"]

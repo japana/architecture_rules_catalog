@@ -1,0 +1,80 @@
+ruleSetId: "data-management"
+locale: "de"
+name: "Datenmanagement"
+description: "Allgemeines RuleSet für Dateneigentümerschaft, Konsistenz, sichere Migrationen und Integrität abgeleiteter Daten."
+category: "Architecture"
+compatibility: "Technologieunabhängig"
+tags: ["Data", "Persistence", "Consistency"]
+rules:
+  - id: "AR-501"
+    title: "Geschäftsdaten haben klare Eigentümerschaft"
+    summary: "Geschäftsdaten sollten einen expliziten Owner für Bedeutung, Lebenszyklus und Änderungen haben."
+    content: "Wichtige Geschäftsdaten dürfen nicht als ownerloser gemeinsamer Speicher behandelt werden. Verantwortliche Komponente oder Fähigkeit müssen klar sein."
+    rationale: "Klare Eigentümerschaft verhindert konkurrierende Änderungen, unklare Verantwortung und unkontrollierte Schemaentwicklung."
+    reviewQuestions: ["Welche Komponente besitzt diese Daten?", "Wer verantwortet Bedeutung und Lebenszyklus?", "Dürfen andere Komponenten direkt ändern?"]
+    positiveExamples: ["Ein Service besitzt den Lebenszyklus eines Geschäftsobjekts und bietet kontrollierte Operationen an."]
+    negativeExamples: ["Mehrere Komponenten ändern dieselben Datensätze ohne klaren Owner."]
+    exceptions: ["Gemeinsame Referenzdaten können gemeinsame Ownership haben, wenn Governance und Änderungsverantwortung explizit sind."]
+    remediation: ["Ownership festlegen und Schreibzugriffe über die owning Komponente oder einen Vertrag führen."]
+    tags: ["DataOwnership"]
+    keywords: ["ownership", "data-lifecycle", "shared-data"]
+  - id: "AR-502"
+    title: "Datenmodelle schützen Invarianten"
+    summary: "Persistente Modelle sollten fachliche Invarianten schützen, nicht nur Felder speichern."
+    content: "Fachlich ungültige Zustände sollten verhindert oder kontrolliert werden, bevor sie dauerhaft gespeichert werden."
+    rationale: "Persistierte ungültige Zustände sind teuer zu korrigieren und verteilen Validierungsannahmen im System."
+    reviewQuestions: ["Welche ungültigen Zustände dürfen nie persistiert werden?", "Wo werden Invarianten durchgesetzt?", "Kann die UI ungültige Daten erzeugen?"]
+    positiveExamples: ["Eine Geschäftsregel verhindert die Persistenz eines unmöglichen Statusübergangs."]
+    negativeExamples: ["Die Datenbank akzeptiert Kombinationen, die die Domäne verbietet."]
+    exceptions: ["Temporäres Import-Staging darf ungültige Daten halten, wenn es isoliert ist und vor Übernahme validiert wird."]
+    remediation: ["Invarianten an Domäne, Anwendung oder Persistenzgrenze des Owners durchsetzen."]
+    tags: ["Invariants"]
+    keywords: ["invariant", "valid-state", "persistence"]
+  - id: "AR-503"
+    title: "Schemaänderungen sind migrationssicher"
+    summary: "Persistente Schemaänderungen sollten deploybar, migrierbar und betriebssicher sein."
+    content: "Änderungen dauerhafter Strukturen müssen vorhandene Daten, Deployment-Reihenfolge, Rollback oder Forward-Fix und operative Ausführung berücksichtigen."
+    rationale: "Unsichere Schemaänderungen können Downtime, Datenverlust oder inkompatible Anwendungsversionen verursachen."
+    reviewQuestions: ["Wie werden vorhandene Daten migriert?", "Ist die Deployment-Reihenfolge sicher?", "Was passiert bei Migrationsfehlern?"]
+    positiveExamples: ["Eine Schemaerweiterung wird deployed, bevor Code das neue Feld benötigt."]
+    negativeExamples: ["Eine Spalte wird entfernt, ohne Consumer oder Datenmigration zu prüfen."]
+    exceptions: ["Wegwerfbare Nicht-Produktivspeicher dürfen destruktiv geändert werden, wenn keine dauerhaften Daten gefährdet sind."]
+    remediation: ["Migrationsschritte, Kompatibilität und operative Rollback- oder Forward-Fix-Hinweise ergänzen."]
+    tags: ["Migration"]
+    keywords: ["schema-change", "migration", "compatibility"]
+  - id: "AR-504"
+    title: "Konsistenzgrenzen sind bewusst gewählt"
+    summary: "Schreiboperationen sollten Transaktions- und Konsistenzgrenzen absichtlich festlegen."
+    content: "Geschäftsoperationen mit mehreren Daten oder Systemen sollten klären, was sofort konsistent sein muss und was später konsistent werden darf."
+    rationale: "Unklare Konsistenzgrenzen erzeugen Teilfehler und undeutliche Geschäftszustände."
+    reviewQuestions: ["Was muss atomar sein?", "Was darf eventual consistent sein?", "Wie werden Teilfehler behandelt?"]
+    positiveExamples: ["Ein Command definiert Transaktionsgrenze und Kompensationsverhalten für externe Aufrufe."]
+    negativeExamples: ["Mehrere Speicher werden ohne Recovery-Plan für Fehler in der Mitte aktualisiert."]
+    exceptions: ["Best-Effort-Telemetrie darf Verlust akzeptieren, wenn die fachliche Auswirkung gering und dokumentiert ist."]
+    remediation: ["Transaktionsgrenzen, Kompensation, Reconciliation oder idempotentes Retry-Verhalten definieren."]
+    tags: ["Consistency"]
+    keywords: ["transaction", "consistency-boundary", "partial-failure"]
+  - id: "AR-505"
+    title: "Abgeleitete Daten haben eine Aktualisierungsstrategie"
+    summary: "Caches, Indizes, Projektionen oder denormalisierte Daten dürfen nicht implizit zur Wahrheit werden."
+    content: "Abgeleitete Daten benötigen Refresh-, Invalidierungs-, Rebuild- oder Reconciliation-Mechanismen und eine sichtbare Beziehung zur Quelle."
+    rationale: "Abgeleitete Speicher verbessern Performance, können Nutzer und Systeme aber bei unsichtbarer Veraltung täuschen."
+    reviewQuestions: ["Was ist die Source of Truth?", "Wie werden abgeleitete Daten aktualisiert?", "Können Consumer Veraltung erkennen oder tolerieren?"]
+    positiveExamples: ["Ein Index speichert Aktualität und kann aus Quelldaten neu aufgebaut werden."]
+    negativeExamples: ["Ein veralteter Cache wird als autoritativer Zustand behandelt."]
+    exceptions: ["Ein bewusster Snapshot darf unveränderlich bleiben, wenn Zeitpunkt und Zweck explizit sind."]
+    remediation: ["Refresh, Invalidierung, Rebuild und Freshness-Semantik definieren."]
+    tags: ["DerivedData"]
+    keywords: ["cache", "projection", "index", "source-of-truth"]
+  - id: "AR-506"
+    title: "Datenzugriff berücksichtigt Volumen"
+    summary: "Datenzugriff sollte erwartete Mengen, Abfragemuster und Wachstum berücksichtigen."
+    content: "Queries und Ladepfade sollten mit realistischen Datenmengen und Zugriffsmustern entworfen werden."
+    rationale: "Zugriffspfade, die mit kleinen Testdaten funktionieren, können bei normalem Produktivwachstum versagen."
+    reviewQuestions: ["Welche Datenmenge kann dieser Pfad verarbeiten?", "Passen Filter und Indizes zusammen?", "Kann N+1- oder Full-Scan-Verhalten entstehen?"]
+    positiveExamples: ["Eine Query nutzt begrenzte Ergebnisse und Indizes passend zu üblichen Filtern."]
+    negativeExamples: ["Ein kritischer Pfad lädt alle Datensätze und filtert im Speicher."]
+    exceptions: ["Kleine, begrenzte Referenzlisten dürfen vollständig geladen werden, wenn ihre Maximalgröße garantiert ist."]
+    remediation: ["Limits, Indizes, Batching oder Query-Redesign ergänzen und realistische Volumen testen."]
+    tags: ["DataAccess"]
+    keywords: ["query", "volume", "n-plus-one", "index"]

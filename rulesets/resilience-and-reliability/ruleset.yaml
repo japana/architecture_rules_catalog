@@ -1,0 +1,104 @@
+ruleSetId: "resilience-and-reliability"
+schemaVersion: "ruleset-catalog-v1"
+ruleSetVersion: "0.1.0"
+publisher: "APMDB Catalog Seed"
+license: "Apache-2.0"
+status: "published"
+defaultLocale: "en"
+availableLocales: ["en", "de"]
+rules:
+  - id: "AR-701"
+    status: "draft"
+    type: "operations"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "configuration", "architecture-design", "runtime-operation", "test-artifact"]
+    appliesTo:
+      artifactTypes: ["source-code", "configuration", "architecture-design", "runtime-operation", "test-artifact"]
+      architectureElements: ["service", "application", "external-system", "infrastructure"]
+    source:
+      type: "architecture-principle"
+      name: "Controlled Dependency Failure"
+      reference: "External and unreliable dependencies should fail in bounded, understandable ways."
+    violationSignals: ["A dependency call can block indefinitely or exhaust resources.", "Failure behavior depends on default client or infrastructure settings.", "Users see uncontrolled technical failures from dependent systems."]
+    relationships: []
+  - id: "AR-702"
+    status: "draft"
+    type: "operations"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "architecture-design", "runtime-operation", "test-artifact"]
+    appliesTo:
+      artifactTypes: ["source-code", "architecture-design", "runtime-operation", "test-artifact"]
+      architectureElements: ["service", "application", "external-system"]
+    source:
+      type: "engineering-practice"
+      name: "Retry Safety"
+      reference: "Retries should be bounded and safe for the business operation."
+    violationSignals: ["Retries can create duplicate business effects.", "Retry loops have no backoff, cap, or termination condition.", "Non-transient failures are retried as if they were transient."]
+    relationships: []
+  - id: "AR-703"
+    status: "draft"
+    type: "operations"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "architecture-design", "runtime-operation", "documentation"]
+    appliesTo:
+      artifactTypes: ["source-code", "architecture-design", "runtime-operation", "documentation"]
+      architectureElements: ["application", "service", "external-system"]
+    source:
+      type: "architecture-principle"
+      name: "Honest Fallbacks"
+      reference: "Fallback behavior should not hide business-relevant failure."
+    violationSignals: ["Fallback data is shown as if it were fresh or complete.", "A fallback changes business meaning without visible indication.", "Failure is converted into success without trace or explanation."]
+    relationships: []
+  - id: "AR-704"
+    status: "draft"
+    type: "operations"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "warning"
+    detectability: "process"
+    scope:
+      - dimension: "artifactType"
+        values: ["architecture-design", "runtime-operation", "documentation", "test-artifact"]
+    appliesTo:
+      artifactTypes: ["architecture-design", "runtime-operation", "documentation", "test-artifact"]
+      architectureElements: ["service", "deployment", "data-store", "external-system"]
+    source:
+      type: "engineering-practice"
+      name: "Recovery Readiness"
+      reference: "Critical operations should be recoverable, repeatable, or compensatable."
+    violationSignals: ["A partial failure has no defined recovery path.", "Manual repair is required but undocumented.", "Recovery procedures are never tested or rehearsed."]
+    relationships: []
+  - id: "AR-705"
+    status: "draft"
+    type: "operations"
+    abstractionLevel: "principle"
+    strength: "should"
+    decisionImpact: "advisory"
+    detectability: "process"
+    scope:
+      - dimension: "artifactType"
+        values: ["architecture-design", "configuration", "runtime-operation", "documentation"]
+    appliesTo:
+      artifactTypes: ["architecture-design", "configuration", "runtime-operation", "documentation"]
+      architectureElements: ["service", "deployment", "external-system"]
+    source:
+      type: "architecture-principle"
+      name: "Graceful Degradation"
+      reference: "Systems should define acceptable reduced modes instead of failing uncontrolled."
+    violationSignals: ["A non-critical dependency outage makes the whole system unusable.", "Reduced functionality is not distinguishable from defects.", "Degradation priorities are unknown during incidents."]
+    relationships: []

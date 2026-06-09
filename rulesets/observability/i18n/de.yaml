@@ -1,0 +1,68 @@
+ruleSetId: "observability"
+locale: "de"
+name: "Observability"
+description: "Allgemeines RuleSet für betriebliche Sichtbarkeit, Diagnose, Korrelation, Alerting und Status von Hintergrundarbeit."
+category: "Operations"
+compatibility: "Technologieunabhängig"
+tags: ["Operations", "Observability", "Diagnostics"]
+rules:
+  - id: "AR-601"
+    title: "Kritisches Verhalten ist beobachtbar"
+    summary: "Kritisches Systemverhalten sollte im Betrieb sichtbar sein."
+    content: "Wichtige Workflows, Services und Betriebsprozesse sollten genügend Signale liefern, um Gesundheit, Verzögerung, Fehler oder Degradation zu erkennen."
+    rationale: "Nicht beobachtbare Systeme sind schwer sicher zu betreiben, zu unterstützen und zu verbessern."
+    reviewQuestions: ["Welches Verhalten ist betriebskritisch?", "Wie erkennen Betreiber, ob es funktioniert?", "Ist Source-Code-Debugging nötig, um Laufzeitverhalten zu verstehen?"]
+    positiveExamples: ["Ein kritischer Workflow erzeugt Metriken, Logs und Statusübergänge."]
+    negativeExamples: ["Ein zentraler Hintergrundprozess kann ohne sichtbares Signal fehlschlagen."]
+    exceptions: ["Kurzlebige lokale Hilfsprogramme benötigen bei vernachlässigbarem Betriebsrisiko nur minimale Observability."]
+    remediation: ["Logs, Metriken, Traces, Statusendpunkte oder Health-Signale für kritisches Verhalten ergänzen."]
+    tags: ["Observability"]
+    keywords: ["observable-behavior", "operations", "runtime-visibility"]
+  - id: "AR-602"
+    title: "Fehler enthalten Diagnosekontext"
+    summary: "Fehler sollten genügend Kontext für sichere Ursachenanalyse enthalten."
+    content: "Diagnosedaten sollten stabile Operation, Ziel, Korrelation und Ergebnis enthalten, ohne sensible Daten offenzulegen."
+    rationale: "Nützliche Diagnose reduziert Incident-Dauer und schützt Vertraulichkeit."
+    reviewQuestions: ["Können Betreiber erkennen, was fehlgeschlagen ist?", "Gibt es Korrelationsinformationen?", "Vermeidet der Diagnosekontext sensible Werte?"]
+    positiveExamples: ["Ein Fehler loggt Korrelations-ID, stabile Operation, Zieltyp und Ergebnis."]
+    negativeExamples: ["Ein Log sagt nur, dass ein Fehler auftrat, oder enthält vertrauliche Rohdaten."]
+    exceptions: ["Hochsensible Operationen dürfen Details reduzieren, wenn alternative sichere Diagnose vorhanden ist."]
+    remediation: ["Diagnosekontext standardisieren und sensible Werte redigieren."]
+    tags: ["Diagnostics"]
+    keywords: ["error-context", "correlation", "redaction"]
+  - id: "AR-603"
+    title: "Arbeit ist über Grenzen hinweg korrelierbar"
+    summary: "Zusammenhängende Arbeit über Komponenten hinweg sollte in der Diagnose verbindbar sein."
+    content: "Requests, Jobs, Events und Downstream-Aufrufe sollten Korrelationskontext erhalten oder neu erzeugen, damit Incidents nachvollziehbar bleiben."
+    rationale: "Korrelation macht aus isolierten Signalen eine verständliche Betriebsgeschichte."
+    reviewQuestions: ["Kann ein Request oder Job komponentenübergreifend verfolgt werden?", "Bleibt async Kontext erhalten?", "Können Logs, Metriken und Traces verbunden werden?"]
+    positiveExamples: ["Eine Korrelations-ID wird vom Request zu Downstream-Aufrufen und asynchroner Arbeit weitergereicht."]
+    negativeExamples: ["Async-Verarbeitung verliert den auslösenden Kontext vollständig."]
+    exceptions: ["Air-gapped oder Batch-Imports können Batch-IDs statt Request-Korrelations-IDs nutzen."]
+    remediation: ["Korrelationskennungen weitergeben oder stabile Job- und Batch-IDs einführen."]
+    tags: ["Correlation"]
+    keywords: ["correlation-id", "traceability", "distributed-diagnostics"]
+  - id: "AR-604"
+    title: "Alerts sind handlungsrelevant"
+    summary: "Alerts sollten handlungsrelevantes Risiko oder Degradation darstellen."
+    content: "Alerting sollte sich auf Zustände konzentrieren, die Aufmerksamkeit erfordern, und genügend Kontext für den nächsten Schritt liefern."
+    rationale: "Rauschende oder fehlende Alerts reduzieren Betriebsvertrauen und erhöhen Incident-Risiko."
+    reviewQuestions: ["Welche Aktion soll dieser Alert auslösen?", "Hat der Zustand Nutzer- oder Service-Auswirkung?", "Sind kritische Fehler abgedeckt?"]
+    positiveExamples: ["Ein Alert feuert, wenn eine kritische Queue über eine Auswirkungsschwelle hinaus aufläuft."]
+    negativeExamples: ["Ein Alert feuert häufig für harmlose Schwankungen und wird ignoriert."]
+    exceptions: ["Explorative Dashboards dürfen nicht-handlungsrelevante Signale enthalten, solange sie keine Alerts sind."]
+    remediation: ["Schwellenwerte, Runbook-Kontext und Service-Auswirkung aufeinander abstimmen."]
+    tags: ["Alerting"]
+    keywords: ["alerts", "runbook", "service-impact"]
+  - id: "AR-605"
+    title: "Hintergrundarbeit zeigt Status"
+    summary: "Langlaufende und asynchrone Arbeit sollte Status, Ergebnis und Fehlerzustand offenlegen."
+    content: "Hintergrundjobs und langlaufende Aktionen sollten relevante Zustände wie pending, running, completed, failed, cancelled und retried sichtbar machen."
+    rationale: "Unsichtbare Hintergrundarbeit erzeugt Unsicherheit für Nutzer und Betrieb und versteckt Fehler oder Datenverlust."
+    reviewQuestions: ["Können Nutzer oder Betreiber den Jobstatus sehen?", "Sind Ergebnis und Fehlergrund sichtbar?", "Sind Retries von neuer Arbeit unterscheidbar?"]
+    positiveExamples: ["Ein Importjob speichert Status, Startzeit, Abschlusszeit, Ergebnis und Fehlerzusammenfassung."]
+    negativeExamples: ["Ein Hintergrundjob schlägt still fehl und Nutzer warten unbegrenzt."]
+    exceptions: ["Sehr kleine Fire-and-Forget-Telemetrie darf ungetrackt bleiben, wenn Verlust akzeptabel und dokumentiert ist."]
+    remediation: ["Jobstatus, Ergebnisaufzeichnung, Fehlerzusammenfassung und Retry-Sichtbarkeit ergänzen."]
+    tags: ["BackgroundWork"]
+    keywords: ["job-status", "async-work", "long-running-operation"]
