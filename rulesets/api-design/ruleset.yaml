@@ -1,0 +1,151 @@
+ruleSetId: "api-design"
+schemaVersion: "ruleset-catalog-v1"
+ruleSetVersion: "0.1.0"
+publisher: "APMDB Catalog Seed"
+license: "Apache-2.0"
+status: "published"
+defaultLocale: "en"
+availableLocales:
+  - "en"
+  - "de"
+approvals:
+  - maintainer: "japana"
+    approvedAt: "2026-06-08T10:00:00Z"
+    referenceType: "commit"
+    reference: "https://github.com/japana/architecture_rules_catalog/commit/83d6caa63efb91a063c3410ab5a05ef53ef096fd"
+rules:
+  - id: "AR-401"
+    status: "draft"
+    type: "api"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["api-contract", "source-code", "architecture-design", "documentation", "test-artifact"]
+    appliesTo:
+      artifactTypes: ["api-contract", "source-code", "architecture-design", "documentation", "test-artifact"]
+      architectureElements: ["interface", "service", "application", "external-system"]
+    source:
+      type: "architecture-principle"
+      name: "Stable Interface Contracts"
+      reference: "Public and shared interfaces should be explicit and reviewable."
+    violationSignals:
+      - "Consumers must infer request, response, error, or compatibility behavior from implementation details."
+      - "A shared interface changes without visible contract impact analysis."
+      - "Documentation, tests, and implementation disagree about the interface behavior."
+    relationships: []
+  - id: "AR-402"
+    status: "draft"
+    type: "api"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["api-contract", "source-code", "runtime-operation", "test-artifact"]
+    appliesTo:
+      artifactTypes: ["api-contract", "source-code", "runtime-operation", "test-artifact"]
+      architectureElements: ["interface", "adapter", "service", "external-system"]
+    source:
+      type: "engineering-practice"
+      name: "Consistent Error Contracts"
+      reference: "Interface failures should be understandable by humans and machines."
+    violationSignals:
+      - "Different endpoints or operations represent equivalent failures in incompatible ways."
+      - "Errors expose technical internals instead of stable error meaning."
+      - "Clients cannot reliably distinguish validation, authorization, conflict, and system failures."
+    relationships: []
+  - id: "AR-403"
+    status: "draft"
+    type: "api"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["api-contract", "source-code", "architecture-design"]
+    appliesTo:
+      artifactTypes: ["api-contract", "source-code", "architecture-design"]
+      architectureElements: ["interface", "adapter", "data-store", "domain"]
+    source:
+      type: "architecture-principle"
+      name: "Representation Encapsulation"
+      reference: "External contracts should not unintentionally expose internal persistence or domain internals."
+    violationSignals:
+      - "External consumers depend on database table shapes, internal entity structures, or implementation-only fields."
+      - "Internal refactoring would become a breaking external contract change."
+      - "Sensitive or irrelevant internal fields are exposed through convenience mapping."
+    relationships: []
+  - id: "AR-404"
+    status: "draft"
+    type: "api"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "blocking"
+    detectability: "process"
+    scope:
+      - dimension: "artifactType"
+        values: ["api-contract", "architecture-design", "documentation", "test-artifact"]
+    appliesTo:
+      artifactTypes: ["api-contract", "architecture-design", "documentation", "test-artifact"]
+      architectureElements: ["interface", "service", "external-system"]
+    source:
+      type: "governance-guideline"
+      name: "Breaking Change Control"
+      reference: "Breaking interface changes should be explicit, versioned, or migrated."
+    violationSignals:
+      - "A consumer-visible contract change has no migration or compatibility decision."
+      - "An existing field, operation, behavior, or error meaning is removed or reinterpreted silently."
+      - "Compatibility risk is discovered only after deployment or consumer integration."
+    relationships:
+      - target: "AR-401"
+        type: "supports"
+        rationale: "Explicit interface contracts are required to identify breaking changes."
+  - id: "AR-405"
+    status: "draft"
+    type: "api"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "advisory"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["api-contract", "source-code", "test-artifact"]
+    appliesTo:
+      artifactTypes: ["api-contract", "source-code", "test-artifact"]
+      architectureElements: ["interface", "service", "application"]
+    source:
+      type: "engineering-practice"
+      name: "Idempotency Awareness"
+      reference: "Repeatable operations should define duplicate and retry behavior deliberately."
+    violationSignals:
+      - "A retry can create duplicate business effects without detection or documentation."
+      - "Clients cannot know whether repeating a failed request is safe."
+      - "Duplicate commands are handled inconsistently across similar operations."
+    relationships: []
+  - id: "AR-406"
+    status: "draft"
+    type: "api"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["api-contract", "source-code", "runtime-operation", "test-artifact"]
+    appliesTo:
+      artifactTypes: ["api-contract", "source-code", "runtime-operation", "test-artifact"]
+      architectureElements: ["interface", "service", "data-store"]
+    source:
+      type: "engineering-practice"
+      name: "Large Result Control"
+      reference: "Interfaces that can return large result sets should define explicit limits."
+    violationSignals:
+      - "An operation can return unbounded data to a client."
+      - "Paging, filtering, sorting, or streaming behavior is missing for growing datasets."
+      - "Client-visible performance depends on accidental database or in-memory behavior."
+    relationships: []
