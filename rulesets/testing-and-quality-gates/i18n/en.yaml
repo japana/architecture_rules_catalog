@@ -1,0 +1,71 @@
+ruleSetId: "testing-and-quality-gates"
+locale: "en"
+name: "Testing and Quality Gates"
+description: "Generic rule set for risk-based testing, behavior verification, regression protection, quality gates, and manual test quality."
+category: "Quality"
+compatibility: "Technology-agnostic"
+tags: ["Testing", "Quality", "Verification"]
+rules:
+  - id: "AR-801"
+    title: "Critical Behavior Is Covered by Tests"
+    summary: "Critical behavior should be protected by appropriate automated or documented verification."
+    content: "The amount and type of verification should reflect business, security, operational, and architectural risk."
+    rationale: "Risk-based test coverage keeps verification effort focused on the behavior that matters most."
+    reviewQuestions: ["Which behavior is critical?", "Which risk does the test cover?", "Is the chosen test type appropriate?"]
+    positiveExamples: ["A critical authorization rule has automated tests for allowed and denied access."]
+    negativeExamples: ["A high-risk workflow is only checked informally during development."]
+    exceptions: ["A low-risk exploratory prototype may defer automated coverage when the risk is accepted explicitly."]
+    remediation: ["Add automated tests or documented verification for critical behavior and edge cases."]
+    tags: ["RiskBasedTesting"]
+    keywords: ["risk-based-testing", "critical-behavior", "verification"]
+  - id: "AR-802"
+    title: "Tests Verify Behavior"
+    summary: "Tests should verify observable behavior rather than incidental implementation details."
+    content: "Tests should make expected outcomes visible and avoid excessive coupling to private structure or incidental call order."
+    rationale: "Behavior-focused tests support refactoring and better communicate system expectations."
+    reviewQuestions: ["What behavior does the test prove?", "Would a harmless refactoring break the test?", "Are assertions meaningful for the user or domain?"]
+    positiveExamples: ["A service test verifies the resulting business decision and emitted outcome."]
+    negativeExamples: ["A test fails because a private helper was renamed although behavior is unchanged."]
+    exceptions: ["Low-level technical units may assert implementation details when the implementation itself is the contract."
+    ]
+    remediation: ["Rewrite tests around observable outcomes, public contracts, or stable collaboration effects."]
+    tags: ["BehaviorTesting"]
+    keywords: ["behavior", "test-design", "refactoring-safety"]
+  - id: "AR-803"
+    title: "Defects Add Regression Protection"
+    summary: "Reproducible defects should add verification that prevents recurrence."
+    content: "When a defect can be reproduced, the fix should include a test or documented verification that would fail without the fix."
+    rationale: "Regression protection converts incidents into lasting learning and reduces repeated defects."
+    reviewQuestions: ["Can the defect recur unnoticed?", "Would the new verification fail before the fix?", "Is manual verification enough for this risk?"]
+    positiveExamples: ["A bug fix adds a test for the exact failing boundary case."]
+    negativeExamples: ["A defect is fixed by code change only and the failing scenario remains untested."]
+    exceptions: ["A non-reproducible operational incident may use monitoring or a runbook update instead of a direct test."
+    ]
+    remediation: ["Add regression tests, scenario tests, monitoring checks, or explicit manual verification."]
+    tags: ["Regression"]
+    keywords: ["regression-test", "bugfix", "defect-prevention"]
+  - id: "AR-804"
+    title: "Quality Gates Protect Real Risks"
+    summary: "Quality gates should protect relevant risks, not only formal metrics."
+    content: "Build, review, and release gates should be tied to meaningful product, architecture, security, or operational risks."
+    rationale: "Formal metrics alone can create false confidence when important risks remain unchecked."
+    reviewQuestions: ["Which risk does this gate protect?", "Can the gate be bypassed?", "Are failures acted on consistently?"]
+    positiveExamples: ["A release gate blocks when contract tests for public APIs fail."]
+    negativeExamples: ["Coverage percentage passes while critical flows have no tests."]
+    exceptions: ["A soft advisory gate may be non-blocking when its risk is intentionally informational."]
+    remediation: ["Align gates with concrete risks and define when bypasses require documented rationale."]
+    tags: ["QualityGate"]
+    keywords: ["quality-gate", "risk", "release"]
+  - id: "AR-805"
+    title: "Manual Tests Are Reproducible"
+    summary: "Manual tests should have clear preconditions, steps, and expected results."
+    content: "Manual verification artifacts should allow a reviewer or tester to repeat the check and understand the expected outcome."
+    rationale: "Reproducible manual tests reduce ambiguity and make non-automated verification auditable."
+    reviewQuestions: ["Are preconditions clear?", "Are steps repeatable?", "Are expected results observable and unambiguous?"]
+    positiveExamples: ["A manual test lists setup data, actions, and expected UI or API results."]
+    negativeExamples: ["A test says verify that it works without defining what success means."]
+    exceptions: ["Exploratory testing charters may be less prescriptive when their goal is discovery rather than repeatable verification."
+    ]
+    remediation: ["Add preconditions, concrete steps, expected results, and evidence expectations."]
+    tags: ["ManualTesting"]
+    keywords: ["manual-test", "reproducible", "expected-result"]

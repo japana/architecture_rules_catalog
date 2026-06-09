@@ -1,0 +1,80 @@
+ruleSetId: "api-design"
+locale: "de"
+name: "API-Design"
+description: "Allgemeines RuleSet für stabile, verständliche und evolvierbare Schnittstellenverträge."
+category: "Architecture"
+compatibility: "Technologieunabhängig"
+tags: ["API", "Contracts", "Compatibility"]
+rules:
+  - id: "AR-401"
+    title: "Schnittstellen haben explizite Verträge"
+    summary: "Gemeinsam genutzte Schnittstellen sollten Request-, Response-, Fehler- und Kompatibilitätsverhalten explizit beschreiben."
+    content: "Schnittstellen über System- oder Organisationsgrenzen hinweg sollten unabhängig von Implementierungsdetails reviewbar sein."
+    rationale: "Explizite Verträge reduzieren unbeabsichtigte Kopplung und machen Auswirkungen auf Consumer vor dem Release sichtbar."
+    reviewQuestions: ["Können Consumer das Verhalten ohne Implementierungscode verstehen?", "Sind Request, Response, Fehler und Kompatibilität beschrieben?", "Stimmen Tests, Dokumentation und Implementierung überein?"]
+    positiveExamples: ["Ein API-Vertrag beschreibt Eingaben, Ausgaben, Fehler und Kompatibilitätserwartungen."]
+    negativeExamples: ["Consumer müssen Verhalten aus Controller- oder Handler-Code ableiten."]
+    exceptions: ["Eine rein private Hilfsschnittstelle ohne unabhängige Consumer darf undokumentiert bleiben."]
+    remediation: ["Vertrag dokumentieren und Implementierung, Tests und Beispiele daran ausrichten."]
+    tags: ["API", "Contract"]
+    keywords: ["interface-contract", "compatibility", "api-design"]
+  - id: "AR-402"
+    title: "Fehler folgen einem konsistenten Vertrag"
+    summary: "Gleichartige Schnittstellenfehler sollten konsistent und sicher repräsentiert werden."
+    content: "Schnittstellen sollten Fehler in einer stabilen Form liefern, die Validierung, Autorisierung, Konflikte und Systemfehler unterscheidbar macht."
+    rationale: "Konsistente Fehler vereinfachen Clients, unterstützen Betrieb und verhindern, dass interne Details öffentliche Verträge werden."
+    reviewQuestions: ["Können Consumer Fehlerklassen unterscheiden?", "Werden gleichartige Fehler konsistent dargestellt?", "Vermeidet der Fehlervertrag interne Details?"]
+    positiveExamples: ["Validierungsfehler enthalten stabile Codes und feldbezogene Details."]
+    negativeExamples: ["Verschiedene Operationen liefern unterschiedliche Strukturen für denselben Fehler."]
+    exceptions: ["Stark eingeschränkte interne Protokolle dürfen kompakte Fehler nutzen, wenn deren Bedeutung dokumentiert ist."]
+    remediation: ["Gemeinsame Fehlerkategorien definieren und interne Fehler auf stabile externe Bedeutungen abbilden."]
+    tags: ["API", "ErrorHandling"]
+    keywords: ["error-contract", "failure-semantics", "api-errors"]
+  - id: "AR-403"
+    title: "Verträge leaken keine internen Repräsentationen"
+    summary: "Externe Verträge sollten Persistenz- oder Implementierungsdetails nicht unbeabsichtigt offenlegen."
+    content: "API- und Integrationsverträge sollten stabile, consumerorientierte Repräsentationen statt interner Entitäten oder Tabellen spiegeln."
+    rationale: "Kapselung schützt interne Weiterentwicklung und reduziert die versehentliche Offenlegung irrelevanter oder sensibler Felder."
+    reviewQuestions: ["Würde ein internes Refactoring Consumer brechen?", "Werden speicherungsnahe Felder aus Bequemlichkeit exponiert?", "Ist die Repräsentation an Consumer-Bedeutung orientiert?"]
+    positiveExamples: ["Für öffentliche Antworten werden dedizierte Vertragsmodelle verwendet."]
+    negativeExamples: ["Datenbankentitäten werden direkt als API-Antwort serialisiert."]
+    exceptions: ["Eingeschränkte Diagnose-Schnittstellen dürfen technische Details zeigen, wenn Zweck und Zugriff explizit sind."]
+    remediation: ["Dedizierte Vertragsmodelle einführen und exponierte Felder bewusst prüfen."]
+    tags: ["API", "Encapsulation"]
+    keywords: ["dto", "representation", "entity-leak"]
+  - id: "AR-404"
+    title: "Breaking Changes werden kontrolliert"
+    summary: "Inkompatible consumer-sichtbare Änderungen sollten versioniert, migriert oder explizit akzeptiert werden."
+    content: "Entfernen, Umbenennen, Uminterpretieren oder Typändern von Vertragselementen ist als Breaking Change zu behandeln, sofern Kompatibilität nicht erhalten bleibt."
+    rationale: "Breaking-Change-Kontrolle verhindert unerwartete Consumer-Ausfälle und macht Migrationsaufwand sichtbar."
+    reviewQuestions: ["Ändert die Änderung bestehendes consumer-sichtbares Verhalten?", "Gibt es Versionierung, Migration oder Deprecation?", "Sind betroffene Consumer bekannt?"]
+    positiveExamples: ["Ein veraltetes Feld bleibt während einer dokumentierten Migrationszeit verfügbar."]
+    negativeExamples: ["Ein Feld wird entfernt, weil kein aktueller Test fehlschlug."]
+    exceptions: ["Ein privater Vorabvertrag darf inkompatibel geändert werden, wenn alle Consumer gemeinsam aktualisiert werden."]
+    remediation: ["Deprecation, Kompatibilitätsbehandlung oder neue Version ergänzen und Contract-Tests aktualisieren."]
+    tags: ["API", "Compatibility"]
+    keywords: ["breaking-change", "versioning", "migration"]
+  - id: "AR-405"
+    title: "Wiederholbare Operationen definieren Idempotenz"
+    summary: "Operationen, die wiederholt werden können, sollten Duplikat- und Retry-Verhalten bewusst festlegen."
+    content: "Commands und Schreiboperationen sollten klären, ob wiederholte Requests sicher sind, als Duplikate abgelehnt werden oder absichtlich weitere Effekte erzeugen."
+    rationale: "Explizite Idempotenz verhindert versteckte doppelte Geschäftseffekte durch Retries."
+    reviewQuestions: ["Können Clients nach Timeout sicher wiederholen?", "Ist Duplikaterkennung erforderlich?", "Sind Idempotency Keys oder Eindeutigkeitsregeln nötig?"]
+    positiveExamples: ["Ein Zahlungs-Command verwendet einen Idempotency Key gegen doppelte Abbuchungen."]
+    negativeExamples: ["Ein Retry nach Timeout erzeugt unbemerkt eine zweite Bestellung."]
+    exceptions: ["Eine bewusst nicht-idempotente Operation darf so bleiben, wenn der Vertrag das klar beschreibt."]
+    remediation: ["Retry-Semantik definieren und bei Bedarf Idempotency Keys, Eindeutigkeitsregeln oder Konfliktantworten ergänzen."]
+    tags: ["API", "Reliability"]
+    keywords: ["idempotency", "retry", "duplicates"]
+  - id: "AR-406"
+    title: "Große Ergebnismengen werden kontrolliert"
+    summary: "Schnittstellen mit potenziell großen Ergebnissen sollten Limits, Paging, Streaming oder Filterung definieren."
+    content: "Operationen mit wachsender Ergebnismenge sollten unbegrenzte Antworten vermeiden und Datenzugriffsverhalten explizit machen."
+    rationale: "Kontrollierte Ergebnisgrößen schützen Clients, Services und Datenhaltung vor unbeabsichtigter Last und unvorhersehbarer Latenz."
+    reviewQuestions: ["Kann diese Operation unbegrenzt viele Daten liefern?", "Sind Paging, Sortierung, Filterung oder Streaming definiert?", "Sind Standard- und Maximalgrenzen explizit?"]
+    positiveExamples: ["Eine Listenoperation definiert Standardlimit, Maximallimit, stabile Sortierung und Fortsetzungsverhalten."]
+    negativeExamples: ["Ein Listenendpunkt liefert alle Zeilen, weil die aktuelle Datenmenge klein ist."]
+    exceptions: ["Eine garantierte kleine Aufzählung benötigt eventuell kein Paging."]
+    remediation: ["Limits ergänzen und Paging- oder Streaming-Verhalten definieren."]
+    tags: ["API", "Performance"]
+    keywords: ["pagination", "large-results", "limits"]

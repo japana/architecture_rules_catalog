@@ -1,0 +1,31 @@
+profileId: "java-spring-boot"
+ruleSetId: "resilience-and-reliability"
+schemaVersion: "ruleset-profile-v1"
+status: "published"
+displayName: "Java Spring Boot Profile for Resilience and Reliability"
+description: "Spring Boot-specific detection hints for the resilience-and-reliability ruleset."
+technology:
+  language: "java"
+  framework: "spring-boot"
+  runtime: "jvm"
+mappings:
+  - ruleId: "AR-701"
+    detectionHints:
+      concreteComponentPatterns: ["HTTP client call without explicit timeout", "Database or remote call using default timeout behavior"]
+      recommendedTools: ["integration tests", "configuration review", "fault injection tests"]
+  - ruleId: "AR-702"
+    detectionHints:
+      concreteComponentPatterns: ["Retry annotation without max attempts or backoff", "Retry applied to non-idempotent write operation"]
+      recommendedTools: ["Spring Retry tests", "Resilience4j tests"]
+  - ruleId: "AR-703"
+    detectionHints:
+      concreteComponentPatterns: ["Fallback method returns default business value without degraded-state signal", "Cached fallback data returned as fresh data"]
+      recommendedTools: ["fallback behavior tests", "contract tests"]
+  - ruleId: "AR-704"
+    detectionHints:
+      concreteComponentPatterns: ["Batch or import operation without checkpoint", "Manual repair needed after partial failure but not documented"]
+      recommendedTools: ["recovery tests", "runbook review"]
+  - ruleId: "AR-705"
+    detectionHints:
+      concreteComponentPatterns: ["Non-critical dependency failure blocks full user workflow", "Feature degradation not visible to user or operator"]
+      recommendedTools: ["failure-mode tests", "operational readiness review"]

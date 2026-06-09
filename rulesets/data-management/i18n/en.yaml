@@ -1,0 +1,80 @@
+ruleSetId: "data-management"
+locale: "en"
+name: "Data Management"
+description: "Generic rule set for data ownership, consistency, migration safety, and derived data integrity."
+category: "Architecture"
+compatibility: "Technology-agnostic"
+tags: ["Data", "Persistence", "Consistency"]
+rules:
+  - id: "AR-501"
+    title: "Business Data Has Clear Ownership"
+    summary: "Business data should have an explicit owner responsible for meaning, lifecycle, and changes."
+    content: "Important business data should not be treated as ownerless shared storage. Its owning component or capability should be clear."
+    rationale: "Clear ownership prevents conflicting updates, unclear responsibilities, and uncontrolled schema evolution."
+    reviewQuestions: ["Which component owns this data?", "Who is responsible for data meaning and lifecycle?", "Can other components change it directly?"]
+    positiveExamples: ["One service owns the lifecycle of a business object and exposes controlled operations."]
+    negativeExamples: ["Several components update the same records without a clear owner."]
+    exceptions: ["Shared reference data may have joint ownership when governance and update responsibility are explicit."]
+    remediation: ["Assign ownership and route writes through the owning component or contract."]
+    tags: ["DataOwnership"]
+    keywords: ["ownership", "data-lifecycle", "shared-data"]
+  - id: "AR-502"
+    title: "Data Models Protect Invariants"
+    summary: "Persistent models should protect business invariants, not merely store fields."
+    content: "Business-invalid states should be prevented or controlled before they become durable state."
+    rationale: "Persisting invalid states makes later correction expensive and spreads validation assumptions across the system."
+    reviewQuestions: ["Which invalid states must never be persisted?", "Where are invariants enforced?", "Can UI bypass create invalid data?"]
+    positiveExamples: ["A business rule prevents persisting an impossible state transition."]
+    negativeExamples: ["The database accepts combinations the domain explicitly forbids."]
+    exceptions: ["Temporary import staging may hold invalid data when it is isolated and validated before promotion."]
+    remediation: ["Move invariant checks to the owning domain, application, or persistence boundary."]
+    tags: ["Invariants"]
+    keywords: ["invariant", "valid-state", "persistence"]
+  - id: "AR-503"
+    title: "Schema Changes Are Migration-Safe"
+    summary: "Persistent schema changes should be deployable, migratable, and operationally safe."
+    content: "Changes to durable structures should consider existing data, deployment order, rollback or forward-fix strategy, and operational execution."
+    rationale: "Unsafe schema changes can cause downtime, data loss, or incompatible application versions."
+    reviewQuestions: ["How is existing data migrated?", "Is deployment order safe?", "What happens if the migration fails?"]
+    positiveExamples: ["A schema expansion is deployed before code starts requiring the new field."]
+    negativeExamples: ["A column is removed without checking existing consumers or data migration."]
+    exceptions: ["Disposable non-production stores may use destructive changes when no durable data is at risk."]
+    remediation: ["Add migration steps, compatibility handling, and operational rollback or forward-fix guidance."]
+    tags: ["Migration"]
+    keywords: ["schema-change", "migration", "compatibility"]
+  - id: "AR-504"
+    title: "Consistency Boundaries Are Deliberate"
+    summary: "Write operations should define transactional and consistency boundaries intentionally."
+    content: "Business operations that update multiple data elements or systems should clarify what must be consistent immediately and what may become consistent later."
+    rationale: "Undefined consistency boundaries create partial failures and unclear business states."
+    reviewQuestions: ["What must be atomic?", "What may be eventually consistent?", "How are partial failures handled?"]
+    positiveExamples: ["A business command defines its transaction boundary and compensating behavior for external calls."]
+    negativeExamples: ["Multiple stores are updated with no recovery plan for mid-operation failure."]
+    exceptions: ["Best-effort telemetry may accept eventual loss when business impact is negligible and documented."]
+    remediation: ["Define transaction boundaries, compensation, reconciliation, or idempotent retry behavior."]
+    tags: ["Consistency"]
+    keywords: ["transaction", "consistency-boundary", "partial-failure"]
+  - id: "AR-505"
+    title: "Derived Data Has an Update Strategy"
+    summary: "Cached, indexed, projected, or denormalized data should not become implicit truth."
+    content: "Derived data should have an explicit refresh, invalidation, rebuild, or reconciliation mechanism and a visible relationship to its source."
+    rationale: "Derived stores improve performance but can mislead users and systems when staleness is invisible."
+    reviewQuestions: ["What is the source of truth?", "How is derived data refreshed?", "Can consumers see or tolerate staleness?"]
+    positiveExamples: ["An index records freshness and can be rebuilt from source data."]
+    negativeExamples: ["A stale cache is treated as authoritative state."]
+    exceptions: ["A deliberate snapshot may remain immutable when its capture time and purpose are explicit."]
+    remediation: ["Define refresh, invalidation, rebuild, and freshness semantics."]
+    tags: ["DerivedData"]
+    keywords: ["cache", "projection", "index", "source-of-truth"]
+  - id: "AR-506"
+    title: "Data Access Paths Consider Volume"
+    summary: "Data access should consider expected volume, query patterns, and growth."
+    content: "Queries and data loading paths should be designed with realistic data sizes and access patterns in mind."
+    rationale: "Access paths that work with small test data can fail under normal production growth."
+    reviewQuestions: ["How much data can this path process?", "Are filters and indexes aligned?", "Could this introduce N+1 or full-scan behavior?"]
+    positiveExamples: ["A query uses bounded results and indexes aligned with common filters."]
+    negativeExamples: ["A critical path loads all records and filters in memory."]
+    exceptions: ["Small bounded reference lists may be loaded fully when their maximum size is guaranteed."]
+    remediation: ["Add limits, indexes, batching, or query redesign and test realistic volumes."]
+    tags: ["DataAccess"]
+    keywords: ["query", "volume", "n-plus-one", "index"]

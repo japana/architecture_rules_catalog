@@ -1,7 +1,7 @@
 profileId: "java-quarkus"
 ruleSetId: "security-baseline"
 schemaVersion: "ruleset-profile-v1"
-status: "draft"
+status: "published"
 displayName: "Java Quarkus Profile for Security Baseline"
 description: "Quarkus-specific interpretation hints for the security-baseline ruleset."
 technology:

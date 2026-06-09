@@ -1,0 +1,68 @@
+ruleSetId: "resilience-and-reliability"
+locale: "de"
+name: "Resilience und Reliability"
+description: "Allgemeines RuleSet für Fehlerbehandlung von Abhängigkeiten, Retry-Sicherheit, Fallbacks, Recovery und Graceful Degradation."
+category: "Operations"
+compatibility: "Technologieunabhängig"
+tags: ["Reliability", "Resilience", "Operations"]
+rules:
+  - id: "AR-701"
+    title: "Abhängigkeitsfehler werden kontrolliert"
+    summary: "Externe und unzuverlässige Abhängigkeiten sollten begrenzt und verständlich fehlschlagen."
+    content: "Aufrufe an Services, Datenbanken, Netzwerke, Queues, Dateisysteme und andere Abhängigkeiten sollten Timeout-, Fehler- und Ressourcenverhalten bewusst definieren."
+    rationale: "Unbegrenzte Abhängigkeitsfehler können Ressourcen erschöpfen, Ausfälle verstärken und Betrieb unklar machen."
+    reviewQuestions: ["Was passiert, wenn die Abhängigkeit langsam oder nicht verfügbar ist?", "Sind Timeouts und Ressourcenlimits explizit?", "Ist der Fehler sichtbar und verständlich?"]
+    positiveExamples: ["Ein Remote-Aufruf hat Timeout, abgebildetes Fehlerergebnis und Diagnosekontext."]
+    negativeExamples: ["Ein Abhängigkeitsaufruf kann mit Defaults unbegrenzt blockieren."]
+    exceptions: ["Eine lokale In-Memory-Abhängigkeit benötigt ggf. kein Timeout, wenn sie nicht auf externe Ressourcen blockieren kann."]
+    remediation: ["Timeouts, begrenzte Wartezeiten, Fehlerabbildung und Ressourcenlimits definieren."]
+    tags: ["DependencyFailure"]
+    keywords: ["timeout", "dependency", "bounded-failure"]
+  - id: "AR-702"
+    title: "Retries sind sicher und begrenzt"
+    summary: "Retries sollten begrenzt und für die Geschäftsoperation sicher sein."
+    content: "Retry-Verhalten sollte transiente von permanenten Fehlern unterscheiden, begrenzte Versuche nutzen und doppelte Geschäftseffekte vermeiden."
+    rationale: "Unkontrollierte Retries verstärken Fehler und können Geschäftszustand beschädigen."
+    reviewQuestions: ["Ist der Fehler transient?", "Sind Anzahl und Backoff begrenzt?", "Können Retries Geschäftseffekte duplizieren?"]
+    positiveExamples: ["Eine transiente Leseoperation nutzt begrenzten exponentiellen Backoff."]
+    negativeExamples: ["Eine Schreiboperation wiederholt unbegrenzt und kann Duplikate erzeugen."]
+    exceptions: ["Ein manuell ausgelöster Retry darf andere Grenzen nutzen, wenn Absicht und Auswirkung explizit sind."]
+    remediation: ["Retry-Limits, Backoff, Klassifikation, Idempotenz oder Duplikaterkennung ergänzen."]
+    tags: ["Retry"]
+    keywords: ["retry", "backoff", "idempotency"]
+  - id: "AR-703"
+    title: "Fallbacks sind ehrlich"
+    summary: "Fallback-Verhalten sollte fachlich relevante Fehler nicht verbergen."
+    content: "Fallbacks sollten reduzierte Sicherheit, Veraltung oder Degradation erhalten oder explizit kommunizieren, statt Fehler still als Erfolg darzustellen."
+    rationale: "Versteckte Fallbacks können Nutzer und nachgelagerte Systeme täuschen."
+    reviewQuestions: ["Ändert der Fallback fachliche Bedeutung?", "Können Consumer erkennen, dass Fallback-Daten genutzt wurden?", "Sind veraltete oder partielle Daten markiert?"]
+    positiveExamples: ["Eine gecachte Antwort wird als stale markiert, wenn die Quelle nicht verfügbar ist."]
+    negativeExamples: ["Defaultwerte lassen eine fehlgeschlagene Berechnung erfolgreich erscheinen."]
+    exceptions: ["Ein harmloser visueller Fallback darf still sein, wenn er keine fachliche Auswirkung hat."]
+    remediation: ["Fallback-Status, Aktualität, Vertrauen oder reduzierte Fähigkeit explizit zeigen."]
+    tags: ["Fallback"]
+    keywords: ["fallback", "degradation", "stale-data"]
+  - id: "AR-704"
+    title: "Recovery ist vorbereitet"
+    summary: "Kritische Operationen sollten wiederherstellbar, wiederholbar oder kompensierbar sein."
+    content: "Wichtige Geschäfts- und Betriebsprozesse sollten für Teilfehler, Unterbrechungen und inkonsistente Zwischenzustände einen Recovery-Pfad haben."
+    rationale: "Vorbereitete Recovery reduziert manuelle Reparaturrisiken und Incident-Dauer."
+    reviewQuestions: ["Was passiert nach einem Teilfehler?", "Kann die Operation sicher wiederholt werden?", "Ist manuelle Reparatur dokumentiert und getestet?"]
+    positiveExamples: ["Ein fehlgeschlagener Import kann ab Checkpoint fortgesetzt oder zurückgerollt werden."]
+    negativeExamples: ["Ein Crash in der Mitte erfordert undokumentierte manuelle Datenbankreparatur."]
+    exceptions: ["Niedrigwertige Einmaloperationen dürfen manuelle Recovery akzeptieren, wenn die Auswirkung dokumentiert ist."]
+    remediation: ["Checkpoints, Kompensation, Reconciliation, Wiederholbarkeit oder Recovery-Anweisungen ergänzen."]
+    tags: ["Recovery"]
+    keywords: ["recovery", "compensation", "repeatability"]
+  - id: "AR-705"
+    title: "Degradationsmodi sind definiert"
+    summary: "Systeme sollten akzeptable reduzierte Modi definieren, statt unkontrolliert auszufallen."
+    content: "Wenn Systemteile nicht verfügbar sind, sollte Verhalten nach bekannten Prioritäten degradieren statt unvorhersehbar fehlschlagen."
+    rationale: "Bewusste Degradation hält wesentliche Fähigkeiten verfügbar und erleichtert Incident-Management."
+    reviewQuestions: ["Welche Fähigkeiten sind essenziell?", "Was kann deaktiviert oder reduziert werden?", "Können Nutzer und Betrieb Degradation von Defekten unterscheiden?"]
+    positiveExamples: ["Suche ist degradiert, während Schreiboperationen verfügbar bleiben und die UI die Einschränkung erklärt."]
+    negativeExamples: ["Ein Ausfall eines nicht-kritischen Empfehlungsdienstes blockiert Checkout."]
+    exceptions: ["Eine sicherheitskritische Operation darf fail-closed statt degradieren, wenn Teilverhalten unsicher wäre."]
+    remediation: ["Degradationsprioritäten, Feature-Verhalten, Kommunikation und Betriebssteuerung definieren."]
+    tags: ["Degradation"]
+    keywords: ["graceful-degradation", "fail-closed", "service-continuity"]

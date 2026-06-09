@@ -1,7 +1,7 @@
 profileId: "java"
 ruleSetId: "clean-architecture"
 schemaVersion: "ruleset-profile-v1"
-status: "draft"
+status: "published"
 displayName: "Java Profile for Clean Architecture"
 description: "Java-specific interpretation hints for the clean-architecture ruleset."
 technology:
