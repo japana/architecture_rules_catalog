@@ -1,7 +1,7 @@
 profileId: "java-spring-boot"
 ruleSetId: "resilience-and-reliability"
 schemaVersion: "ruleset-profile-v1"
-status: "draft"
+status: "published"
 displayName: "Java Spring Boot Profile for Resilience and Reliability"
 description: "Spring Boot-specific detection hints for the resilience-and-reliability ruleset."
 technology:
