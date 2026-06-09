@@ -15,7 +15,7 @@ approvals:
     reference: "https://github.com/japana/architecture_rules_catalog/commit/83d6caa63efb91a063c3410ab5a05ef53ef096fd"
 rules:
   - id: "AR-401"
-    status: "draft"
+    status: "active"
     type: "api"
     abstractionLevel: "principle"
     strength: "must"
@@ -37,7 +37,7 @@ rules:
       - "Documentation, tests, and implementation disagree about the interface behavior."
     relationships: []
   - id: "AR-402"
-    status: "draft"
+    status: "active"
     type: "api"
     abstractionLevel: "practice"
     strength: "must"
@@ -59,7 +59,7 @@ rules:
       - "Clients cannot reliably distinguish validation, authorization, conflict, and system failures."
     relationships: []
   - id: "AR-403"
-    status: "draft"
+    status: "active"
     type: "api"
     abstractionLevel: "practice"
     strength: "must"
@@ -81,7 +81,7 @@ rules:
       - "Sensitive or irrelevant internal fields are exposed through convenience mapping."
     relationships: []
   - id: "AR-404"
-    status: "draft"
+    status: "active"
     type: "api"
     abstractionLevel: "principle"
     strength: "must"
@@ -106,7 +106,7 @@ rules:
         type: "supports"
         rationale: "Explicit interface contracts are required to identify breaking changes."
   - id: "AR-405"
-    status: "draft"
+    status: "active"
     type: "api"
     abstractionLevel: "practice"
     strength: "should"
@@ -128,7 +128,7 @@ rules:
       - "Duplicate commands are handled inconsistently across similar operations."
     relationships: []
   - id: "AR-406"
-    status: "draft"
+    status: "active"
     type: "api"
     abstractionLevel: "practice"
     strength: "should"

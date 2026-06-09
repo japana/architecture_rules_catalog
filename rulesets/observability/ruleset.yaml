@@ -6,9 +6,14 @@ license: "Apache-2.0"
 status: "published"
 defaultLocale: "en"
 availableLocales: ["en", "de"]
+approvals:
+  - maintainer: "japana"
+    approvedAt: "2026-06-08T10:00:00Z"
+    referenceType: "commit"
+    reference: "https://github.com/japana/architecture_rules_catalog/commit/83d6caa63efb91a063c3410ab5a05ef53ef096fd"
 rules:
   - id: "AR-601"
-    status: "draft"
+    status: "active"
     type: "operations"
     abstractionLevel: "principle"
     strength: "must"
@@ -27,7 +32,7 @@ rules:
     violationSignals: ["Critical workflows have no logs, metrics, status, or trace signals.", "Operators cannot tell whether an important process is running, stuck, or failed.", "Only source-code debugging can explain production behavior."]
     relationships: []
   - id: "AR-602"
-    status: "draft"
+    status: "active"
     type: "operations"
     abstractionLevel: "practice"
     strength: "must"
@@ -46,7 +51,7 @@ rules:
     violationSignals: ["Errors lack operation, correlation, target, or outcome context.", "Diagnostics expose sensitive data to provide context.", "Equivalent failures produce unrelated diagnostic signals."]
     relationships: []
   - id: "AR-603"
-    status: "draft"
+    status: "active"
     type: "operations"
     abstractionLevel: "practice"
     strength: "should"
@@ -65,7 +70,7 @@ rules:
     violationSignals: ["A request or job cannot be followed across services or components.", "Async processing loses the initiating context without replacement.", "Logs, metrics, and traces cannot be linked for the same incident."]
     relationships: []
   - id: "AR-604"
-    status: "draft"
+    status: "active"
     type: "operations"
     abstractionLevel: "practice"
     strength: "should"
@@ -84,7 +89,7 @@ rules:
     violationSignals: ["Alerts fire for noisy conditions without clear action.", "Critical failures have no alert or only user reports reveal them.", "Alert thresholds are disconnected from service impact."]
     relationships: []
   - id: "AR-605"
-    status: "draft"
+    status: "active"
     type: "operations"
     abstractionLevel: "practice"
     strength: "must"

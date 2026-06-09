@@ -8,11 +8,6 @@ technology:
   language: "csharp"
   framework: "dotnet"
   runtime: "dotnet"
-approvals:
-  - maintainer: "japana"
-    approvedAt: "2026-06-08T10:00:00Z"
-    referenceType: "commit"
-    reference: "https://github.com/japana/architecture_rules_catalog/commit/83d6caa63efb91a063c3410ab5a05ef53ef096fd"
 mappings:
   - ruleId: "AR-401"
     detectionHints:

@@ -6,9 +6,14 @@ license: "Apache-2.0"
 status: "published"
 defaultLocale: "en"
 availableLocales: ["en", "de"]
+approvals:
+  - maintainer: "japana"
+    approvedAt: "2026-06-08T10:00:00Z"
+    referenceType: "commit"
+    reference: "https://github.com/japana/architecture_rules_catalog/commit/83d6caa63efb91a063c3410ab5a05ef53ef096fd"
 rules:
   - id: "AR-501"
-    status: "draft"
+    status: "active"
     type: "persistence"
     abstractionLevel: "principle"
     strength: "must"
@@ -27,7 +32,7 @@ rules:
     violationSignals: ["Multiple components change the same business data without clear ownership.", "No component is responsible for enforcing data meaning or lifecycle.", "Data ownership is inferred from storage location only."]
     relationships: []
   - id: "AR-502"
-    status: "draft"
+    status: "active"
     type: "persistence"
     abstractionLevel: "principle"
     strength: "must"
@@ -46,7 +51,7 @@ rules:
     violationSignals: ["Invalid business states can be persisted without controlled validation.", "Important invariants exist only in UI logic or informal documentation.", "Persistence structures permit combinations that the business domain forbids."]
     relationships: []
   - id: "AR-503"
-    status: "draft"
+    status: "active"
     type: "persistence"
     abstractionLevel: "practice"
     strength: "must"
@@ -65,7 +70,7 @@ rules:
     violationSignals: ["Schema changes lack migration or rollback considerations.", "Existing data compatibility is not assessed.", "Deployment requires manual, undocumented data manipulation."]
     relationships: []
   - id: "AR-504"
-    status: "draft"
+    status: "active"
     type: "persistence"
     abstractionLevel: "principle"
     strength: "must"
@@ -84,7 +89,7 @@ rules:
     violationSignals: ["A business operation updates multiple data owners without consistency strategy.", "Partial failure can leave business state unclear.", "Transactional assumptions are hidden in infrastructure behavior."]
     relationships: []
   - id: "AR-505"
-    status: "draft"
+    status: "active"
     type: "persistence"
     abstractionLevel: "practice"
     strength: "must"
@@ -103,7 +108,7 @@ rules:
     violationSignals: ["Cached, indexed, or projected data becomes authoritative without reconciliation.", "Stale derived data is indistinguishable from source data.", "Rebuild or refresh behavior is missing for derived stores."]
     relationships: []
   - id: "AR-506"
-    status: "draft"
+    status: "active"
     type: "persistence"
     abstractionLevel: "practice"
     strength: "should"

@@ -6,9 +6,14 @@ license: "Apache-2.0"
 status: "published"
 defaultLocale: "en"
 availableLocales: ["en", "de"]
+approvals:
+  - maintainer: "japana"
+    approvedAt: "2026-06-08T10:00:00Z"
+    referenceType: "commit"
+    reference: "https://github.com/japana/architecture_rules_catalog/commit/83d6caa63efb91a063c3410ab5a05ef53ef096fd"
 rules:
   - id: "AR-701"
-    status: "draft"
+    status: "active"
     type: "operations"
     abstractionLevel: "principle"
     strength: "must"
@@ -27,7 +32,7 @@ rules:
     violationSignals: ["A dependency call can block indefinitely or exhaust resources.", "Failure behavior depends on default client or infrastructure settings.", "Users see uncontrolled technical failures from dependent systems."]
     relationships: []
   - id: "AR-702"
-    status: "draft"
+    status: "active"
     type: "operations"
     abstractionLevel: "practice"
     strength: "must"
@@ -46,7 +51,7 @@ rules:
     violationSignals: ["Retries can create duplicate business effects.", "Retry loops have no backoff, cap, or termination condition.", "Non-transient failures are retried as if they were transient."]
     relationships: []
   - id: "AR-703"
-    status: "draft"
+    status: "active"
     type: "operations"
     abstractionLevel: "principle"
     strength: "must"
@@ -65,7 +70,7 @@ rules:
     violationSignals: ["Fallback data is shown as if it were fresh or complete.", "A fallback changes business meaning without visible indication.", "Failure is converted into success without trace or explanation."]
     relationships: []
   - id: "AR-704"
-    status: "draft"
+    status: "active"
     type: "operations"
     abstractionLevel: "practice"
     strength: "should"
@@ -84,7 +89,7 @@ rules:
     violationSignals: ["A partial failure has no defined recovery path.", "Manual repair is required but undocumented.", "Recovery procedures are never tested or rehearsed."]
     relationships: []
   - id: "AR-705"
-    status: "draft"
+    status: "active"
     type: "operations"
     abstractionLevel: "principle"
     strength: "should"

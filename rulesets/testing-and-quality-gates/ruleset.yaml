@@ -6,9 +6,14 @@ license: "Apache-2.0"
 status: "published"
 defaultLocale: "en"
 availableLocales: ["en", "de"]
+approvals:
+  - maintainer: "japana"
+    approvedAt: "2026-06-08T10:00:00Z"
+    referenceType: "commit"
+    reference: "https://github.com/japana/architecture_rules_catalog/commit/83d6caa63efb91a063c3410ab5a05ef53ef096fd"
 rules:
   - id: "AR-801"
-    status: "draft"
+    status: "active"
     type: "testing"
     abstractionLevel: "principle"
     strength: "must"
@@ -27,7 +32,7 @@ rules:
     violationSignals: ["Critical behavior has no automated or documented verification.", "Test depth is unrelated to business or operational risk.", "Important edge cases are left to informal manual checking."]
     relationships: []
   - id: "AR-802"
-    status: "draft"
+    status: "active"
     type: "testing"
     abstractionLevel: "practice"
     strength: "should"
@@ -46,7 +51,7 @@ rules:
     violationSignals: ["Tests mostly assert private structure or incidental call order.", "Refactoring breaks tests without changing behavior.", "Business outcomes are not visible in assertions."]
     relationships: []
   - id: "AR-803"
-    status: "draft"
+    status: "active"
     type: "testing"
     abstractionLevel: "practice"
     strength: "must"
@@ -65,7 +70,7 @@ rules:
     violationSignals: ["A bug fix has no test or documented verification for the failing scenario.", "The same defect can recur without a quality gate catching it.", "Regression risk is accepted implicitly rather than reviewed."]
     relationships: []
   - id: "AR-804"
-    status: "draft"
+    status: "active"
     type: "testing"
     abstractionLevel: "principle"
     strength: "should"
@@ -84,7 +89,7 @@ rules:
     violationSignals: ["A gate passes while known critical risks remain unchecked.", "Metrics are enforced without relation to product or architecture risk.", "Gate failures are routinely bypassed without rationale."]
     relationships: []
   - id: "AR-805"
-    status: "draft"
+    status: "active"
     type: "testing"
     abstractionLevel: "practice"
     strength: "must"
