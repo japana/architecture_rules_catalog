@@ -1,7 +1,7 @@
 profileId: "java-spring-boot"
 ruleSetId: "data-management"
 schemaVersion: "ruleset-profile-v1"
-status: "draft"
+status: "published"
 displayName: "Java Spring Boot Profile for Data Management"
 description: "Spring Boot-specific detection hints for the data-management ruleset."
 technology:

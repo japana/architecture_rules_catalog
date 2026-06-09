@@ -1,7 +1,7 @@
 profileId: "java-spring-boot"
 ruleSetId: "api-design"
 schemaVersion: "ruleset-profile-v1"
-status: "draft"
+status: "published"
 displayName: "Java Spring Boot Profile for API Design"
 description: "Spring Boot-specific detection hints for the api-design ruleset."
 technology:

@@ -1,7 +1,7 @@
 profileId: "java"
 ruleSetId: "testing-and-quality-gates"
 schemaVersion: "ruleset-profile-v1"
-status: "draft"
+status: "published"
 displayName: "Java Profile for Testing and Quality Gates"
 description: "Java-specific detection hints for the testing-and-quality-gates ruleset."
 technology:

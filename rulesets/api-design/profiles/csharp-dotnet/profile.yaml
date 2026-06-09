@@ -1,7 +1,7 @@
 profileId: "csharp-dotnet"
 ruleSetId: "api-design"
 schemaVersion: "ruleset-profile-v1"
-status: "draft"
+status: "published"
 displayName: "C# .NET Profile for API Design"
 description: ".NET-specific detection hints for the api-design ruleset."
 technology:

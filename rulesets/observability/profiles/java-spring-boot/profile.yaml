@@ -1,7 +1,7 @@
 profileId: "java-spring-boot"
 ruleSetId: "observability"
 schemaVersion: "ruleset-profile-v1"
-status: "draft"
+status: "published"
 displayName: "Java Spring Boot Profile for Observability"
 description: "Spring Boot-specific detection hints for the observability ruleset."
 technology:

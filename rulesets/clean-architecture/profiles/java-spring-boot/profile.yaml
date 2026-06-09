@@ -1,7 +1,7 @@
 profileId: "java-spring-boot"
 ruleSetId: "clean-architecture"
 schemaVersion: "ruleset-profile-v1"
-status: "draft"
+status: "published"
 displayName: "Java Spring Boot Profile for Clean Architecture"
 description: "Spring Boot-specific interpretation hints for the clean-architecture ruleset."
 extendsProfile: "java"

@@ -1,7 +1,7 @@
 profileId: "java-quarkus"
 ruleSetId: "data-management"
 schemaVersion: "ruleset-profile-v1"
-status: "draft"
+status: "published"
 displayName: "Java Quarkus Profile for Data Management"
 description: "Quarkus-specific detection hints for the data-management ruleset."
 technology:

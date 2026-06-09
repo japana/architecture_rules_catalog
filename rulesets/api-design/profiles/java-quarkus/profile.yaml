@@ -1,7 +1,7 @@
 profileId: "java-quarkus"
 ruleSetId: "api-design"
 schemaVersion: "ruleset-profile-v1"
-status: "draft"
+status: "published"
 displayName: "Java Quarkus Profile for API Design"
 description: "Quarkus-specific detection hints for the api-design ruleset."
 technology:
