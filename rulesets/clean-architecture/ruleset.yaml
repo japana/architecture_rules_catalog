@@ -176,6 +176,9 @@ verificationTemplates:
     type: "archunit"
     language: "java"
     framework: "archunit"
+    appliesTo:
+      languages: ["java"]
+      architectureStyles: ["clean-architecture", "hexagonal", "layered"]
     coverage: "partial"
     determinism: "deterministic"
     templateRef: "templates/archunit/java/clean-architecture-dependency-rule.java.mustache"
@@ -206,6 +209,10 @@ verificationTemplates:
     type: "archunit"
     language: "java"
     framework: "quarkus"
+    appliesTo:
+      languages: ["java"]
+      frameworks: ["quarkus"]
+      architectureStyles: ["clean-architecture", "hexagonal"]
     coverage: "partial"
     determinism: "deterministic"
     templateRef: "templates/archunit/java/quarkus-clean-architecture-dependency-rule.java.mustache"
@@ -233,6 +240,9 @@ verificationTemplates:
     type: "archunit"
     language: "java"
     framework: "archunit"
+    appliesTo:
+      languages: ["java"]
+      architectureStyles: ["clean-architecture", "hexagonal", "layered", "modular-monolith"]
     coverage: "partial"
     determinism: "deterministic"
     templateRef: "templates/archunit/java/clean-architecture-dependency-direction-rule.java.mustache"
@@ -262,6 +272,9 @@ verificationTemplates:
     type: "archunit"
     language: "java"
     framework: "archunit"
+    appliesTo:
+      languages: ["java"]
+      architectureStyles: ["clean-architecture", "hexagonal", "layered"]
     coverage: "partial"
     determinism: "deterministic"
     templateRef: "templates/archunit/java/ports-and-adapters-rule.java.mustache"
@@ -291,6 +304,10 @@ verificationTemplates:
     type: "archunit"
     language: "java"
     framework: "quarkus"
+    appliesTo:
+      languages: ["java"]
+      frameworks: ["quarkus"]
+      architectureStyles: ["clean-architecture", "hexagonal"]
     coverage: "partial"
     determinism: "deterministic"
     templateRef: "templates/archunit/java/quarkus-ports-and-adapters-rule.java.mustache"
@@ -323,6 +340,10 @@ verificationTemplates:
     type: "archunit"
     language: "java"
     framework: "quarkus"
+    appliesTo:
+      languages: ["java"]
+      frameworks: ["quarkus"]
+      architectureStyles: ["clean-architecture", "hexagonal", "layered", "distributed-system"]
     coverage: "partial"
     determinism: "deterministic"
     templateRef: "templates/archunit/java/quarkus-interface-adapters-rule.java.mustache"
@@ -349,6 +370,10 @@ verificationTemplates:
     type: "archunit"
     language: "java"
     framework: "quarkus"
+    appliesTo:
+      languages: ["java"]
+      frameworks: ["quarkus"]
+      architectureStyles: ["clean-architecture", "hexagonal", "layered", "modular-monolith"]
     coverage: "partial"
     determinism: "deterministic"
     templateRef: "templates/archunit/java/quarkus-dependency-direction-rule.java.mustache"
@@ -378,6 +403,9 @@ verificationTemplates:
     type: "archunit"
     language: "java"
     framework: "archunit"
+    appliesTo:
+      languages: ["java"]
+      architectureStyles: ["clean-architecture", "hexagonal", "layered", "distributed-system"]
     coverage: "heuristic"
     determinism: "deterministic"
     templateRef: "templates/archunit/java/cross-cutting-concern-placement-rule.java.mustache"
@@ -406,6 +434,10 @@ verificationTemplates:
     type: "archunit"
     language: "java"
     framework: "quarkus"
+    appliesTo:
+      languages: ["java"]
+      frameworks: ["quarkus"]
+      architectureStyles: ["clean-architecture", "hexagonal", "layered", "distributed-system"]
     coverage: "heuristic"
     determinism: "deterministic"
     templateRef: "templates/archunit/java/quarkus-cross-cutting-concern-placement-rule.java.mustache"

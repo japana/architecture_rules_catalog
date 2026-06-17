@@ -98,3 +98,31 @@ verificationTemplates:
     toolchain:
       - type: "manual-review"
         version: ">=1.0.0"
+  - templateId: "VT-AR-911-CHECKLIST-002"
+    ruleIds: ["AR-911"]
+    type: "checklist"
+    coverage: "supporting"
+    determinism: "manual"
+    templateRef: "templates/checklists/decision-record-need-review.md.mustache"
+    description: "Review checklist for deciding whether a proposed change requires an architecture decision record."
+    requiredParameters:
+      - "changeId"
+      - "changeSummary"
+      - "reviewer"
+      - "reviewedAt"
+      - "affectedBoundariesList"
+      - "reversibility"
+      - "operationalRisk"
+    verifiesViolationSignals:
+      - "A costly architecture choice has no decision record."
+      - "Reviewers cannot find the reason for a constraint."
+      - "A change contradicts an earlier decision without acknowledging it."
+    limitations:
+      - "Supports review evidence; it cannot determine architectural importance without reviewer judgment."
+      - "Requires honest assessment of reversibility, affected boundaries, and operational risk."
+    generates:
+      description: "Architecture decision record need review checklist."
+      pathTemplate: "docs/architecture/decision-need-review-{{changeId}}.md"
+    toolchain:
+      - type: "manual-review"
+        version: ">=1.0.0"

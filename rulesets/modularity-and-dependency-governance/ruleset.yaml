@@ -101,3 +101,28 @@ verificationTemplates:
         version: ">=1.3.0"
       - type: "junit"
         version: ">=5.10.0"
+  - templateId: "VT-AR-903-CHECKLIST-001"
+    ruleIds: ["AR-903"]
+    type: "checklist"
+    coverage: "supporting"
+    determinism: "manual"
+    templateRef: "templates/checklists/module-ownership-review.md.mustache"
+    description: "Review checklist for module purpose, owner, allowed dependencies, public surface, and review path."
+    requiredParameters:
+      - "moduleCatalogName"
+      - "reviewer"
+      - "reviewedAt"
+      - "modulesList"
+    verifiesViolationSignals:
+      - "No owner can explain a module's purpose or allowed dependencies."
+      - "Shared modules accumulate unrelated behavior."
+      - "Review responsibility is inferred from recent edits only."
+    limitations:
+      - "Supports ownership review evidence; it cannot prove semantic module ownership from source structure alone."
+      - "Requires the project to maintain a representative list of meaningful modules."
+    generates:
+      description: "Module ownership review checklist."
+      pathTemplate: "docs/architecture/{{moduleCatalogName}}-module-ownership-review.md"
+    toolchain:
+      - type: "manual-review"
+        version: ">=1.0.0"

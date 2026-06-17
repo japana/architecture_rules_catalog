@@ -170,6 +170,8 @@ verificationTemplates:
     type: "gitleaks"
     language: "text"
     framework: "gitleaks"
+    appliesTo:
+      architectureStyles: ["layered", "modular-monolith", "distributed-system", "clean-architecture"]
     coverage: "partial"
     determinism: "deterministic"
     templateRef: "templates/gitleaks/secret-protection-gitleaks.toml.mustache"
@@ -195,6 +197,9 @@ verificationTemplates:
     type: "gitleaks"
     language: "text"
     framework: "quarkus"
+    appliesTo:
+      languages: ["java"]
+      frameworks: ["quarkus"]
     coverage: "partial"
     determinism: "deterministic"
     templateRef: "templates/gitleaks/quarkus-secret-protection-gitleaks.toml.mustache"
@@ -222,6 +227,8 @@ verificationTemplates:
     type: "archunit"
     language: "java"
     framework: "archunit"
+    appliesTo:
+      languages: ["java"]
     coverage: "heuristic"
     determinism: "deterministic"
     templateRef: "templates/archunit/java/authentication-authorization-separation-rule.java.mustache"
@@ -250,6 +257,9 @@ verificationTemplates:
     type: "archunit"
     language: "java"
     framework: "quarkus"
+    appliesTo:
+      languages: ["java"]
+      frameworks: ["quarkus"]
     coverage: "heuristic"
     determinism: "deterministic"
     templateRef: "templates/archunit/java/quarkus-authentication-authorization-separation-rule.java.mustache"
@@ -278,6 +288,9 @@ verificationTemplates:
     type: "semgrep"
     language: "java"
     framework: "quarkus"
+    appliesTo:
+      languages: ["java"]
+      frameworks: ["quarkus"]
     coverage: "heuristic"
     determinism: "deterministic"
     templateRef: "templates/semgrep/java/quarkus-boundary-validation.yml.mustache"
@@ -303,6 +316,9 @@ verificationTemplates:
     type: "checklist"
     language: "text"
     framework: "quarkus"
+    appliesTo:
+      languages: ["java"]
+      frameworks: ["quarkus"]
     coverage: "supporting"
     determinism: "manual"
     templateRef: "templates/checklists/quarkus-least-privilege-checklist.md.mustache"
@@ -331,6 +347,9 @@ verificationTemplates:
     type: "checklist"
     language: "text"
     framework: "quarkus"
+    appliesTo:
+      languages: ["java"]
+      frameworks: ["quarkus"]
     coverage: "supporting"
     determinism: "manual"
     templateRef: "templates/checklists/quarkus-secure-defaults-checklist.md.mustache"

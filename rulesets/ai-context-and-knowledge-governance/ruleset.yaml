@@ -84,7 +84,7 @@ verificationTemplates:
     requiredParameters:
       - "sensitiveFieldRegex"
       - "contextBuilderTypeRegex"
-      - "sanitizerMethodPatterns"
+      - "sanitizerMethodPatternsList"
     verifiesViolationSignals:
       - "Sensitive records are added to prompts or stored context without filtering."
       - "Prompt or retrieval logs contain unnecessary private data."

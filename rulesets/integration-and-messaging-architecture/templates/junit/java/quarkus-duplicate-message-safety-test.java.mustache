@@ -33,18 +33,18 @@ class DuplicateMessageSafetyTest {
         .then()
         .statusCode({{expectedStatusCode}});
 
-    given()
-        .when()
-        .get("{{stableResultProbePath}}")
-        .then()
-        .statusCode(200)
-        .body("{{stableResultField}}", equalTo({{{expectedStableResultValueExpression}}}));
-
     // stableResultProbePath should expose stable replay semantics; effectCountProbePath should expose the business effect count.
     await()
         .atMost(Duration.ofSeconds({{assertEventuallyTimeoutSeconds}}))
         .pollInterval(Duration.ofMillis({{assertPollIntervalMillis}}))
         .untilAsserted(() -> {
+          given()
+              .when()
+              .get("{{stableResultProbePath}}")
+              .then()
+              .statusCode(200)
+              .body("{{stableResultField}}", equalTo({{{expectedStableResultValueExpression}}}));
+
           given()
               .when()
               .get("{{effectCountProbePath}}")

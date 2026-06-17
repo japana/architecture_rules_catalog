@@ -78,7 +78,7 @@ verificationTemplates:
     language: "java"
     framework: "quarkus-test"
     coverage: "supporting"
-    determinism: "deterministic"
+    determinism: "heuristic"
     templateRef: "templates/junit/java/quarkus-critical-path-budget-test.java.mustache"
     description: "Integration-test template that warms up a critical endpoint, exercises it repeatedly, and asserts project-defined average, percentile, and single-call response-time budgets."
     requiredParameters:

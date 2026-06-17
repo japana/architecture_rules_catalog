@@ -237,6 +237,15 @@ const templateFixtures = {
     reviewedAt: "2026-06-17",
     decisionRecordPath: "docs/architecture/adr-001.md"
   },
+  "rulesets/architecture-decision-governance/templates/checklists/decision-record-need-review.md.mustache": {
+    changeId: "REQ-123",
+    changeSummary: "Split catalog module into read and write boundaries",
+    reviewer: "architect@example.test",
+    reviewedAt: "2026-06-17",
+    affectedBoundariesList: ["catalog module", "search projection"],
+    reversibility: "medium",
+    operationalRisk: "moderate"
+  },
   "rulesets/integration-and-messaging-architecture/templates/junit/java/quarkus-duplicate-message-safety-test.java.mustache": {
     basePackage: "com.example.catalog",
     messageEndpointPath: "/internal/messages/orders",
@@ -282,7 +291,7 @@ const templateFixtures = {
   "rulesets/ai-context-and-knowledge-governance/templates/semgrep/java/prompt-context-sensitive-data.yml.mustache": {
     sensitiveFieldRegex: "(?i).*(password|token|secret|ssn).*",
     contextBuilderTypeRegex: ".*(Prompt|Context).*",
-    sanitizerMethodPatterns: ["redact(...)", "sanitize(...)", "summarize(...)"]
+    sanitizerMethodPatternsList: ["redact(...)", "sanitize(...)", "summarize(...)"]
   },
   "rulesets/ai-evaluation-and-regression-governance/templates/checklists/ai-evaluation-gate-review.md.mustache": {
     systemName: "catalog-agent",
@@ -312,6 +321,20 @@ const templateFixtures = {
     reviewedAt: "2026-06-17",
     loadBoundariesList: ["search request queue", "outbound recommendation call"],
     cachesList: ["catalog summary cache", "availability projection cache"]
+  },
+  "rulesets/integration-and-messaging-architecture/templates/checklists/message-contract-ordering-review.md.mustache": {
+    flowName: "catalog-item-published",
+    reviewer: "architect@example.test",
+    reviewedAt: "2026-06-17",
+    messageContractsList: ["CatalogItemPublished"],
+    consumersList: ["search-indexer", "recommendation-feed"],
+    orderingAssumptionsList: ["events for one catalog item"]
+  },
+  "rulesets/modularity-and-dependency-governance/templates/checklists/module-ownership-review.md.mustache": {
+    moduleCatalogName: "catalog-service",
+    reviewer: "architect@example.test",
+    reviewedAt: "2026-06-17",
+    modulesList: ["catalog-write", "catalog-read", "search-projection"]
   }
 };
 
@@ -452,7 +475,7 @@ test("new governance templates encode the reviewed guard rails honestly", async 
   );
   assert.match(
     renderedDuplicateMessage,
-    /stableResultProbePath/u,
+    /await\(\)[\s\S]*\/test\/probes\/order-results\/message-42/u,
     "AR-922 template should optionally assert stable replay result semantics"
   );
   assert.match(
@@ -464,6 +487,54 @@ test("new governance templates encode the reviewed guard rails honestly", async 
     renderedCriticalPathBudget,
     /percentileDuration/u,
     "AR-941 template should prefer percentile-style regression budgets over a single raw maximum only"
+  );
+});
+
+test("new ruleset metadata stays honest after review fixes", async () => {
+  const [agenticRuleset, aiContextRuleset, messagingProfile, modularityProfile, performanceRuleset] = await Promise.all([
+    fs.readFile(path.join(fixtureRoot, "rulesets/agentic-system-architecture/ruleset.yaml"), "utf8"),
+    fs.readFile(path.join(fixtureRoot, "rulesets/ai-context-and-knowledge-governance/ruleset.yaml"), "utf8"),
+    fs.readFile(path.join(fixtureRoot, "rulesets/integration-and-messaging-architecture/profiles/java-quarkus/profile.yaml"), "utf8"),
+    fs.readFile(path.join(fixtureRoot, "rulesets/modularity-and-dependency-governance/profiles/java-quarkus/profile.yaml"), "utf8"),
+    fs.readFile(path.join(fixtureRoot, "rulesets/performance-and-scalability-architecture/ruleset.yaml"), "utf8")
+  ]);
+
+  const agenticCatalog = YAML.parse(agenticRuleset);
+  const aiContextCatalog = YAML.parse(aiContextRuleset);
+  const messagingProfileDoc = YAML.parse(messagingProfile);
+  const modularityProfileDoc = YAML.parse(modularityProfile);
+  const performanceCatalog = YAML.parse(performanceRuleset);
+
+  const agenticTemplate = agenticCatalog.verificationTemplates.find(
+    (template) => template.templateId === "VT-AR-951-ARCHUNIT-QUARKUS-001"
+  );
+  assert.match(
+    agenticTemplate.limitations.join("\n"),
+    /indirect side-effect paths/u,
+    "AR-951 template should state that indirect side-effect paths are outside static coverage"
+  );
+
+  const sensitiveContextTemplate = aiContextCatalog.verificationTemplates.find(
+    (template) => template.templateId === "VT-AR-962-SEMGREP-JAVA-001"
+  );
+  assert.ok(
+    sensitiveContextTemplate.requiredParameters.includes("sanitizerMethodPatternsList"),
+    "AR-962 template should expose sanitizer patterns as a list parameter"
+  );
+
+  const mappedMessagingRules = new Set(messagingProfileDoc.ruleMappings.map((mapping) => mapping.ruleId));
+  assert.deepEqual(mappedMessagingRules, new Set(["AR-921", "AR-922", "AR-923"]));
+
+  const mappedModularityRules = new Set(modularityProfileDoc.ruleMappings.map((mapping) => mapping.ruleId));
+  assert.deepEqual(mappedModularityRules, new Set(["AR-901", "AR-902", "AR-903"]));
+
+  const performanceBudgetTemplate = performanceCatalog.verificationTemplates.find(
+    (template) => template.templateId === "VT-AR-941-JUNIT-QUARKUS-001"
+  );
+  assert.equal(
+    performanceBudgetTemplate.determinism,
+    "heuristic",
+    "AR-941 runtime budget smoke test should not claim deterministic behavior"
   );
 });
 

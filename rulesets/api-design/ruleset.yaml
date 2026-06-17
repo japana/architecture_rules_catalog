@@ -155,6 +155,8 @@ verificationTemplates:
     type: "archunit"
     language: "java"
     framework: "archunit"
+    appliesTo:
+      languages: ["java"]
     coverage: "partial"
     determinism: "deterministic"
     templateRef: "templates/archunit/java/representation-encapsulation-rule.java.mustache"
@@ -183,6 +185,9 @@ verificationTemplates:
     type: "archunit"
     language: "java"
     framework: "quarkus"
+    appliesTo:
+      languages: ["java"]
+      frameworks: ["quarkus"]
     coverage: "partial"
     determinism: "deterministic"
     templateRef: "templates/archunit/java/quarkus-representation-encapsulation-rule.java.mustache"
@@ -210,6 +215,9 @@ verificationTemplates:
     type: "junit"
     language: "java"
     framework: "quarkus-test"
+    appliesTo:
+      languages: ["java"]
+      frameworks: ["quarkus"]
     coverage: "heuristic"
     determinism: "deterministic"
     templateRef: "templates/junit/java/quarkus-consistent-error-contracts-test.java.mustache"
@@ -245,6 +253,9 @@ verificationTemplates:
     type: "junit"
     language: "java"
     framework: "quarkus-test"
+    appliesTo:
+      languages: ["java"]
+      frameworks: ["quarkus"]
     coverage: "heuristic"
     determinism: "deterministic"
     templateRef: "templates/junit/java/quarkus-idempotency-awareness-test.java.mustache"
@@ -283,6 +294,8 @@ verificationTemplates:
     type: "spectral"
     language: "openapi"
     framework: "spectral"
+    appliesTo:
+      architectureStyles: ["layered", "modular-monolith", "distributed-system"]
     coverage: "heuristic"
     determinism: "deterministic"
     templateRef: "templates/spectral/openapi/large-result-control.spectral.yaml.mustache"
@@ -308,6 +321,10 @@ verificationTemplates:
     type: "junit"
     language: "java"
     framework: "quarkus-test"
+    appliesTo:
+      languages: ["java"]
+      frameworks: ["quarkus"]
+      architectureStyles: ["layered", "modular-monolith", "distributed-system"]
     coverage: "heuristic"
     determinism: "deterministic"
     templateRef: "templates/junit/java/quarkus-large-result-control-test.java.mustache"

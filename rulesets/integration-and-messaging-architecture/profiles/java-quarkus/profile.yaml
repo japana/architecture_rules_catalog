@@ -19,7 +19,20 @@ toolchain:
       version: ">=3.0.0"
     - type: "awaitility"
       version: ">=4.2.0"
+    - type: "manual-review"
+      version: ">=1.0.0"
 ruleMappings:
+  - ruleId: "AR-921"
+    verificationTemplates:
+      - templateId: "VT-AR-921-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          flowName: "{{project.messaging.flowName}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          messageContractsList: "{{project.messaging.messageContractsList}}"
+          consumersList: "{{project.messaging.consumersList}}"
+          orderingAssumptionsList: "{{project.messaging.orderingAssumptionsList}}"
   - ruleId: "AR-922"
     verificationTemplates:
       - templateId: "VT-AR-922-JUNIT-QUARKUS-001"
@@ -39,3 +52,14 @@ ruleMappings:
           expectedStableResultValueExpression: "{{project.messaging.duplicateDelivery.expectedStableResultValueExpression}}"
           assertEventuallyTimeoutSeconds: "{{project.messaging.duplicateDelivery.assertEventuallyTimeoutSeconds}}"
           assertPollIntervalMillis: "{{project.messaging.duplicateDelivery.assertPollIntervalMillis}}"
+  - ruleId: "AR-923"
+    verificationTemplates:
+      - templateId: "VT-AR-921-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          flowName: "{{project.messaging.flowName}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          messageContractsList: "{{project.messaging.messageContractsList}}"
+          consumersList: "{{project.messaging.consumersList}}"
+          orderingAssumptionsList: "{{project.messaging.orderingAssumptionsList}}"

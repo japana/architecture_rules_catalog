@@ -1,0 +1,35 @@
+# Message Contract and Ordering Review: {{flowName}}
+
+Reviewer: {{reviewer}}
+Reviewed at: {{reviewedAt}}
+
+## Message Contracts
+
+{{#messageContractsList}}
+- [ ] {{.}} has owner, schema or documented shape, compatibility rule, message identity, and versioning guidance.
+{{/messageContractsList}}
+
+## Consumers
+
+{{#consumersList}}
+- [ ] {{.}} consumes the message contract rather than producer internals and documents replay expectations.
+{{/consumersList}}
+
+## Ordering and Delay
+
+{{#orderingAssumptionsList}}
+- [ ] {{.}} states ordering guarantee, late-arrival handling, and operator-visible delay signal.
+{{/orderingAssumptionsList}}
+
+## Evidence
+
+- Evidence link:
+- Finding:
+- Owner:
+- Follow-up due:
+- Waiver reason:
+- Waiver expires:
+
+Overall decision: TBD
+
+Notes:

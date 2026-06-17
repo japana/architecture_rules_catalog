@@ -22,6 +22,16 @@ ruleMappings:
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
           decisionRecordPath: "{{decision.path}}"
+      - templateId: "VT-AR-911-CHECKLIST-002"
+        coverage: "supporting"
+        parameterBindings:
+          changeId: "{{change.id}}"
+          changeSummary: "{{change.summary}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          affectedBoundariesList: "{{change.affectedBoundariesList}}"
+          reversibility: "{{change.reversibility}}"
+          operationalRisk: "{{change.operationalRisk}}"
   - ruleId: "AR-912"
     verificationTemplates:
       - templateId: "VT-AR-911-CHECKLIST-001"

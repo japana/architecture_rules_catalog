@@ -275,3 +275,62 @@ test("validator rejects v2 profile mappings with missing required parameter bind
     assert.ok(errors.some((error) => error.includes("missing required parameter binding 'adapterPackages'")));
   });
 });
+
+test("validator rejects v2 profile mappings that use templates incompatible with the profile appliesTo", async () => {
+  await withCatalogFixture(async (tempDir) => {
+    const rulesetPath = path.join(
+      tempDir,
+      "rulesets",
+      "clean-architecture",
+      "ruleset.yaml"
+    );
+    const content = await fs.readFile(rulesetPath, "utf8");
+    const mutated = content.replace(
+      [
+        '    appliesTo:',
+        '      languages: ["java"]',
+        '      frameworks: ["quarkus"]',
+        '      architectureStyles: ["clean-architecture", "hexagonal"]'
+      ].join("\n"),
+      [
+        '    appliesTo:',
+        '      languages: ["python"]',
+        '      frameworks: ["fastapi"]',
+        '      architectureStyles: ["clean-architecture", "hexagonal"]'
+      ].join("\n")
+    );
+    await fs.writeFile(rulesetPath, mutated, "utf8");
+
+    const errors = await validateCatalog(tempDir);
+    assert.ok(
+      errors.some((error) => error.includes("is not compatible with profile appliesTo")),
+      `expected incompatibility error, got: ${errors.join("\n")}`
+    );
+  });
+});
+
+test("ruleset schema accepts verification template appliesTo metadata", async () => {
+  await withCatalogFixture(async (tempDir) => {
+    const rulesetPath = path.join(tempDir, "rulesets", "clean-architecture", "ruleset.yaml");
+    const content = await fs.readFile(rulesetPath, "utf8");
+    const mutated = content.replace(
+      [
+        '    appliesTo:',
+        '      languages: ["java"]',
+        '      architectureStyles: ["clean-architecture", "hexagonal", "layered"]',
+        '    coverage: "partial"'
+      ].join("\n"),
+      [
+        '    appliesTo:',
+        '      languages: ["java"]',
+        '      architectureStyles: ["clean-architecture", "hexagonal", "layered"]',
+        '      runtimes: ["jvm"]',
+        '    coverage: "partial"'
+      ].join("\n")
+    );
+    await fs.writeFile(rulesetPath, mutated, "utf8");
+
+    const errors = await validateCatalog(tempDir);
+    assert.deepEqual(errors, []);
+  });
+});

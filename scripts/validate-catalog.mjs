@@ -59,6 +59,39 @@ function ensureObject(value) {
   return value && typeof value === "object" && !Array.isArray(value) ? value : {};
 }
 
+function hasNonEmptyIntersection(left, right) {
+  const leftValues = ensureArray(left);
+  const rightValues = ensureArray(right);
+  if (leftValues.length === 0 || rightValues.length === 0) {
+    return true;
+  }
+
+  const rightSet = new Set(rightValues);
+  return leftValues.some((entry) => rightSet.has(entry));
+}
+
+function isTemplateCompatibleWithProfile(template, profileDoc) {
+  const templateAppliesTo = ensureObject(template.appliesTo);
+  if (Object.keys(templateAppliesTo).length === 0) {
+    return true;
+  }
+
+  const profileAppliesTo = ensureObject(profileDoc.appliesTo);
+  for (const dimension of ["languages", "frameworks", "architectureStyles", "runtimes"]) {
+    const templateDimension = ensureArray(templateAppliesTo[dimension]);
+    if (templateDimension.length === 0) {
+      continue;
+    }
+
+    const profileDimension = ensureArray(profileAppliesTo[dimension]);
+    if (!hasNonEmptyIntersection(templateDimension, profileDimension)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 function visitStrings(value, visitor) {
   if (typeof value === "string") {
     visitor(value);
@@ -250,6 +283,12 @@ export async function validateCatalog(rootDir = defaultRootDir) {
               if (!ensureArray(template.ruleIds).includes(mapping.ruleId)) {
                 errors.push(
                   `${relativeProfilePath}: verification template '${templateSelection.templateId}' does not support rule '${mapping.ruleId}'.`
+                );
+              }
+
+              if (!isTemplateCompatibleWithProfile(template, profileDoc)) {
+                errors.push(
+                  `${relativeProfilePath}: verification template '${templateSelection.templateId}' is not compatible with profile appliesTo.`
                 );
               }
 

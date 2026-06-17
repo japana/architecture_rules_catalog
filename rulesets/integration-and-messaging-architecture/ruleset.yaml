@@ -114,3 +114,31 @@ verificationTemplates:
         version: ">=3.0.0"
       - type: "awaitility"
         version: ">=4.2.0"
+  - templateId: "VT-AR-921-CHECKLIST-001"
+    ruleIds: ["AR-921", "AR-923"]
+    type: "checklist"
+    coverage: "supporting"
+    determinism: "manual"
+    templateRef: "templates/checklists/message-contract-ordering-review.md.mustache"
+    description: "Review checklist for message contract ownership, compatibility, ordering, delay, and late-arrival behavior."
+    requiredParameters:
+      - "flowName"
+      - "reviewer"
+      - "reviewedAt"
+      - "messageContractsList"
+      - "consumersList"
+      - "orderingAssumptionsList"
+    verifiesViolationSignals:
+      - "A consumer infers message shape from producer internals."
+      - "Message fields change without compatibility guidance."
+      - "Correctness depends on ordering that the integration does not promise."
+      - "Late messages overwrite newer business state."
+    limitations:
+      - "Supports architecture review evidence; it does not validate schema compatibility automatically."
+      - "Requires project-specific identification of message contracts, consumers, and ordering assumptions."
+    generates:
+      description: "Message contract and ordering review checklist."
+      pathTemplate: "docs/architecture/{{flowName}}-message-contract-ordering-review.md"
+    toolchain:
+      - type: "manual-review"
+        version: ">=1.0.0"

@@ -31,7 +31,7 @@ ruleMappings:
         parameterBindings:
           sensitiveFieldRegex: "{{project.aiContext.sensitiveFieldRegex}}"
           contextBuilderTypeRegex: "{{project.aiContext.contextBuilderTypeRegex}}"
-          sanitizerMethodPatterns: "{{project.aiContext.sanitizerMethodPatterns}}"
+          sanitizerMethodPatternsList: "{{project.aiContext.sanitizerMethodPatternsList}}"
   - ruleId: "AR-963"
     verificationTemplates:
       - templateId: "VT-AR-961-CHECKLIST-001"

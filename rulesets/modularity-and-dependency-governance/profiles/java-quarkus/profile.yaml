@@ -15,6 +15,8 @@ toolchain:
       version: ">=1.3.0"
     - type: "junit"
       version: ">=5.10.0"
+    - type: "manual-review"
+      version: ">=1.0.0"
 ruleMappings:
   - ruleId: "AR-901"
     verificationTemplates:
@@ -26,6 +28,15 @@ ruleMappings:
           moduleSlicePattern: "{{project.moduleGovernance.moduleSlicePattern}}"
           moduleInternalPackagePatterns: "{{project.moduleGovernance.internalPackagePatternsCsv}}"
           allowedInternalAccessPackagePatterns: "{{project.moduleGovernance.allowedInternalAccessPackagePatternsCsv}}"
+  - ruleId: "AR-903"
+    verificationTemplates:
+      - templateId: "VT-AR-903-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          moduleCatalogName: "{{project.name}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          modulesList: "{{project.moduleGovernance.modulesList}}"
   - ruleId: "AR-902"
     verificationTemplates:
       - templateId: "VT-AR-901-ARCHUNIT-QUARKUS-001"

@@ -132,6 +132,9 @@ verificationTemplates:
     type: "archunit"
     language: "java"
     framework: "archunit"
+    appliesTo:
+      languages: ["java"]
+      architectureStyles: ["event-driven", "modular-monolith", "clean-architecture"]
     coverage: "partial"
     determinism: "deterministic"
     templateRef: "templates/archunit/java/derived-data-integrity-rule.java.mustache"
@@ -160,6 +163,10 @@ verificationTemplates:
     type: "archunit"
     language: "java"
     framework: "quarkus"
+    appliesTo:
+      languages: ["java"]
+      frameworks: ["quarkus"]
+      architectureStyles: ["event-driven", "modular-monolith", "clean-architecture"]
     coverage: "partial"
     determinism: "deterministic"
     templateRef: "templates/archunit/java/quarkus-derived-data-integrity-rule.java.mustache"
@@ -189,6 +196,10 @@ verificationTemplates:
     type: "junit"
     language: "java"
     framework: "quarkus-test"
+    appliesTo:
+      languages: ["java"]
+      frameworks: ["quarkus"]
+      architectureStyles: ["event-driven", "modular-monolith", "clean-architecture"]
     coverage: "supporting"
     determinism: "deterministic"
     templateRef: "templates/junit/java/quarkus-access-path-awareness-test.java.mustache"

@@ -91,6 +91,7 @@ verificationTemplates:
       - "Tool execution bypasses authorization or confirmation rules."
     limitations:
       - "Checks structural dependencies only; it cannot prove policy correctness or runtime authorization decisions."
+      - "Does not detect indirect side-effect paths through intermediate services, facades, helpers, or event dispatchers."
       - "Projects must bind sideEffectAgentToolPackagePatterns and sideEffectAdapterPackagePatterns narrowly; read-only tools should not be included."
     generates:
       description: "JUnit 5 ArchUnit test class for selected side-effect agent tool policy boundaries."

@@ -132,12 +132,20 @@ metadata.
 Each template declares:
 
 - supported `ruleIds`
+- optional target-stack `appliesTo` metadata such as languages, frameworks, architecture styles, or runtimes
 - `coverage` and `determinism`
 - generated artifact target
 - required parameters
 - covered violation signals
 - explicit limitations
 - required toolchain
+
+Template applicability:
+
+- Templates stay in the owning `ruleset.yaml` as reusable, versioned catalog artifacts.
+- Profiles remain the only activation mechanism for project-specific use.
+- When a template declares `appliesTo`, the validator checks that every declared dimension intersects with the referencing profile's `appliesTo`.
+- This keeps templates discoverable at rule-set level without implying that every template is valid for every stack.
 
 Coverage values mean:
 
@@ -199,6 +207,7 @@ The validator checks:
 - duplicate verification template IDs
 - template-to-rule consistency
 - profile-to-template consistency including required parameter bindings
+- optional template-to-profile `appliesTo` compatibility
 
 ## Authoring
 

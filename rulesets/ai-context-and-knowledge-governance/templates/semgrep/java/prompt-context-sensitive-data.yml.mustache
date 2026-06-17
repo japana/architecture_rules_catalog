@@ -13,14 +13,14 @@ rules:
           - pattern: |
               $BUILDER.put($KEY, $VALUE)
       - pattern-not-either:
-{{#sanitizerMethodPatterns}}
+{{#sanitizerMethodPatternsList}}
           - pattern: |
               $BUILDER.add({{.}})
           - pattern: |
               $BUILDER.append({{.}})
           - pattern: |
               $BUILDER.put($KEY, {{.}})
-{{/sanitizerMethodPatterns}}
+{{/sanitizerMethodPatternsList}}
       - metavariable-regex:
           metavariable: $BUILDER
           regex: "{{contextBuilderTypeRegex}}"
