@@ -29,7 +29,10 @@ ruleMappings:
           changeSummary: "{{change.summary}}"
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
-          affectedBoundariesList: "{{change.affectedBoundariesList}}"
+          affectedBoundariesList:
+            type: "stringList"
+            source: "{{change.affectedBoundariesList}}"
+            minItems: 1
           reversibility: "{{change.reversibility}}"
           operationalRisk: "{{change.operationalRisk}}"
   - ruleId: "AR-912"

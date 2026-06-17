@@ -12,14 +12,13 @@ rules:
               $BUILDER.append($VALUE)
           - pattern: |
               $BUILDER.put($KEY, $VALUE)
-      - pattern-not-either:
 {{#sanitizerMethodPatternsList}}
-          - pattern: |
-              $BUILDER.add({{.}})
-          - pattern: |
-              $BUILDER.append({{.}})
-          - pattern: |
-              $BUILDER.put($KEY, {{.}})
+      - pattern-not: |
+          $BUILDER.add({{.}})
+      - pattern-not: |
+          $BUILDER.append({{.}})
+      - pattern-not: |
+          $BUILDER.put($KEY, {{.}})
 {{/sanitizerMethodPatternsList}}
       - metavariable-regex:
           metavariable: $BUILDER

@@ -44,8 +44,14 @@ ruleMappings:
           serviceName: "{{project.name}}"
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
-          loadBoundariesList: "{{project.performance.loadBoundariesList}}"
-          cachesList: "{{project.performance.cachesList}}"
+          loadBoundariesList:
+            type: "stringList"
+            source: "{{project.performance.loadBoundariesList}}"
+            minItems: 1
+          cachesList:
+            type: "stringList"
+            source: "{{project.performance.cachesList}}"
+            minItems: 1
   - ruleId: "AR-943"
     verificationTemplates:
       - templateId: "VT-AR-942-CHECKLIST-001"
@@ -54,5 +60,11 @@ ruleMappings:
           serviceName: "{{project.name}}"
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
-          loadBoundariesList: "{{project.performance.loadBoundariesList}}"
-          cachesList: "{{project.performance.cachesList}}"
+          loadBoundariesList:
+            type: "stringList"
+            source: "{{project.performance.loadBoundariesList}}"
+            minItems: 1
+          cachesList:
+            type: "stringList"
+            source: "{{project.performance.cachesList}}"
+            minItems: 1

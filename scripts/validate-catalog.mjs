@@ -59,6 +59,19 @@ function ensureObject(value) {
   return value && typeof value === "object" && !Array.isArray(value) ? value : {};
 }
 
+function isStructuredStringListBinding(value) {
+  return (
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    value.type === "stringList" &&
+    typeof value.source === "string" &&
+    value.source.length > 0 &&
+    Number.isInteger(value.minItems) &&
+    value.minItems > 0
+  );
+}
+
 function hasNonEmptyIntersection(left, right) {
   const leftValues = ensureArray(left);
   const rightValues = ensureArray(right);
@@ -297,6 +310,13 @@ export async function validateCatalog(rootDir = defaultRootDir) {
                 if (!(requiredParameter in bindings)) {
                   errors.push(
                     `${relativeProfilePath}: verification template '${templateSelection.templateId}' is missing required parameter binding '${requiredParameter}'.`
+                  );
+                  continue;
+                }
+
+                if (requiredParameter.endsWith("List") && !isStructuredStringListBinding(bindings[requiredParameter])) {
+                  errors.push(
+                    `${relativeProfilePath}: verification template '${templateSelection.templateId}' must bind list parameter '${requiredParameter}' as type 'stringList' with source and minItems.`
                   );
                 }
               }

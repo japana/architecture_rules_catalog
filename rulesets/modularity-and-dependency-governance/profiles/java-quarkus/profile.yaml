@@ -36,7 +36,10 @@ ruleMappings:
           moduleCatalogName: "{{project.name}}"
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
-          modulesList: "{{project.moduleGovernance.modulesList}}"
+          modulesList:
+            type: "stringList"
+            source: "{{project.moduleGovernance.modulesList}}"
+            minItems: 1
   - ruleId: "AR-902"
     verificationTemplates:
       - templateId: "VT-AR-901-ARCHUNIT-QUARKUS-001"

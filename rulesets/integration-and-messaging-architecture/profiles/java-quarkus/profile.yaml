@@ -30,9 +30,18 @@ ruleMappings:
           flowName: "{{project.messaging.flowName}}"
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
-          messageContractsList: "{{project.messaging.messageContractsList}}"
-          consumersList: "{{project.messaging.consumersList}}"
-          orderingAssumptionsList: "{{project.messaging.orderingAssumptionsList}}"
+          messageContractsList:
+            type: "stringList"
+            source: "{{project.messaging.messageContractsList}}"
+            minItems: 1
+          consumersList:
+            type: "stringList"
+            source: "{{project.messaging.consumersList}}"
+            minItems: 1
+          orderingAssumptionsList:
+            type: "stringList"
+            source: "{{project.messaging.orderingAssumptionsList}}"
+            minItems: 1
   - ruleId: "AR-922"
     verificationTemplates:
       - templateId: "VT-AR-922-JUNIT-QUARKUS-001"
@@ -60,6 +69,15 @@ ruleMappings:
           flowName: "{{project.messaging.flowName}}"
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
-          messageContractsList: "{{project.messaging.messageContractsList}}"
-          consumersList: "{{project.messaging.consumersList}}"
-          orderingAssumptionsList: "{{project.messaging.orderingAssumptionsList}}"
+          messageContractsList:
+            type: "stringList"
+            source: "{{project.messaging.messageContractsList}}"
+            minItems: 1
+          consumersList:
+            type: "stringList"
+            source: "{{project.messaging.consumersList}}"
+            minItems: 1
+          orderingAssumptionsList:
+            type: "stringList"
+            source: "{{project.messaging.orderingAssumptionsList}}"
+            minItems: 1

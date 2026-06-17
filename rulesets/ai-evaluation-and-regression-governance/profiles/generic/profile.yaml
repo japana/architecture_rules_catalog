@@ -20,9 +20,15 @@ ruleMappings:
           systemName: "{{system.name}}"
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
-          scenarioSuitesList: "{{system.aiEvaluation.scenarioSuitesList}}"
+          scenarioSuitesList:
+            type: "stringList"
+            source: "{{system.aiEvaluation.scenarioSuitesList}}"
+            minItems: 1
           releaseGateName: "{{system.aiEvaluation.releaseGateName}}"
-          knownFailureCasesList: "{{system.aiEvaluation.knownFailureCasesList}}"
+          knownFailureCasesList:
+            type: "stringList"
+            source: "{{system.aiEvaluation.knownFailureCasesList}}"
+            minItems: 1
   - ruleId: "AR-972"
     verificationTemplates:
       - templateId: "VT-AR-971-CHECKLIST-001"
@@ -31,9 +37,15 @@ ruleMappings:
           systemName: "{{system.name}}"
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
-          scenarioSuitesList: "{{system.aiEvaluation.scenarioSuitesList}}"
+          scenarioSuitesList:
+            type: "stringList"
+            source: "{{system.aiEvaluation.scenarioSuitesList}}"
+            minItems: 1
           releaseGateName: "{{system.aiEvaluation.releaseGateName}}"
-          knownFailureCasesList: "{{system.aiEvaluation.knownFailureCasesList}}"
+          knownFailureCasesList:
+            type: "stringList"
+            source: "{{system.aiEvaluation.knownFailureCasesList}}"
+            minItems: 1
   - ruleId: "AR-973"
     verificationTemplates:
       - templateId: "VT-AR-971-CHECKLIST-001"
@@ -42,6 +54,12 @@ ruleMappings:
           systemName: "{{system.name}}"
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
-          scenarioSuitesList: "{{system.aiEvaluation.scenarioSuitesList}}"
+          scenarioSuitesList:
+            type: "stringList"
+            source: "{{system.aiEvaluation.scenarioSuitesList}}"
+            minItems: 1
           releaseGateName: "{{system.aiEvaluation.releaseGateName}}"
-          knownFailureCasesList: "{{system.aiEvaluation.knownFailureCasesList}}"
+          knownFailureCasesList:
+            type: "stringList"
+            source: "{{system.aiEvaluation.knownFailureCasesList}}"
+            minItems: 1

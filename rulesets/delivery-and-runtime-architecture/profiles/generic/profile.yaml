@@ -20,10 +20,22 @@ ruleMappings:
           serviceName: "{{service.name}}"
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
-          runtimeEnvironmentsList: "{{service.runtime.environmentsList}}"
-          criticalConfigurationItemsList: "{{service.runtime.criticalConfigurationItemsList}}"
-          readinessSignalsList: "{{service.runtime.readinessSignalsList}}"
-          runtimeSwitchesList: "{{service.runtime.switchesList}}"
+          runtimeEnvironmentsList:
+            type: "stringList"
+            source: "{{service.runtime.environmentsList}}"
+            minItems: 1
+          criticalConfigurationItemsList:
+            type: "stringList"
+            source: "{{service.runtime.criticalConfigurationItemsList}}"
+            minItems: 1
+          readinessSignalsList:
+            type: "stringList"
+            source: "{{service.runtime.readinessSignalsList}}"
+            minItems: 1
+          runtimeSwitchesList:
+            type: "stringList"
+            source: "{{service.runtime.switchesList}}"
+            minItems: 1
   - ruleId: "AR-932"
     verificationTemplates:
       - templateId: "VT-AR-932-CHECKLIST-001"
@@ -32,10 +44,22 @@ ruleMappings:
           serviceName: "{{service.name}}"
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
-          runtimeEnvironmentsList: "{{service.runtime.environmentsList}}"
-          criticalConfigurationItemsList: "{{service.runtime.criticalConfigurationItemsList}}"
-          readinessSignalsList: "{{service.runtime.readinessSignalsList}}"
-          runtimeSwitchesList: "{{service.runtime.switchesList}}"
+          runtimeEnvironmentsList:
+            type: "stringList"
+            source: "{{service.runtime.environmentsList}}"
+            minItems: 1
+          criticalConfigurationItemsList:
+            type: "stringList"
+            source: "{{service.runtime.criticalConfigurationItemsList}}"
+            minItems: 1
+          readinessSignalsList:
+            type: "stringList"
+            source: "{{service.runtime.readinessSignalsList}}"
+            minItems: 1
+          runtimeSwitchesList:
+            type: "stringList"
+            source: "{{service.runtime.switchesList}}"
+            minItems: 1
   - ruleId: "AR-933"
     verificationTemplates:
       - templateId: "VT-AR-932-CHECKLIST-001"
@@ -44,7 +68,19 @@ ruleMappings:
           serviceName: "{{service.name}}"
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
-          runtimeEnvironmentsList: "{{service.runtime.environmentsList}}"
-          criticalConfigurationItemsList: "{{service.runtime.criticalConfigurationItemsList}}"
-          readinessSignalsList: "{{service.runtime.readinessSignalsList}}"
-          runtimeSwitchesList: "{{service.runtime.switchesList}}"
+          runtimeEnvironmentsList:
+            type: "stringList"
+            source: "{{service.runtime.environmentsList}}"
+            minItems: 1
+          criticalConfigurationItemsList:
+            type: "stringList"
+            source: "{{service.runtime.criticalConfigurationItemsList}}"
+            minItems: 1
+          readinessSignalsList:
+            type: "stringList"
+            source: "{{service.runtime.readinessSignalsList}}"
+            minItems: 1
+          runtimeSwitchesList:
+            type: "stringList"
+            source: "{{service.runtime.switchesList}}"
+            minItems: 1

@@ -22,8 +22,14 @@ ruleMappings:
           systemName: "{{project.name}}"
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
-          contextSourcesList: "{{project.aiContext.contextSourcesList}}"
-          generatedOutputsList: "{{project.aiContext.generatedOutputsList}}"
+          contextSourcesList:
+            type: "stringList"
+            source: "{{project.aiContext.contextSourcesList}}"
+            minItems: 1
+          generatedOutputsList:
+            type: "stringList"
+            source: "{{project.aiContext.generatedOutputsList}}"
+            minItems: 1
   - ruleId: "AR-962"
     verificationTemplates:
       - templateId: "VT-AR-962-SEMGREP-JAVA-001"
@@ -31,7 +37,10 @@ ruleMappings:
         parameterBindings:
           sensitiveFieldRegex: "{{project.aiContext.sensitiveFieldRegex}}"
           contextBuilderTypeRegex: "{{project.aiContext.contextBuilderTypeRegex}}"
-          sanitizerMethodPatternsList: "{{project.aiContext.sanitizerMethodPatternsList}}"
+          sanitizerMethodPatternsList:
+            type: "stringList"
+            source: "{{project.aiContext.sanitizerMethodPatternsList}}"
+            minItems: 1
   - ruleId: "AR-963"
     verificationTemplates:
       - templateId: "VT-AR-961-CHECKLIST-001"
@@ -40,5 +49,11 @@ ruleMappings:
           systemName: "{{project.name}}"
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
-          contextSourcesList: "{{project.aiContext.contextSourcesList}}"
-          generatedOutputsList: "{{project.aiContext.generatedOutputsList}}"
+          contextSourcesList:
+            type: "stringList"
+            source: "{{project.aiContext.contextSourcesList}}"
+            minItems: 1
+          generatedOutputsList:
+            type: "stringList"
+            source: "{{project.aiContext.generatedOutputsList}}"
+            minItems: 1

@@ -36,8 +36,14 @@ ruleMappings:
           systemName: "{{project.name}}"
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
-          highImpactActionsList: "{{project.agentic.highImpactActionsList}}"
-          auditEventsList: "{{project.agentic.auditEventsList}}"
+          highImpactActionsList:
+            type: "stringList"
+            source: "{{project.agentic.highImpactActionsList}}"
+            minItems: 1
+          auditEventsList:
+            type: "stringList"
+            source: "{{project.agentic.auditEventsList}}"
+            minItems: 1
   - ruleId: "AR-953"
     verificationTemplates:
       - templateId: "VT-AR-952-CHECKLIST-001"
@@ -46,5 +52,11 @@ ruleMappings:
           systemName: "{{project.name}}"
           reviewer: "{{review.reviewer}}"
           reviewedAt: "{{review.date}}"
-          highImpactActionsList: "{{project.agentic.highImpactActionsList}}"
-          auditEventsList: "{{project.agentic.auditEventsList}}"
+          highImpactActionsList:
+            type: "stringList"
+            source: "{{project.agentic.highImpactActionsList}}"
+            minItems: 1
+          auditEventsList:
+            type: "stringList"
+            source: "{{project.agentic.auditEventsList}}"
+            minItems: 1

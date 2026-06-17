@@ -14,6 +14,9 @@ Reviewed at: {{reviewedAt}}
 {{#affectedBoundariesList}}
 - [ ] {{.}} has been checked for existing decisions, ownership, and compatibility impact.
 {{/affectedBoundariesList}}
+{{^affectedBoundariesList}}
+- [ ] No affected boundaries supplied; review cannot pass until impacted boundaries or an explicit local-only rationale are listed.
+{{/affectedBoundariesList}}
 
 ## Decision Record Need
 

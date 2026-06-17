@@ -41,6 +41,21 @@
       },
       "additionalProperties": false
     },
+    "parameterBindingValue": {
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        {
+          "type": "object",
+          "required": ["type", "source"],
+          "properties": {
+            "type": { "type": "string", "enum": ["string", "stringList"] },
+            "source": { "type": "string", "minLength": 1 },
+            "minItems": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
     "v1Profile": {
       "type": "object",
       "required": [
@@ -172,7 +187,7 @@
                     "parameterBindings": {
                       "type": "object",
                       "minProperties": 1,
-                      "additionalProperties": { "type": "string", "minLength": 1 }
+                      "additionalProperties": { "$ref": "#/$defs/parameterBindingValue" }
                     },
                     "notes": {
                       "type": "array",

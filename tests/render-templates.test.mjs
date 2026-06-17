@@ -26,6 +26,10 @@ function renderMustache(template, context) {
   });
 
   return renderedSections
+    .replace(/{{\^([A-Za-z0-9_]+)}}([\s\S]*?){{\/\1}}/g, (_match, key, inner) => {
+      const value = context[key];
+      return Array.isArray(value) && value.length > 0 ? "" : inner;
+    })
     .replace(/{{{([A-Za-z0-9_]+)}}}/g, (_match, key) => String(context[key] ?? ""))
     .replace(/{{([A-Za-z0-9_]+)}}/g, (_match, key) => String(context[key] ?? ""));
 }
@@ -371,7 +375,8 @@ test("new governance templates encode the reviewed guard rails honestly", async 
     sensitiveContextTemplate,
     moduleBoundaryTemplate,
     duplicateMessageTemplate,
-    criticalPathBudgetTemplate
+    criticalPathBudgetTemplate,
+    runtimeReadinessTemplate
   ] = await Promise.all([
     fs.readFile(
       path.join(
@@ -407,6 +412,13 @@ test("new governance templates encode the reviewed guard rails honestly", async 
         "rulesets/performance-and-scalability-architecture/templates/junit/java/quarkus-critical-path-budget-test.java.mustache"
       ),
       "utf8"
+    ),
+    fs.readFile(
+      path.join(
+        fixtureRoot,
+        "rulesets/delivery-and-runtime-architecture/templates/checklists/runtime-readiness-review.md.mustache"
+      ),
+      "utf8"
     )
   ]);
 
@@ -440,6 +452,10 @@ test("new governance templates encode the reviewed guard rails honestly", async 
       "rulesets/performance-and-scalability-architecture/templates/junit/java/quarkus-critical-path-budget-test.java.mustache"
     ]
   );
+  const renderedRuntimeReadiness = renderMustache(
+    runtimeReadinessTemplate,
+    templateFixtures["rulesets/delivery-and-runtime-architecture/templates/checklists/runtime-readiness-review.md.mustache"]
+  );
 
   assert.match(
     renderedAgentBoundary,
@@ -459,8 +475,13 @@ test("new governance templates encode the reviewed guard rails honestly", async 
   );
   assert.match(
     renderedSensitiveContext,
-    /pattern-not-either:/u,
-    "AR-962 Semgrep template should exempt sanitizer patterns consistently across builder methods"
+    /pattern-not:/u,
+    "AR-962 Semgrep template should use Semgrep-supported negative patterns for sanitizer exemptions"
+  );
+  assert.equal(
+    /pattern-not-either:/u.test(renderedSensitiveContext),
+    false,
+    "AR-962 Semgrep template should not use unsupported pattern-not-either syntax"
   );
 
   assert.match(
@@ -487,6 +508,69 @@ test("new governance templates encode the reviewed guard rails honestly", async 
     renderedCriticalPathBudget,
     /percentileDuration/u,
     "AR-941 template should prefer percentile-style regression budgets over a single raw maximum only"
+  );
+  assert.match(
+    renderedRuntimeReadiness,
+    /environment-specific configuration differences, validated configuration sources, owner, and review path/u,
+    "AR-931 checklist should turn runtime environments into actionable review prompts"
+  );
+});
+
+test("new checklist templates surface missing list inputs as blocking review evidence", async () => {
+  const [messageContractTemplate, decisionNeedTemplate] = await Promise.all([
+    fs.readFile(
+      path.join(
+        fixtureRoot,
+        "rulesets/integration-and-messaging-architecture/templates/checklists/message-contract-ordering-review.md.mustache"
+      ),
+      "utf8"
+    ),
+    fs.readFile(
+      path.join(
+        fixtureRoot,
+        "rulesets/architecture-decision-governance/templates/checklists/decision-record-need-review.md.mustache"
+      ),
+      "utf8"
+    )
+  ]);
+
+  const renderedMessageContractReview = renderMustache(messageContractTemplate, {
+    flowName: "catalog-item-published",
+    reviewer: "architect@example.test",
+    reviewedAt: "2026-06-17",
+    messageContractsList: [],
+    consumersList: [],
+    orderingAssumptionsList: []
+  });
+  const renderedDecisionNeedReview = renderMustache(decisionNeedTemplate, {
+    changeId: "REQ-123",
+    changeSummary: "Split catalog module",
+    reviewer: "architect@example.test",
+    reviewedAt: "2026-06-17",
+    affectedBoundariesList: [],
+    reversibility: "medium",
+    operationalRisk: "moderate"
+  });
+
+  assert.match(
+    renderedMessageContractReview,
+    /No message contracts supplied; review cannot pass/u,
+    "AR-921 checklist should make missing message contract input visible"
+  );
+  assert.match(
+    renderedMessageContractReview,
+    /No consumers supplied; review cannot pass/u,
+    "AR-921 checklist should make missing consumer input visible"
+  );
+  assert.match(
+    renderedMessageContractReview,
+    /No ordering assumptions supplied; review cannot pass/u,
+    "AR-923 checklist should make missing ordering input visible"
+  );
+  assert.match(
+    renderedDecisionNeedReview,
+    /No affected boundaries supplied; review cannot pass/u,
+    "AR-911 checklist should make missing boundary input visible"
   );
 });
 

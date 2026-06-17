@@ -8,17 +8,26 @@ Reviewed at: {{reviewedAt}}
 {{#messageContractsList}}
 - [ ] {{.}} has owner, schema or documented shape, compatibility rule, message identity, and versioning guidance.
 {{/messageContractsList}}
+{{^messageContractsList}}
+- [ ] No message contracts supplied; review cannot pass until at least one contract is listed.
+{{/messageContractsList}}
 
 ## Consumers
 
 {{#consumersList}}
 - [ ] {{.}} consumes the message contract rather than producer internals and documents replay expectations.
 {{/consumersList}}
+{{^consumersList}}
+- [ ] No consumers supplied; review cannot pass until consumers or an explicit no-consumer rationale are listed.
+{{/consumersList}}
 
 ## Ordering and Delay
 
 {{#orderingAssumptionsList}}
 - [ ] {{.}} states ordering guarantee, late-arrival handling, and operator-visible delay signal.
+{{/orderingAssumptionsList}}
+{{^orderingAssumptionsList}}
+- [ ] No ordering assumptions supplied; review cannot pass until ordering and delay expectations are listed.
 {{/orderingAssumptionsList}}
 
 ## Evidence

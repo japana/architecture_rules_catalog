@@ -276,6 +276,39 @@ test("validator rejects v2 profile mappings with missing required parameter bind
   });
 });
 
+test("validator rejects v2 list parameter bindings without structured list contract", async () => {
+  await withCatalogFixture(async (tempDir) => {
+    const profilePath = path.join(
+      tempDir,
+      "rulesets",
+      "ai-context-and-knowledge-governance",
+      "profiles",
+      "java",
+      "profile.yaml"
+    );
+    const content = await fs.readFile(profilePath, "utf8");
+    const mutated = content.replace(
+      [
+        "          sanitizerMethodPatternsList:",
+        '            type: "stringList"',
+        '            source: "{{project.aiContext.sanitizerMethodPatternsList}}"',
+        "            minItems: 1"
+      ].join("\n"),
+      '          sanitizerMethodPatternsList: "{{project.aiContext.sanitizerMethodPatternsList}}"'
+    );
+    await fs.writeFile(profilePath, mutated, "utf8");
+
+    const errors = await validateCatalog(tempDir);
+    assert.ok(
+      errors.some((error) =>
+        error.includes(
+          "must bind list parameter 'sanitizerMethodPatternsList' as type 'stringList' with source and minItems"
+        )
+      )
+    );
+  });
+});
+
 test("validator rejects v2 profile mappings that use templates incompatible with the profile appliesTo", async () => {
   await withCatalogFixture(async (tempDir) => {
     const rulesetPath = path.join(
