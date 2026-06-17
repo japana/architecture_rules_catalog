@@ -1,0 +1,43 @@
+ruleSetId: "architecture-decision-governance"
+locale: "en"
+name: "Architecture Decision Governance"
+description: "Rules for recording, reviewing, and retiring important architecture decisions."
+category: "Governance"
+tags: ["decisions", "adr", "governance"]
+rules:
+  - id: "AR-911"
+    title: "Important architecture decisions are recorded"
+    summary: "Hard-to-reverse choices should have a discoverable decision record."
+    content: "A decision record should exist when a choice changes system structure, operation, security posture, or long-term delivery cost."
+    rationale: "Recorded decisions let developers and agents preserve intent instead of rediscovering constraints."
+    reviewQuestions: ["Is this choice hard to reverse?", "Where is the decision record?", "Does the record name the affected system parts?"]
+    positiveExamples: ["A storage ownership choice has a linked decision record.", "A rejected deployment option is documented."]
+    negativeExamples: ["A major dependency is added with no rationale.", "A design contradicts an old decision silently."]
+    exceptions: ["Small local implementation choices do not need decision records."]
+    remediation: ["Create a concise decision record.", "Link the record from the change or design.", "Record consequences and affected boundaries."]
+    tags: ["decision-record", "governance"]
+    keywords: ["decision", "record", "rationale"]
+  - id: "AR-912"
+    title: "Decisions include trade-offs"
+    summary: "Decision records should show alternatives, assumptions, accepted costs, and consequences."
+    content: "A useful decision record explains why the chosen option was selected and what costs the team accepts."
+    rationale: "Trade-off detail prevents future changes from treating constraints as accidental."
+    reviewQuestions: ["Which alternatives were considered?", "Which assumptions could change?", "What costs are accepted?"]
+    positiveExamples: ["A record compares synchronous and asynchronous integration costs.", "Known migration cost is stated."]
+    negativeExamples: ["The record says only what was chosen.", "Assumptions are hidden in chat or tickets."]
+    exceptions: ["Emergency decisions may capture trade-offs after stabilization."]
+    remediation: ["Add rejected alternatives.", "Document assumptions and consequences.", "Note review triggers for changing assumptions."]
+    tags: ["tradeoffs", "review"]
+    keywords: ["alternative", "assumption", "consequence"]
+  - id: "AR-913"
+    title: "Decision status stays current"
+    summary: "Architecture decisions should be current, superseded, or explicitly expired."
+    content: "A decision record should have a clear status, and temporary exceptions should have review triggers."
+    rationale: "Outdated decisions create false constraints and mislead automated change agents."
+    reviewQuestions: ["Is the decision still current?", "Has another decision superseded it?", "Do exceptions have review dates?"]
+    positiveExamples: ["A superseded decision links to its replacement.", "A temporary exception has an owner and review date."]
+    negativeExamples: ["Old decisions remain active after the system changes.", "Exceptions become permanent without review."]
+    exceptions: ["Historical records may remain archived when clearly marked."]
+    remediation: ["Mark stale decisions as superseded.", "Add review dates to exceptions.", "Link replacement decisions."]
+    tags: ["lifecycle", "status"]
+    keywords: ["superseded", "expired", "current"]

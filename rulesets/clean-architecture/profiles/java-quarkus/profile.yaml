@@ -1,36 +1,68 @@
 profileId: "java-quarkus"
 ruleSetId: "clean-architecture"
-schemaVersion: "ruleset-profile-v1"
+schemaVersion: "ruleset-profile-v2"
 status: "published"
-displayName: "Java Quarkus Profile for Clean Architecture"
-description: "Quarkus-specific interpretation hints for the clean-architecture ruleset."
+displayName: "Java Quarkus Verification Profile for Clean Architecture"
+description: "Quarkus-specific verification profile for Clean Architecture rules with CDI, JAX-RS, and Panache-aware templates."
 extendsProfile: "java"
-technology:
-  language: "java"
-  framework: "quarkus"
-  runtime: "jvm"
-mappings:
+appliesTo:
+  languages: ["java"]
+  frameworks: ["quarkus"]
+  architectureStyles: ["clean-architecture", "hexagonal"]
+  runtimes: ["jvm"]
+toolchain:
+  required:
+    - type: "archunit"
+      version: ">=1.3.0"
+    - type: "junit"
+      version: ">=5.10.0"
+ruleMappings:
   - ruleId: "AR-101"
-    detectionHints:
-      forbiddenDependencyPatterns:
-        - "io.quarkus.."
-        - "jakarta.persistence.."
-        - "jakarta.ws.rs.."
-      indicativeAnnotations:
-        - "@ApplicationScoped inside domain packages"
-        - "@Entity inside domain packages"
-        - "@Path inside domain packages"
-      recommendedTools:
-        - "ArchUnit"
-      notes:
-        - "Domain classes should not depend on Quarkus lifecycle, JAX-RS delivery, or JPA persistence annotations."
-  - ruleId: "AR-103"
-    detectionHints:
-      forbiddenDependencyPatterns:
-        - "io.quarkus.hibernate.orm.panache.."
-      concreteComponentPatterns:
-        - "Panache entity or repository access directly inside use-case classes"
-      recommendedTools:
-        - "ArchUnit"
-      notes:
-        - "Use cases should orchestrate ports rather than perform direct Panache-driven persistence logic."
+    verificationTemplates:
+      - templateId: "VT-AR-101-ARCHUNIT-QUARKUS-002"
+        coverage: "partial"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          businessCorePackagePatterns: "{{project.packagePatterns.businessCoreCsv}}"
+          forbiddenFrameworkDependencyPatterns: "{{project.quarkus.forbiddenFrameworkDependencyPatternsCsv}}"
+  - ruleId: "AR-102"
+    verificationTemplates:
+      - templateId: "VT-AR-102-ARCHUNIT-QUARKUS-002"
+        coverage: "partial"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          domainPackagePatterns: "{{project.packagePatterns.domainCsv}}"
+          applicationPackagePatterns: "{{project.packagePatterns.applicationCsv}}"
+          outerLayerPackagePatterns: "{{project.packagePatterns.outerLayerCsv}}"
+          technicalBoundaryPackagePatterns: "{{project.packagePatterns.technicalBoundaryCsv}}"
+  - ruleId: "AR-104"
+    verificationTemplates:
+      - templateId: "VT-AR-104-ARCHUNIT-QUARKUS-002"
+        coverage: "partial"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          innerLayerPackagePatterns: "{{project.packagePatterns.innerLayerCsv}}"
+          adapterAndPanachePackagePatterns: "{{project.packagePatterns.adapterAndPanacheCsv}}"
+          outboundAdapterImplementationPackagePatterns: "{{project.packagePatterns.outboundAdapterImplementationCsv}}"
+          portPackagePatterns: "{{project.packagePatterns.portCsv}}"
+  - ruleId: "AR-105"
+    verificationTemplates:
+      - templateId: "VT-AR-105-ARCHUNIT-QUARKUS-002"
+        coverage: "partial"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          interfaceAdapterPackagePatterns: "{{project.packagePatterns.interfaceAdapterCsv}}"
+          domainAndPersistencePackagePatterns: "{{project.packagePatterns.domainAndPersistenceCsv}}"
+  - ruleId: "AR-106"
+    verificationTemplates:
+      - templateId: "VT-AR-106-ARCHUNIT-QUARKUS-002"
+        coverage: "heuristic"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          businessCorePackagePatterns: "{{project.packagePatterns.businessCoreCsv}}"
+          forbiddenCrossCuttingDependencyPatterns: "{{project.quarkus.forbiddenCrossCuttingDependencyPatternsCsv}}"

@@ -1,0 +1,29 @@
+# Overload and Cache Review: {{serviceName}}
+
+Reviewer: {{reviewer}}
+Reviewed at: {{reviewedAt}}
+
+## Load Boundaries
+
+{{#loadBoundariesList}}
+- [ ] {{.}} has bounded capacity, overload signal, retry guidance, and monitoring.
+{{/loadBoundariesList}}
+
+## Caches
+
+{{#cachesList}}
+- [ ] {{.}} defines owner, freshness rule, invalidation or rebuild path, and fallback behavior.
+{{/cachesList}}
+
+## Evidence
+
+- Evidence link:
+- Finding:
+- Owner:
+- Follow-up due:
+- Waiver reason:
+- Waiver expires:
+
+Overall decision: TBD
+
+Notes:

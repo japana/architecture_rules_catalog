@@ -1,0 +1,44 @@
+profileId: "generic"
+ruleSetId: "architecture-decision-governance"
+schemaVersion: "ruleset-profile-v2"
+status: "review"
+displayName: "Generic Profile for Architecture Decision Governance"
+description: "Generic review profile for architecture decision records and lifecycle checks."
+appliesTo:
+  languages: ["generic"]
+  architectureStyles: ["any"]
+toolchain:
+  required:
+    - type: "manual-review"
+      version: ">=1.0.0"
+ruleMappings:
+  - ruleId: "AR-911"
+    verificationTemplates:
+      - templateId: "VT-AR-911-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          decisionId: "{{decision.id}}"
+          decisionTitle: "{{decision.title}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          decisionRecordPath: "{{decision.path}}"
+  - ruleId: "AR-912"
+    verificationTemplates:
+      - templateId: "VT-AR-911-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          decisionId: "{{decision.id}}"
+          decisionTitle: "{{decision.title}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          decisionRecordPath: "{{decision.path}}"
+  - ruleId: "AR-913"
+    verificationTemplates:
+      - templateId: "VT-AR-911-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          decisionId: "{{decision.id}}"
+          decisionTitle: "{{decision.title}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          decisionRecordPath: "{{decision.path}}"

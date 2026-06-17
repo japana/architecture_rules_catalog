@@ -1,0 +1,30 @@
+package {{basePackage}}.security;
+
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
+
+@AnalyzeClasses(packages = "{{basePackage}}", importOptions = ImportOption.DoNotIncludeTests.class)
+class AuthenticationAuthorizationSeparationRuleTest {
+
+  @ArchTest
+  static final ArchRule business_services_should_not_depend_on_authentication_adapters =
+      noClasses()
+          .that()
+          .resideInAnyPackage({{#businessServicePackages}}"{{.}}", {{/businessServicePackages}})
+          .should()
+          .dependOnClassesThat()
+          .resideInAnyPackage({{#authenticationPackages}}"{{.}}", {{/authenticationPackages}});
+
+  @ArchTest
+  static final ArchRule authorization_components_should_not_live_in_authentication_packages =
+      noClasses()
+          .that()
+          .resideInAnyPackage({{#authorizationPackages}}"{{.}}", {{/authorizationPackages}})
+          .should()
+          .dependOnClassesThat()
+          .resideInAnyPackage({{#authenticationPackages}}"{{.}}", {{/authenticationPackages}});
+}

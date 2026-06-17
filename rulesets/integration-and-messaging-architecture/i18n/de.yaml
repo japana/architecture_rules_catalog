@@ -1,0 +1,43 @@
+ruleSetId: "integration-and-messaging-architecture"
+locale: "de"
+name: "Integrations- und Messaging-Architektur"
+description: "Regeln für asynchrone Verträge, Duplikatzustellung und verzögertes Nachrichtenverhalten."
+category: "Architektur"
+tags: ["integration", "messaging", "vertraege"]
+rules:
+  - id: "AR-921"
+    title: "Nachrichten haben verantwortete Verträge"
+    summary: "Asynchrone Nachrichten sollten explizite Owner, Bedeutung und Kompatibilitätserwartungen haben."
+    content: "Nachrichtenverträge sollten Bedeutung, Pflichtfelder, Kompatibilitätsregeln und den Änderungsowner beschreiben."
+    rationale: "Verantwortete Verträge erlauben unabhängige Entwicklung von Produzenten und Konsumenten."
+    reviewQuestions: ["Wer besitzt die Bedeutung der Nachricht?", "Wo ist Kompatibilität dokumentiert?", "Können Konsumenten auf stabile Kennungen und Pflichtfelder vertrauen?"]
+    positiveExamples: ["Events sind als fachliche Tatsachen dokumentiert.", "Feldänderungen durchlaufen eine Kompatibilitätsprüfung."]
+    negativeExamples: ["Konsumenten deserialisieren interne Producer-Modelle.", "Nachrichtenänderungen werden nur aus Code-Diffs abgeleitet."]
+    exceptions: ["Kurzlebige interne Testnachrichten dürfen leichter dokumentiert werden."]
+    remediation: ["Dokumentiere Owner und Schema.", "Trenne externe Nachrichtenform von internen Modellen.", "Ergänze Kompatibilitätsreview bei Änderungen."]
+    tags: ["nachrichtenvertrag", "ownership"]
+    keywords: ["nachricht", "event", "vertrag"]
+  - id: "AR-922"
+    title: "Duplikatzustellung ist sicher"
+    summary: "Nachrichtenkonsumenten sollten Verhalten bei mehrfacher Zustellung definieren und testen."
+    content: "Konsumenten müssen doppelte fachliche Effekte durch Nachrichtenidentität, idempotente Verarbeitung oder explizite Replay-Semantik vermeiden."
+    rationale: "Duplikatzustellung ist in vielen asynchronen Systemen normal und darf Geschäftsstatus nicht verfälschen."
+    reviewQuestions: ["Welches Feld identifiziert eine Nachricht?", "Was passiert bei Replay?", "Ist Vermeidung doppelter Effekte getestet?"]
+    positiveExamples: ["Eine wiederholte Nachricht erzeugt denselben Ergebniszustand.", "Effektzähler bleiben nach Duplikatzustellung stabil."]
+    negativeExamples: ["Replay eines Zahlungsevents bucht doppelt.", "Der Konsument schreibt Zustand vor Prüfung der Nachrichtenidentität."]
+    exceptions: ["Rein beobachtende Konsumenten dürfen Duplikate akzeptieren, wenn alle Folgeeffekte ebenfalls beobachtend sind."]
+    remediation: ["Führe Nachrichtenidentität ein.", "Mache Verarbeitung idempotent.", "Ergänze Regressionstests für Duplikatzustellung."]
+    tags: ["idempotenz", "messaging"]
+    keywords: ["duplikat", "replay", "konsument"]
+  - id: "AR-923"
+    title: "Reihenfolge und Verzögerung sind explizit"
+    summary: "Asynchrone Flows sollten beschreiben, wie Reihenfolge, späte Zustellung und Verzögerung behandelt werden."
+    content: "Ein Flow sollte nicht von Nachrichtenreihenfolge abhängen, außer diese Reihenfolge ist an der Grenze garantiert und geprüft."
+    rationale: "Späte oder vertauschte Nachrichten können korrekten Zustand still überschreiben."
+    reviewQuestions: ["Hängt Korrektheit von Reihenfolge ab?", "Was passiert mit späten Nachrichten?", "Wie sehen Betreiber verzögerte Verarbeitung?"]
+    positiveExamples: ["Konsumenten vergleichen Version oder Zeitstempel vor Updates.", "Verzögerung ist in Status und Metriken sichtbar."]
+    negativeExamples: ["Ein spätes Update überschreibt neueren Geschäftsstatus.", "Betreiber können Verzögerung nicht von Fehler unterscheiden."]
+    exceptions: ["Lokale Queues in einem Prozess dürfen lokale Reihenfolge nutzen, wenn die Grenze klar ist."]
+    remediation: ["Ergänze Ordnungsschlüssel oder Versionsprüfung.", "Definiere Umgang mit späten Nachrichten.", "Mache Verzögerung und Rückstau sichtbar."]
+    tags: ["reihenfolge", "verzoegerung"]
+    keywords: ["spaete nachricht", "reihenfolge", "rueckstau"]

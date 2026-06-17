@@ -1,0 +1,58 @@
+profileId: "java-quarkus"
+ruleSetId: "performance-and-scalability-architecture"
+schemaVersion: "ruleset-profile-v2"
+status: "review"
+displayName: "Java Quarkus Verification Profile for Performance Budgets"
+description: "Quarkus integration-test profile for critical-path performance regression checks."
+appliesTo:
+  languages: ["java"]
+  frameworks: ["quarkus"]
+  architectureStyles: ["service", "modular-monolith"]
+  runtimes: ["jvm"]
+toolchain:
+  required:
+    - type: "junit"
+      version: ">=5.10.0"
+    - type: "rest-assured"
+      version: ">=5.4.0"
+    - type: "quarkus-test"
+      version: ">=3.0.0"
+    - type: "manual-review"
+      version: ">=1.0.0"
+ruleMappings:
+  - ruleId: "AR-941"
+    verificationTemplates:
+      - templateId: "VT-AR-941-JUNIT-QUARKUS-001"
+        coverage: "supporting"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          criticalPath: "{{project.performance.criticalPath}}"
+          iterations: "{{project.performance.iterations}}"
+          warmupIterations: "{{project.performance.warmupIterations}}"
+          minMeasuredIterations: "{{project.performance.minMeasuredIterations}}"
+          maxAverageMillis: "{{project.performance.maxAverageMillis}}"
+          maxPercentileMillis: "{{project.performance.maxPercentileMillis}}"
+          maxSingleCallMillis: "{{project.performance.maxSingleCallMillis}}"
+          percentileRank: "{{project.performance.percentileRank}}"
+          expectedStatusCode: "{{project.performance.expectedStatusCode}}"
+  - ruleId: "AR-942"
+    verificationTemplates:
+      - templateId: "VT-AR-942-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          serviceName: "{{project.name}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          loadBoundariesList: "{{project.performance.loadBoundariesList}}"
+          cachesList: "{{project.performance.cachesList}}"
+  - ruleId: "AR-943"
+    verificationTemplates:
+      - templateId: "VT-AR-942-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          serviceName: "{{project.name}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          loadBoundariesList: "{{project.performance.loadBoundariesList}}"
+          cachesList: "{{project.performance.cachesList}}"

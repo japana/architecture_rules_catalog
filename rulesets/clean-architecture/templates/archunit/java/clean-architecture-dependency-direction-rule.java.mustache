@@ -1,0 +1,30 @@
+package {{basePackage}}.architecture;
+
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
+
+@AnalyzeClasses(packages = "{{basePackage}}", importOptions = ImportOption.DoNotIncludeTests.class)
+class CleanArchitectureDependencyDirectionTest {
+
+  @ArchTest
+  static final ArchRule domain_should_not_depend_on_outer_packages =
+      noClasses()
+          .that()
+          .resideInAnyPackage({{#domainPackages}}"{{.}}", {{/domainPackages}})
+          .should()
+          .dependOnClassesThat()
+          .resideInAnyPackage({{#applicationPackages}}"{{.}}", {{/applicationPackages}}{{#adapterPackages}}"{{.}}", {{/adapterPackages}}{{#infrastructurePackages}}"{{.}}", {{/infrastructurePackages}});
+
+  @ArchTest
+  static final ArchRule application_should_not_depend_on_infrastructure_or_adapters =
+      noClasses()
+          .that()
+          .resideInAnyPackage({{#applicationPackages}}"{{.}}", {{/applicationPackages}})
+          .should()
+          .dependOnClassesThat()
+          .resideInAnyPackage({{#adapterPackages}}"{{.}}", {{/adapterPackages}}{{#infrastructurePackages}}"{{.}}", {{/infrastructurePackages}});
+}

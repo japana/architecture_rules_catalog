@@ -1,0 +1,41 @@
+# Runtime Readiness Review: {{serviceName}}
+
+Reviewer: {{reviewer}}
+Reviewed at: {{reviewedAt}}
+
+## Runtime Environments
+
+{{#runtimeEnvironmentsList}}
+- [ ] {{.}}
+{{/runtimeEnvironmentsList}}
+
+## Critical Configuration
+
+{{#criticalConfigurationItemsList}}
+- [ ] {{.}} is externalized, validated, and documented.
+{{/criticalConfigurationItemsList}}
+
+## Readiness Signals
+
+{{#readinessSignalsList}}
+- [ ] {{.}} distinguishes ready, not ready, and degraded where applicable.
+{{/readinessSignalsList}}
+
+## Runtime Switches
+
+{{#runtimeSwitchesList}}
+- [ ] {{.}} has owner, safe default, review trigger, and removal or support decision.
+{{/runtimeSwitchesList}}
+
+## Evidence
+
+- Evidence link:
+- Finding:
+- Owner:
+- Follow-up due:
+- Waiver reason:
+- Waiver expires:
+
+Overall decision: TBD
+
+Notes:

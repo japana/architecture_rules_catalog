@@ -1,0 +1,23 @@
+package {{basePackage}}.architecture;
+
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
+
+@AnalyzeClasses(packages = "{{basePackage}}", importOptions = ImportOption.DoNotIncludeTests.class)
+class DerivedDataIntegrityRuleTest {
+
+  @ArchTest
+  static final ArchRule projections_should_not_mutate_source_of_truth =
+      noClasses()
+          .that()
+          .resideInAnyPackage({{#projectionPackages}}"{{.}}", {{/projectionPackages}})
+          .should()
+          .callMethodWhere(target ->
+              target.getOwner().getPackageName().startsWith("{{basePackage}}")
+                  && target.getOwner().getPackageName().matches("{{sourceOfTruthPackages}}")
+                  && target.getName().matches("{{mutatorClassNamePatterns}}"));
+}

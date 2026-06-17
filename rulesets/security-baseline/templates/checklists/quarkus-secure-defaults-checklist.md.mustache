@@ -1,0 +1,40 @@
+# Secure Defaults Review for {{serviceName}}
+
+Supported rule: `AR-306`
+
+Coverage: `supporting`
+
+Toolchain: manual review
+
+Reviewer: {{reviewer}}
+Reviewed at: {{reviewedAt}}
+
+Config files:
+{{#configFiles}}
+- {{.}}
+{{/configFiles}}
+
+Public endpoints:
+{{#publicEndpoints}}
+- {{.}}
+{{/publicEndpoints}}
+
+Sensitive features:
+{{#sensitiveFeatures}}
+- {{.}}
+{{/sensitiveFeatures}}
+
+Checklist:
+| Check | Decision | Evidence | Risk / Follow-up |
+| --- | --- | --- | --- |
+| Are debug, dev-service, or bypass features disabled by default outside local development? | TBD | TBD | TBD |
+| Do public endpoints require explicit activation before becoming reachable? | TBD | TBD | TBD |
+| Are insecure profile defaults harder to enable than secure ones? | TBD | TBD | TBD |
+| Are sensitive features guarded by explicit configuration and documented rationale? | TBD | TBD | TBD |
+| Do Quarkus profile overrides preserve the safer baseline by default? | TBD | TBD | TBD |
+
+Limitations:
+- Manual checklist only.
+- Deployment-time overrides and environment injection still need separate verification.
+
+Overall decision: TBD

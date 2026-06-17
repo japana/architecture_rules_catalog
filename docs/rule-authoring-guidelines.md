@@ -29,8 +29,9 @@ Do not put the following into the generic core catalog:
 - rules that only make sense for one framework
 - framework-specific annotations, base classes, or namespace patterns
 
-These belong in optional profiles under `rulesets/<ruleSetId>/profiles/`, not
-in the generic `ruleset.yaml` or `i18n/*.yaml`.
+These belong in optional profiles or reusable verification templates under
+`rulesets/<ruleSetId>/profiles/` and `rulesets/<ruleSetId>/templates/`, not in
+the generic `ruleset.yaml` rule body or `i18n/*.yaml`.
 
 ## What Belongs in Optional Profiles
 
@@ -41,6 +42,7 @@ Optional profiles may contain:
 - package or namespace patterns
 - tool configurations
 - technology-specific examples
+- verification-template activation and parameter bindings
 
 Example structure:
 
@@ -62,6 +64,48 @@ rulesets/
 
 Profiles are rule-set-local companion artifacts. They are not part of the
 generic core catalog and should not be registered in `catalog.yaml`.
+
+`ruleset-profile-v1` is for detection hints only. `ruleset-profile-v2` is for
+template activation, toolchain selection, and parameter bindings.
+
+## Verification Template Authoring
+
+Verification templates are reusable technical artifacts that support, but do
+not replace, architectural rule verification.
+
+Author templates under `rulesets/<ruleSetId>/templates/...` and reference them
+from `verificationTemplates` in the owning `ruleset.yaml`.
+
+Use templates for things such as:
+
+- ArchUnit tests
+- Semgrep or Spectral rules
+- Gitleaks configurations
+- JUnit or integration-test skeletons
+- manual review checklists
+- AI review prompts
+
+Every template should:
+
+- support one or more existing `ruleIds`
+- keep project-specific values in `requiredParameters`
+- declare generated output and required toolchain
+- list covered violation signals
+- state explicit limitations
+- use the narrowest honest coverage label
+
+Coverage labels:
+
+- `full`
+- `partial`
+- `heuristic`
+- `supporting`
+- `notAutomatable`
+
+Prefer the top-level `verificationTemplates[*].ruleIds` model over storing
+templates inside individual rules. It keeps template artifacts reusable and
+avoids duplicating metadata when one verification approach supports multiple
+rules.
 
 ## Quality Check for a New Generic Rule
 
@@ -113,3 +157,5 @@ For optional profiles:
 - document the target language/framework clearly
 - keep concrete dependency patterns in the profile only
 - treat suggested tools as hints, not as part of the core rule meaning
+- for `ruleset-profile-v2`, bind every template `requiredParameter`
+- only activate templates that explicitly support the mapped `ruleId`

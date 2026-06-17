@@ -1,0 +1,38 @@
+profileId: "java-quarkus"
+ruleSetId: "modularity-and-dependency-governance"
+schemaVersion: "ruleset-profile-v2"
+status: "review"
+displayName: "Java Quarkus Verification Profile for Modularity"
+description: "Quarkus-oriented ArchUnit profile for module boundary and cycle checks."
+appliesTo:
+  languages: ["java"]
+  frameworks: ["quarkus"]
+  architectureStyles: ["modular-monolith", "clean-architecture"]
+  runtimes: ["jvm"]
+toolchain:
+  required:
+    - type: "archunit"
+      version: ">=1.3.0"
+    - type: "junit"
+      version: ">=5.10.0"
+ruleMappings:
+  - ruleId: "AR-901"
+    verificationTemplates:
+      - templateId: "VT-AR-901-ARCHUNIT-QUARKUS-001"
+        coverage: "partial"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          moduleSlicePattern: "{{project.moduleGovernance.moduleSlicePattern}}"
+          moduleInternalPackagePatterns: "{{project.moduleGovernance.internalPackagePatternsCsv}}"
+          allowedInternalAccessPackagePatterns: "{{project.moduleGovernance.allowedInternalAccessPackagePatternsCsv}}"
+  - ruleId: "AR-902"
+    verificationTemplates:
+      - templateId: "VT-AR-901-ARCHUNIT-QUARKUS-001"
+        coverage: "partial"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          moduleSlicePattern: "{{project.moduleGovernance.moduleSlicePattern}}"
+          moduleInternalPackagePatterns: "{{project.moduleGovernance.internalPackagePatternsCsv}}"
+          allowedInternalAccessPackagePatterns: "{{project.moduleGovernance.allowedInternalAccessPackagePatternsCsv}}"

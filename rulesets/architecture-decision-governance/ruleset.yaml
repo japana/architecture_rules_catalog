@@ -1,0 +1,100 @@
+ruleSetId: "architecture-decision-governance"
+schemaVersion: "ruleset-catalog-v1"
+ruleSetVersion: "0.1.0"
+publisher: "APMDB Catalog Seed"
+license: "Apache-2.0"
+status: "review"
+defaultLocale: "en"
+availableLocales: ["en", "de"]
+approvals: []
+rules:
+  - id: "AR-911"
+    status: "active"
+    type: "governance"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "process"
+    scope:
+      - dimension: "artifactType"
+        values: ["architecture-design", "documentation"]
+    appliesTo:
+      artifactTypes: ["architecture-design", "documentation"]
+      architectureElements: ["service", "module", "deployment"]
+    source:
+      type: "governance-guideline"
+      name: "Decision Records"
+      reference: "Hard-to-reverse architecture choices should be recorded with context and consequences."
+    violationSignals: ["A costly architecture choice has no decision record.", "Reviewers cannot find the reason for a constraint.", "A change contradicts an earlier decision without acknowledging it."]
+    relationships: []
+  - id: "AR-912"
+    status: "active"
+    type: "governance"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["architecture-design", "documentation"]
+    appliesTo:
+      artifactTypes: ["architecture-design", "documentation"]
+      architectureElements: ["service", "module", "deployment"]
+    source:
+      type: "governance-guideline"
+      name: "Decision Trade-Offs"
+      reference: "Decision records should include considered options, accepted costs, and consequences."
+    violationSignals: ["A decision lists the chosen option but not rejected alternatives.", "Known costs are rediscovered during implementation.", "The decision cannot be reviewed because assumptions are missing."]
+    relationships:
+      - target: "AR-911"
+        type: "refines"
+        rationale: "Trade-off detail makes decision records useful for future change."
+  - id: "AR-913"
+    status: "active"
+    type: "governance"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "advisory"
+    detectability: "process"
+    scope:
+      - dimension: "artifactType"
+        values: ["architecture-design", "documentation"]
+    appliesTo:
+      artifactTypes: ["architecture-design", "documentation"]
+      architectureElements: ["service", "module", "deployment"]
+    source:
+      type: "governance-guideline"
+      name: "Decision Lifecycle"
+      reference: "Architecture decisions should be kept current or explicitly superseded."
+    violationSignals: ["Outdated decisions remain authoritative.", "Temporary exceptions have no review date.", "New designs depend on decisions whose status is unclear."]
+    relationships:
+      - target: "AR-911"
+        type: "supports"
+        rationale: "A lifecycle keeps recorded decisions trustworthy."
+verificationTemplates:
+  - templateId: "VT-AR-911-CHECKLIST-001"
+    ruleIds: ["AR-911", "AR-912", "AR-913"]
+    type: "checklist"
+    coverage: "supporting"
+    determinism: "manual"
+    templateRef: "templates/checklists/decision-record-review.md.mustache"
+    description: "Review checklist for verifying that important architecture decisions are recorded, reviewable, and current."
+    requiredParameters:
+      - "decisionId"
+      - "decisionTitle"
+      - "reviewer"
+      - "reviewedAt"
+      - "decisionRecordPath"
+    verifiesViolationSignals:
+      - "A costly architecture choice has no decision record."
+      - "A decision lists the chosen option but not rejected alternatives."
+      - "Outdated decisions remain authoritative."
+    limitations:
+      - "Supports review evidence; it cannot determine architectural importance without context."
+      - "Requires the project to identify the decision records under review."
+    generates:
+      description: "Architecture decision review checklist."
+      pathTemplate: "docs/architecture/decision-review-{{decisionId}}.md"
+    toolchain:
+      - type: "manual-review"
+        version: ">=1.0.0"

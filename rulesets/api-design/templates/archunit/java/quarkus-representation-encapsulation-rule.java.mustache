@@ -1,0 +1,21 @@
+package {{basePackage}}.architecture;
+
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
+
+@AnalyzeClasses(packages = "{{basePackage}}", importOptions = ImportOption.DoNotIncludeTests.class)
+class QuarkusRepresentationEncapsulationRuleTest {
+
+  @ArchTest
+  static final ArchRule resources_and_dtos_should_not_depend_on_entities_or_panache =
+      noClasses()
+          .that()
+          .resideInAnyPackage({{{apiRepresentationPackagePatterns}}})
+          .should()
+          .dependOnClassesThat()
+          .resideInAnyPackage({{{persistenceAndPanachePackagePatterns}}});
+}

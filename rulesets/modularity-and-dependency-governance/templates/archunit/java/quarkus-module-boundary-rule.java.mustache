@@ -1,0 +1,33 @@
+package {{basePackage}}.architecture;
+
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
+
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
+
+@AnalyzeClasses(packages = "{{basePackage}}", importOptions = ImportOption.DoNotIncludeTests.class)
+class ModuleBoundaryRuleTest {
+
+  // Internal access protection is only as precise as the configured caller whitelist.
+  // Bind allowedInternalAccessPackagePatterns narrowly to avoid cross-module internal access.
+
+  @ArchTest
+  static final ArchRule module_slices_should_be_free_of_cycles =
+      slices()
+          .matching("{{moduleSlicePattern}}")
+          .should()
+          .beFreeOfCycles();
+
+  @ArchTest
+  static final ArchRule module_internals_should_only_be_accessed_by_allowed_packages =
+      classes()
+          .that()
+          .resideInAnyPackage({{{moduleInternalPackagePatterns}}})
+          .should()
+          .onlyBeAccessed()
+          .byClassesThat()
+          .resideInAnyPackage({{{allowedInternalAccessPackagePatterns}}});
+}

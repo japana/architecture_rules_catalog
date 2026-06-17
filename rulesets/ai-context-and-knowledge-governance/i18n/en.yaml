@@ -1,0 +1,43 @@
+ruleSetId: "ai-context-and-knowledge-governance"
+locale: "en"
+name: "AI Context and Knowledge Governance"
+description: "Rules for trustworthy context sources, sensitive context minimization, and evidence separation."
+category: "Governance"
+tags: ["ai", "context", "knowledge"]
+rules:
+  - id: "AR-961"
+    title: "Context sources have trust metadata"
+    summary: "Machine-consumed context should identify source, owner, freshness, and precedence."
+    content: "Context used for generated decisions should carry enough metadata to judge whether it is current, allowed, and authoritative."
+    rationale: "Bad context often causes bad behavior even when the generated response looks plausible."
+    reviewQuestions: ["Where did this context come from?", "Who owns updates?", "What happens when sources disagree?"]
+    positiveExamples: ["Retrieved facts include source and freshness.", "Conflicting sources have a documented precedence order."]
+    negativeExamples: ["Old documentation is retrieved as if current.", "Generated behavior depends on unknown context."]
+    exceptions: ["Ephemeral local context may use session scope when it cannot outlive the session."]
+    remediation: ["Add source and freshness metadata.", "Define context precedence.", "Assign ownership for maintained knowledge."]
+    tags: ["context", "trust"]
+    keywords: ["source", "freshness", "owner"]
+  - id: "AR-962"
+    title: "Sensitive context is minimized"
+    summary: "Context assembly should filter sensitive data and respect authorization boundaries."
+    content: "Prompts, retrieved context, memory, and logs should contain only the sensitive data required for the task and permitted for the actor."
+    rationale: "AI context paths can copy sensitive data into places that are harder to control later."
+    reviewQuestions: ["Which sensitive fields can enter context?", "Where are authorization checks applied?", "What is stored after generation?"]
+    positiveExamples: ["Context builders use redaction before prompt assembly.", "Retrieval applies tenant and user permissions."]
+    negativeExamples: ["Full private records are sent when only a summary is needed.", "Prompt logs contain unnecessary identifiers."]
+    exceptions: ["Explicitly approved diagnostic sessions may use broader context with retention controls."]
+    remediation: ["Add redaction or summarization.", "Apply authorization before retrieval.", "Minimize prompt and context logs."]
+    tags: ["privacy", "security"]
+    keywords: ["sensitive", "redaction", "authorization"]
+  - id: "AR-963"
+    title: "Evidence and assumptions are separated"
+    summary: "Generated outputs should distinguish cited facts, derived conclusions, and assumptions."
+    content: "A generated decision should make clear which claims are grounded in evidence and which are inferred or assumed."
+    rationale: "Reviewers and agents need to know when confidence depends on unstated assumptions."
+    reviewQuestions: ["Which claims are backed by evidence?", "Which parts are assumptions?", "Can the evidence be inspected?"]
+    positiveExamples: ["A generated review lists cited source snippets separately from recommendations.", "Assumptions are marked for confirmation."]
+    negativeExamples: ["A guessed constraint is presented as fact.", "Evidence links are absent for context-dependent claims."]
+    exceptions: ["Small deterministic transformations may not need explicit evidence sections."]
+    remediation: ["Separate facts, conclusions, and assumptions.", "Attach evidence references.", "Ask for confirmation when assumptions drive action."]
+    tags: ["evidence", "assumptions"]
+    keywords: ["fact", "assumption", "citation"]

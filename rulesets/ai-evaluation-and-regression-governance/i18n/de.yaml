@@ -1,0 +1,43 @@
+ruleSetId: "ai-evaluation-and-regression-governance"
+locale: "de"
+name: "AI-Evaluations- und Regressionssteuerung"
+description: "Regeln für AI-Evaluationsszenarien, Release-Gates und Feedback aus Fehlern."
+category: "Qualitaet"
+tags: ["ai", "evaluation", "regression"]
+rules:
+  - id: "AR-971"
+    title: "AI-Verhalten hat repräsentative Evaluierungen"
+    summary: "AI-unterstütztes Verhalten sollte durch realistische Happy-Path-, Randfall- und Risikoszenarien abgedeckt sein."
+    content: "Evaluationsszenarien sollten Aufgaben, Nutzer, Tools und Fehlermodi abbilden, die für Release-Vertrauen relevant sind."
+    rationale: "Modell- und Prompt-Änderungen brauchen Verhaltensprüfungen, weil exakte Ausgaben variieren können."
+    reviewQuestions: ["Welches Verhalten ist kritisch?", "Decken Szenarien riskante Eingaben ab?", "Bleiben bekannte Fehler erhalten?"]
+    positiveExamples: ["Die Evaluationssuite enthält mehrdeutige Anfragen und Toolfehler.", "Eine bekannte Halluzination hat einen Regressionsfall."]
+    negativeExamples: ["Nur einfache Happy Paths werden evaluiert.", "Eine Prompt-Änderung wird ohne Szenariolauf ausgeliefert."]
+    exceptions: ["Explorative Prototypen dürfen manuelle Szenarioreviews nutzen, bevor automatische Gates existieren."]
+    remediation: ["Ergänze repräsentative Szenarien.", "Nimm Risiko- und Randfälle auf.", "Bewahre bekannte Fehler als Regressionsfälle."]
+    tags: ["evaluation", "szenarien"]
+    keywords: ["eval", "szenario", "risiko"]
+  - id: "AR-972"
+    title: "AI-Änderungen durchlaufen Regressionsgates"
+    summary: "Kritische Prompts, Tools, Policies und Modelleinstellungen sollten vor Auslieferung Release-Gates bestehen."
+    content: "Ein Release-Prozess sollte Evaluationsschwellen, Review-Regeln und akzeptable Varianz für AI-Verhalten definieren."
+    rationale: "Nichtdeterminismus braucht explizite Gates statt informellem Vertrauen."
+    reviewQuestions: ["Welche Änderungen lösen das Gate aus?", "Welche Schwelle muss bestehen?", "Wie wird Varianz behandelt?"]
+    positiveExamples: ["Prompt-Änderungen führen eine Szenariosuite in der Pipeline aus.", "Schwellenänderungen benötigen Review."]
+    negativeExamples: ["Eine Tool-Policy ändert sich ohne Evaluierung.", "Ein einzelner glücklicher Lauf gilt als Beweis."]
+    exceptions: ["Notfall-Mitigations dürfen zuerst ausgeliefert werden, wenn Evaluierung verpflichtend nachläuft."]
+    remediation: ["Definiere Release-Gate-Auslöser.", "Setze Schwellen und Review-Regeln.", "Führe Evaluierungen mehrfach aus, wo Varianz relevant ist."]
+    tags: ["quality-gate", "regression"]
+    keywords: ["gate", "schwelle", "varianz"]
+  - id: "AR-973"
+    title: "Fehler werden zu Regressionsszenarien"
+    summary: "Beobachtete AI-Fehler sollten in fokussierte Evaluationsfälle überführt werden."
+    content: "Wenn ein AI-Verhaltensdefekt reproduziert ist, sollte das Projekt ein Szenario ergänzen, das die Regression erkennt."
+    rationale: "Feedback hält Evaluierungen an realem Systemrisiko ausgerichtet."
+    reviewQuestions: ["War der Fehler reproduzierbar?", "Welches Szenario deckt ihn jetzt ab?", "Verhindert das Gate Wiederauftreten?"]
+    positiveExamples: ["Ein Incident erzeugt neues Szenario und neue Schwelle.", "Das Szenario dokumentiert erwartete sichere Ablehnung oder Eskalation."]
+    negativeExamples: ["Nach einem Incident wird nur der Prompt editiert.", "Derselbe Fehler tritt mit anderer Formulierung erneut auf."]
+    exceptions: ["Einmalige externe Ausfälle dürfen ohne neues AI-Verhaltensszenario dokumentiert werden."]
+    remediation: ["Erstelle ein Regressionsszenario.", "Verlinke es mit Incident oder Defekt.", "Passe Gates an, wenn das Szenario kritisch ist."]
+    tags: ["feedback", "regression"]
+    keywords: ["fehler", "incident", "regression"]

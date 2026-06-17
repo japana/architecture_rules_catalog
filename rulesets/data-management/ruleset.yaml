@@ -1,6 +1,6 @@
 ruleSetId: "data-management"
 schemaVersion: "ruleset-catalog-v1"
-ruleSetVersion: "0.1.0"
+ruleSetVersion: "0.2.0"
 publisher: "APMDB Catalog Seed"
 license: "Apache-2.0"
 status: "published"
@@ -126,3 +126,95 @@ rules:
       reference: "Data access should consider expected volume and query paths."
     violationSignals: ["A query path grows with data volume without limits or indexes.", "N+1 or full-scan behavior is introduced in critical paths.", "Data access assumptions are untested for realistic volumes."]
     relationships: []
+verificationTemplates:
+  - templateId: "VT-AR-505-ARCHUNIT-001"
+    ruleIds: ["AR-505"]
+    type: "archunit"
+    language: "java"
+    framework: "archunit"
+    coverage: "partial"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/derived-data-integrity-rule.java.mustache"
+    description: "ArchUnit template that ensures projection or index packages do not mutate source-of-truth repositories or aggregates directly."
+    requiredParameters:
+      - "basePackage"
+      - "projectionPackages"
+      - "sourceOfTruthPackages"
+      - "mutatorClassNamePatterns"
+    verifiesViolationSignals:
+      - "Cached, indexed, or projected data becomes authoritative without reconciliation."
+      - "Rebuild or refresh behavior is missing for derived stores."
+    limitations:
+      - "Detects structural mutation paths only."
+      - "Cannot prove freshness, reconciliation correctness, or operational rebuild coverage."
+    generates:
+      description: "JUnit 5 ArchUnit test class for derived-data integrity boundaries."
+      pathTemplate: "src/test/java/{{basePackagePath}}/architecture/DerivedDataIntegrityRuleTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"
+  - templateId: "VT-AR-505-ARCHUNIT-QUARKUS-002"
+    ruleIds: ["AR-505"]
+    type: "archunit"
+    language: "java"
+    framework: "quarkus"
+    coverage: "partial"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/quarkus-derived-data-integrity-rule.java.mustache"
+    description: "Quarkus-focused ArchUnit template that uses selected source-of-truth mutation paths as a structural proxy to keep projections and read models away from write-side mutation components."
+    requiredParameters:
+      - "basePackage"
+      - "projectionPackagePatterns"
+      - "sourceOfTruthMutatorPackagePatterns"
+    verifiesViolationSignals:
+      - "Cached, indexed, or projected data becomes authoritative without reconciliation."
+      - "Rebuild or refresh behavior is missing for derived stores."
+    limitations:
+      - "Checks a structural proxy rule over selected mutation-path packages only."
+      - "Read-only dependencies in the selected mutation-path packages can still trigger findings."
+      - "Does not detect refresh strategies, rebuild orchestration, or derived-data authority mistakes outside those package boundaries."
+      - "Does not prove event ordering, refresh cadence, or rebuild correctness."
+    generates:
+      description: "JUnit 5 ArchUnit test class for Quarkus derived-data integrity."
+      pathTemplate: "src/test/java/{{basePackagePath}}/architecture/QuarkusDerivedDataIntegrityRuleTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"
+  - templateId: "VT-AR-506-JUNIT-QUARKUS-002"
+    ruleIds: ["AR-506"]
+    type: "junit"
+    language: "java"
+    framework: "quarkus-test"
+    coverage: "supporting"
+    determinism: "deterministic"
+    templateRef: "templates/junit/java/quarkus-access-path-awareness-test.java.mustache"
+    description: "Quarkus integration-test template that exercises a representative read path and records result-size expectations plus a project-provided query-count signal for Panache-backed access."
+    requiredParameters:
+      - "basePackage"
+      - "resourcePath"
+      - "maxExpectedItems"
+      - "responseCollectionSizePath"
+      - "queryCountHeaderName"
+      - "expectedQueryBudget"
+      - "queryBudgetProbeDescription"
+    verifiesViolationSignals:
+      - "A query path grows with data volume without limits or indexes."
+      - "N+1 or full-scan behavior is introduced in critical paths."
+    limitations:
+      - "Requires project-provided test-only instrumentation that exposes query counts through queryCountHeaderName."
+      - "Fails fast with a clear message when the query-count signal is unavailable or malformed."
+      - "Does not prove performance under production-scale data."
+    generates:
+      description: "Quarkus integration test skeleton for access-path awareness."
+      pathTemplate: "src/test/java/{{basePackagePath}}/data/AccessPathAwarenessTest.java"
+    toolchain:
+      - type: "junit"
+        version: ">=5.10.0"
+      - type: "rest-assured"
+        version: ">=5.4.0"
+      - type: "quarkus-test"
+        version: ">=3.0.0"

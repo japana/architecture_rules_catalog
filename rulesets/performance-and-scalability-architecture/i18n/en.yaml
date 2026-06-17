@@ -1,0 +1,43 @@
+ruleSetId: "performance-and-scalability-architecture"
+locale: "en"
+name: "Performance and Scalability Architecture"
+description: "Rules for critical path budgets, overload behavior, and cache validity."
+category: "Operations"
+tags: ["performance", "scalability", "capacity"]
+rules:
+  - id: "AR-941"
+    title: "Critical paths have budgets"
+    summary: "Critical paths should have explicit latency, capacity, or resource budgets."
+    content: "A critical path should state expected workload and acceptable resource use so regressions can be detected."
+    rationale: "Without budgets, performance concerns become subjective and late."
+    reviewQuestions: ["Which paths are critical?", "What budget protects each path?", "Where is the budget verified?"]
+    positiveExamples: ["A search endpoint has a response-time regression test.", "A batch process has a defined data-volume assumption."]
+    negativeExamples: ["A critical endpoint has no performance expectation.", "Resource-heavy work is added to a user-facing path without measurement."]
+    exceptions: ["Early prototypes may document assumptions instead of enforcing budgets until usage is known."]
+    remediation: ["Define a budget for the path.", "Add regression checks for representative workload.", "Move expensive work out of synchronous paths."]
+    tags: ["budget", "critical-path"]
+    keywords: ["latency", "capacity", "resource"]
+  - id: "AR-942"
+    title: "Overload behavior is controlled"
+    summary: "Systems should define bounded behavior when demand exceeds capacity."
+    content: "Services should prefer bounded queues, backpressure, controlled rejection, or graceful degradation over unbounded resource growth."
+    rationale: "Controlled overload behavior prevents local pressure from becoming broader failure."
+    reviewQuestions: ["What grows under load?", "Where is backpressure applied?", "What signal tells callers to slow down?"]
+    positiveExamples: ["Queue sizes are bounded and monitored.", "Overload returns a controlled retry signal."]
+    negativeExamples: ["Buffers grow without bound.", "Retries continue after rejection without delay."]
+    exceptions: ["Offline tools with bounded input may not need active backpressure."]
+    remediation: ["Add queue limits.", "Return explicit overload signals.", "Document load-shedding behavior."]
+    tags: ["backpressure", "overload"]
+    keywords: ["capacity", "queue", "load"]
+  - id: "AR-943"
+    title: "Caches have validity strategy"
+    summary: "Caching should define freshness, invalidation, ownership, and fallback behavior."
+    content: "A cache should not become hidden source of truth without rules for validity and recovery."
+    rationale: "Caches improve speed only when stale or missing data remains safe."
+    reviewQuestions: ["How is cached data invalidated?", "What happens when the cache is unavailable?", "Who owns cache correctness?"]
+    positiveExamples: ["Cache lifetime follows business freshness needs.", "Cache misses fall back to the source of truth."]
+    negativeExamples: ["Cached values have no freshness rule.", "A cache outage changes business correctness."]
+    exceptions: ["Purely decorative cached data may use simpler validity rules."]
+    remediation: ["Define lifetime and invalidation.", "Add fallback behavior.", "Document owner and rebuild path."]
+    tags: ["cache", "validity"]
+    keywords: ["freshness", "invalidation", "fallback"]

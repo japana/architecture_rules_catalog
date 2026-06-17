@@ -1,0 +1,50 @@
+profileId: "java-quarkus"
+ruleSetId: "agentic-system-architecture"
+schemaVersion: "ruleset-profile-v2"
+status: "review"
+displayName: "Java Quarkus Verification Profile for Agentic Systems"
+description: "Quarkus-oriented ArchUnit profile for selected autonomous side-effect tool boundaries."
+appliesTo:
+  languages: ["java"]
+  frameworks: ["quarkus"]
+  architectureStyles: ["agentic", "clean-architecture"]
+  runtimes: ["jvm"]
+toolchain:
+  required:
+    - type: "archunit"
+      version: ">=1.3.0"
+    - type: "junit"
+      version: ">=5.10.0"
+    - type: "manual-review"
+      version: ">=1.0.0"
+ruleMappings:
+  - ruleId: "AR-951"
+    verificationTemplates:
+      - templateId: "VT-AR-951-ARCHUNIT-QUARKUS-001"
+        coverage: "partial"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          sideEffectAgentToolPackagePatterns: "{{project.agentic.sideEffectAgentToolPackagePatternsCsv}}"
+          policyBoundaryPackagePatterns: "{{project.agentic.policyBoundaryPackagePatternsCsv}}"
+          sideEffectAdapterPackagePatterns: "{{project.agentic.sideEffectAdapterPackagePatternsCsv}}"
+  - ruleId: "AR-952"
+    verificationTemplates:
+      - templateId: "VT-AR-952-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          systemName: "{{project.name}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          highImpactActionsList: "{{project.agentic.highImpactActionsList}}"
+          auditEventsList: "{{project.agentic.auditEventsList}}"
+  - ruleId: "AR-953"
+    verificationTemplates:
+      - templateId: "VT-AR-952-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          systemName: "{{project.name}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          highImpactActionsList: "{{project.agentic.highImpactActionsList}}"
+          auditEventsList: "{{project.agentic.auditEventsList}}"

@@ -1,0 +1,30 @@
+package {{basePackage}}.architecture;
+
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
+
+@AnalyzeClasses(packages = "{{basePackage}}", importOptions = ImportOption.DoNotIncludeTests.class)
+class PortsAndAdaptersRuleTest {
+
+  @ArchTest
+  static final ArchRule adapters_should_implement_inward_ports =
+      classes()
+          .that()
+          .resideInAnyPackage({{#adapterPackages}}"{{.}}", {{/adapterPackages}})
+          .should()
+          .implement().resideInAnyPackage({{#portPackages}}"{{.}}", {{/portPackages}});
+
+  @ArchTest
+  static final ArchRule inner_layers_should_not_depend_on_concrete_adapters =
+      noClasses()
+          .that()
+          .resideInAnyPackage({{#domainPackages}}"{{.}}", {{/domainPackages}}{{#applicationPackages}}"{{.}}", {{/applicationPackages}})
+          .should()
+          .dependOnClassesThat()
+          .resideInAnyPackage({{#adapterPackages}}"{{.}}", {{/adapterPackages}});
+}

@@ -1,0 +1,43 @@
+ruleSetId: "delivery-and-runtime-architecture"
+locale: "en"
+name: "Delivery and Runtime Architecture"
+description: "Rules for deployable runtime behavior, configuration, readiness, and runtime switches."
+category: "Operations"
+tags: ["delivery", "runtime", "configuration"]
+rules:
+  - id: "AR-931"
+    title: "Runtime configuration is validated"
+    summary: "Critical runtime configuration should be externalized, validated, and understandable per environment."
+    content: "A service should fail clearly when required configuration is missing, malformed, unsafe, or inconsistent."
+    rationale: "Configuration defects are architecture defects when they can change runtime behavior."
+    reviewQuestions: ["Which configuration is critical?", "How is it validated at startup?", "Are environment differences documented?"]
+    positiveExamples: ["Startup fails with a clear message for missing required values.", "Configuration owners and defaults are documented."]
+    negativeExamples: ["Unsafe defaults are accepted silently.", "Production behavior depends on undocumented local values."]
+    exceptions: ["Noncritical cosmetic settings may use permissive defaults."]
+    remediation: ["Add startup validation.", "Document required values and defaults.", "Move environment-specific values out of source artifacts."]
+    tags: ["configuration", "startup"]
+    keywords: ["config", "validation", "environment"]
+  - id: "AR-932"
+    title: "Readiness reflects real serving ability"
+    summary: "Health and readiness signals should distinguish alive, ready, and degraded states."
+    content: "Operational readiness should represent whether required dependencies, configuration, and migrations permit the service to serve safely."
+    rationale: "False readiness causes traffic to be routed to services that cannot work correctly."
+    reviewQuestions: ["What does readiness prove?", "Which dependencies are required to serve?", "How is degraded state represented?"]
+    positiveExamples: ["Readiness fails when a required data store is unavailable.", "Liveness and readiness have different meanings."]
+    negativeExamples: ["Readiness always returns success after process startup.", "Migration failure is visible only in logs."]
+    exceptions: ["Optional dependency failures may be represented as degraded instead of not ready."]
+    remediation: ["Separate liveness and readiness checks.", "Add dependency and migration checks.", "Document degraded behavior."]
+    tags: ["readiness", "health"]
+    keywords: ["ready", "liveness", "degraded"]
+  - id: "AR-933"
+    title: "Runtime switches have lifecycle"
+    summary: "Feature and runtime switches should have owners, defaults, review triggers, and removal plans."
+    content: "A runtime switch should not become hidden permanent architecture without ownership and lifecycle control."
+    rationale: "Unmanaged switches create untested behavior combinations and weaken release confidence."
+    reviewQuestions: ["Who owns the switch?", "What is the safe default?", "When will it be removed or reviewed?"]
+    positiveExamples: ["A risky switch requires explicit enablement and owner approval.", "Temporary switches have expiry criteria."]
+    negativeExamples: ["A switch remains active with no owner.", "Multiple switches combine into untested behavior."]
+    exceptions: ["Permanent operational controls may remain when documented as supported runtime behavior."]
+    remediation: ["Document owner and default.", "Add review date or removal issue.", "Test important switch combinations."]
+    tags: ["feature-toggle", "lifecycle"]
+    keywords: ["toggle", "switch", "default"]

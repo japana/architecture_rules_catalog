@@ -1,0 +1,43 @@
+ruleSetId: "performance-and-scalability-architecture"
+locale: "de"
+name: "Performance- und Skalierbarkeitsarchitektur"
+description: "Regeln für Budgets kritischer Pfade, Überlastverhalten und Cache-Gültigkeit."
+category: "Betrieb"
+tags: ["performance", "skalierbarkeit", "kapazitaet"]
+rules:
+  - id: "AR-941"
+    title: "Kritische Pfade haben Budgets"
+    summary: "Kritische Pfade sollten explizite Latenz-, Kapazitäts- oder Ressourcenbudgets haben."
+    content: "Ein kritischer Pfad sollte erwartete Last und akzeptable Ressourcennutzung benennen, damit Regressionen erkennbar sind."
+    rationale: "Ohne Budgets werden Performance-Fragen subjektiv und spät."
+    reviewQuestions: ["Welche Pfade sind kritisch?", "Welches Budget schützt jeden Pfad?", "Wo wird das Budget geprüft?"]
+    positiveExamples: ["Ein Such-Endpunkt hat einen Antwortzeit-Regressionstest.", "Ein Batch-Prozess hat eine definierte Datenmengenannahme."]
+    negativeExamples: ["Ein kritischer Endpunkt hat keine Performance-Erwartung.", "Ressourcenintensive Arbeit wird ohne Messung in einen Nutzerpfad gelegt."]
+    exceptions: ["Frühe Prototypen dürfen Annahmen dokumentieren, bis Nutzung bekannt ist."]
+    remediation: ["Definiere ein Budget für den Pfad.", "Ergänze Regressionsprüfungen mit repräsentativer Last.", "Verschiebe teure Arbeit aus synchronen Pfaden."]
+    tags: ["budget", "kritischer-pfad"]
+    keywords: ["latenz", "kapazitaet", "ressource"]
+  - id: "AR-942"
+    title: "Überlastverhalten ist kontrolliert"
+    summary: "Systeme sollten begrenztes Verhalten definieren, wenn Nachfrage die Kapazität übersteigt."
+    content: "Services sollten begrenzte Queues, Backpressure, kontrollierte Ablehnung oder geordnete Degradation gegenüber unbegrenztem Ressourcenwachstum bevorzugen."
+    rationale: "Kontrolliertes Überlastverhalten verhindert, dass lokaler Druck zu breiterem Ausfall wird."
+    reviewQuestions: ["Was wächst unter Last?", "Wo wird Backpressure angewendet?", "Welches Signal fordert Aufrufer zum Verlangsamen auf?"]
+    positiveExamples: ["Queuegrößen sind begrenzt und überwacht.", "Überlast liefert ein kontrolliertes Retry-Signal."]
+    negativeExamples: ["Buffer wachsen unbegrenzt.", "Retries laufen nach Ablehnung ohne Verzögerung weiter."]
+    exceptions: ["Offline-Werkzeuge mit begrenzter Eingabe brauchen eventuell keine aktive Backpressure."]
+    remediation: ["Ergänze Queue-Limits.", "Gib explizite Überlastsignale zurück.", "Dokumentiere Load-Shedding-Verhalten."]
+    tags: ["backpressure", "ueberlast"]
+    keywords: ["kapazitaet", "queue", "last"]
+  - id: "AR-943"
+    title: "Caches haben Gültigkeitsstrategie"
+    summary: "Caching sollte Frische, Invalidierung, Ownership und Fallback-Verhalten definieren."
+    content: "Ein Cache darf nicht ohne Regeln für Gültigkeit und Wiederherstellung zur versteckten Wahrheit werden."
+    rationale: "Caches verbessern Geschwindigkeit nur, wenn veraltete oder fehlende Daten sicher bleiben."
+    reviewQuestions: ["Wie werden gecachte Daten invalidiert?", "Was passiert bei Cache-Ausfall?", "Wer besitzt Cache-Korrektheit?"]
+    positiveExamples: ["Die Cache-Lebensdauer folgt fachlichen Frischeanforderungen.", "Cache-Misses fallen auf die Quelle der Wahrheit zurück."]
+    negativeExamples: ["Gecachte Werte haben keine Frischeregel.", "Ein Cache-Ausfall verändert fachliche Korrektheit."]
+    exceptions: ["Rein dekorative gecachte Daten dürfen einfachere Gültigkeitsregeln nutzen."]
+    remediation: ["Definiere Lebensdauer und Invalidierung.", "Ergänze Fallback-Verhalten.", "Dokumentiere Owner und Rebuild-Pfad."]
+    tags: ["cache", "gueltigkeit"]
+    keywords: ["frische", "invalidierung", "fallback"]

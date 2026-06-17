@@ -1,38 +1,38 @@
 profileId: "java-spring-boot"
 ruleSetId: "api-design"
-schemaVersion: "ruleset-profile-v1"
+schemaVersion: "ruleset-profile-v2"
 status: "published"
-displayName: "Java Spring Boot Profile for API Design"
-description: "Spring Boot-specific detection hints for the api-design ruleset."
-technology:
-  language: "java"
-  framework: "spring-boot"
-  runtime: "jvm"
-mappings:
-  - ruleId: "AR-401"
-    detectionHints:
-      indicativeAnnotations: ["@RestController", "@RequestMapping", "@GetMapping", "@PostMapping"]
-      recommendedTools: ["OpenAPI contract validation", "Spring MVC tests"]
-      notes: ["Check whether controller behavior is represented by an explicit API contract."]
-  - ruleId: "AR-402"
-    detectionHints:
-      indicativeAnnotations: ["@ControllerAdvice", "@ExceptionHandler", "@ResponseStatus"]
-      recommendedTools: ["Spring MVC tests", "API error contract tests"]
-      notes: ["Verify that exception mappings produce consistent external error structures."]
+displayName: "Java Spring Boot Verification Profile for API Design"
+description: "Spring Boot-specific verification profile for API-focused architecture rules."
+appliesTo:
+  languages: ["java"]
+  frameworks: ["spring-boot"]
+  architectureStyles: ["layered", "modular-monolith", "distributed-system"]
+  runtimes: ["jvm"]
+toolchain:
+  required:
+    - type: "archunit"
+      version: ">=1.3.0"
+    - type: "junit"
+      version: ">=5.10.0"
+    - type: "spectral"
+      version: ">=6.11.0"
+ruleMappings:
   - ruleId: "AR-403"
-    detectionHints:
-      indicativeAnnotations: ["@Entity", "@Table", "@RestController"]
-      concreteComponentPatterns: ["JPA entity returned directly from controller", "Persistence entity used as request or response model"]
-      recommendedTools: ["ArchUnit", "API review"]
-  - ruleId: "AR-404"
-    detectionHints:
-      recommendedTools: ["OpenAPI diff", "contract tests"]
-      notes: ["Compare generated or maintained OpenAPI descriptions for breaking changes."]
-  - ruleId: "AR-405"
-    detectionHints:
-      concreteComponentPatterns: ["POST command endpoint without duplicate handling", "Retryable client command without idempotency key"]
-      recommendedTools: ["Integration tests", "contract tests"]
+    verificationTemplates:
+      - templateId: "VT-AR-403-ARCHUNIT-001"
+        coverage: "partial"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          apiPackages: "{{project.packageRoles.api}}"
+          dtoPackages: "{{project.packageRoles.dto}}"
+          persistencePackages: "{{project.packageRoles.persistence}}"
   - ruleId: "AR-406"
-    detectionHints:
-      concreteComponentPatterns: ["Repository findAll exposed through endpoint", "List response without Pageable or explicit limit"]
-      recommendedTools: ["Spring MVC tests", "performance smoke tests"]
+    verificationTemplates:
+      - templateId: "VT-AR-406-SPECTRAL-001"
+        coverage: "heuristic"
+        parameterBindings:
+          ruleNamePrefix: "{{project.id}}"
+          defaultPageSizeParameterNames: "{{project.api.pagination.pageSizeParameters}}"
+          defaultCursorParameterNames: "{{project.api.pagination.cursorParameters}}"

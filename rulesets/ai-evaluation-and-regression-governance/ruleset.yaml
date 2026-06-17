@@ -1,0 +1,101 @@
+ruleSetId: "ai-evaluation-and-regression-governance"
+schemaVersion: "ruleset-catalog-v1"
+ruleSetVersion: "0.1.0"
+publisher: "APMDB Catalog Seed"
+license: "Apache-2.0"
+status: "review"
+defaultLocale: "en"
+availableLocales: ["en", "de"]
+approvals: []
+rules:
+  - id: "AR-971"
+    status: "active"
+    type: "testing"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "process"
+    scope:
+      - dimension: "artifactType"
+        values: ["test-artifact", "documentation", "build-pipeline"]
+    appliesTo:
+      artifactTypes: ["test-artifact", "documentation", "build-pipeline"]
+      architectureElements: ["application", "service"]
+    source:
+      type: "engineering-practice"
+      name: "Representative AI Evaluation Scenarios"
+      reference: "AI-assisted behavior should be covered by scenario sets that reflect expected and risky use."
+    violationSignals: ["A model or prompt change ships without representative evaluation cases.", "Evaluation examples cover only happy paths.", "Known failures are not preserved as regression cases."]
+    relationships: []
+  - id: "AR-972"
+    status: "active"
+    type: "testing"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "blocking"
+    detectability: "process"
+    scope:
+      - dimension: "artifactType"
+        values: ["test-artifact", "build-pipeline", "documentation"]
+    appliesTo:
+      artifactTypes: ["test-artifact", "build-pipeline", "documentation"]
+      architectureElements: ["application", "service"]
+    source:
+      type: "engineering-practice"
+      name: "AI Regression Gates"
+      reference: "Critical prompts, policies, and tool flows should have regression gates before release."
+    violationSignals: ["Prompt or tool changes bypass evaluation gates.", "Non-deterministic outcomes are accepted without thresholds or review.", "A release can degrade core AI behavior without visible signal."]
+    relationships:
+      - target: "AR-971"
+        type: "supports"
+        rationale: "Regression gates need representative scenario sets."
+  - id: "AR-973"
+    status: "active"
+    type: "testing"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["test-artifact", "documentation", "runtime-operation"]
+    appliesTo:
+      artifactTypes: ["test-artifact", "documentation", "runtime-operation"]
+      architectureElements: ["application", "service"]
+    source:
+      type: "governance-guideline"
+      name: "Failure Feedback Into Evaluations"
+      reference: "Observed AI failures should be converted into focused regression scenarios."
+    violationSignals: ["Production failures are fixed only by prompt edits with no new evaluation case.", "Incident reviews do not update AI quality gates.", "Recurring model mistakes lack a tracked regression scenario."]
+    relationships:
+      - target: "AR-971"
+        type: "supports"
+        rationale: "Failure feedback keeps evaluation scenarios relevant."
+verificationTemplates:
+  - templateId: "VT-AR-971-CHECKLIST-001"
+    ruleIds: ["AR-971", "AR-972", "AR-973"]
+    type: "checklist"
+    coverage: "supporting"
+    determinism: "manual"
+    templateRef: "templates/checklists/ai-evaluation-gate-review.md.mustache"
+    description: "Review checklist for AI evaluation coverage, regression thresholds, and failure feedback."
+    requiredParameters:
+      - "systemName"
+      - "reviewer"
+      - "reviewedAt"
+      - "scenarioSuitesList"
+      - "releaseGateName"
+      - "knownFailureCasesList"
+    verifiesViolationSignals:
+      - "A model or prompt change ships without representative evaluation cases."
+      - "Prompt or tool changes bypass evaluation gates."
+      - "Production failures are fixed only by prompt edits with no new evaluation case."
+    limitations:
+      - "Supports release review evidence; it does not execute model evaluations."
+      - "Requires project-specific scenario suites and pass thresholds."
+    generates:
+      description: "AI evaluation gate review checklist."
+      pathTemplate: "docs/quality/{{systemName}}-ai-evaluation-gate.md"
+    toolchain:
+      - type: "manual-review"
+        version: ">=1.0.0"

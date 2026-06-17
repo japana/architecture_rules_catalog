@@ -1,33 +1,62 @@
 profileId: "java-spring-boot"
 ruleSetId: "clean-architecture"
-schemaVersion: "ruleset-profile-v1"
+schemaVersion: "ruleset-profile-v2"
 status: "published"
-displayName: "Java Spring Boot Profile for Clean Architecture"
-description: "Spring Boot-specific interpretation hints for the clean-architecture ruleset."
+displayName: "Java Spring Boot Verification Profile for Clean Architecture"
+description: "Spring Boot-specific verification profile that selects reusable verification templates for clean architecture rules."
 extendsProfile: "java"
-technology:
-  language: "java"
-  framework: "spring-boot"
-  runtime: "jvm"
-mappings:
+appliesTo:
+  languages: ["java"]
+  frameworks: ["spring-boot"]
+  architectureStyles: ["clean-architecture", "hexagonal"]
+  runtimes: ["jvm"]
+toolchain:
+  required:
+    - type: "archunit"
+      version: ">=1.3.0"
+    - type: "junit"
+      version: ">=5.10.0"
+ruleMappings:
   - ruleId: "AR-101"
-    detectionHints:
-      forbiddenDependencyPatterns:
-        - "org.springframework.."
-        - "jakarta.persistence.."
-      indicativeAnnotations:
-        - "@Component inside domain packages"
-        - "@Entity inside domain packages"
-        - "@RestController inside domain packages"
-      recommendedTools:
-        - "ArchUnit"
-      notes:
-        - "Domain code should not take on Spring component, web, or persistence stereotypes."
+    verificationTemplates:
+      - templateId: "VT-AR-101-ARCHUNIT-001"
+        coverage: "partial"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          domainPackages: "{{project.packageRoles.domain}}"
+          applicationPackages: "{{project.packageRoles.application}}"
+          adapterPackages: "{{project.packageRoles.adapter}}"
+          infrastructurePackages: "{{project.packageRoles.infrastructure}}"
+  - ruleId: "AR-102"
+    verificationTemplates:
+      - templateId: "VT-AR-102-ARCHUNIT-001"
+        coverage: "partial"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          domainPackages: "{{project.packageRoles.domain}}"
+          applicationPackages: "{{project.packageRoles.application}}"
+          adapterPackages: "{{project.packageRoles.adapter}}"
+          infrastructurePackages: "{{project.packageRoles.infrastructure}}"
   - ruleId: "AR-104"
-    detectionHints:
-      concreteComponentPatterns:
-        - "JpaRepository implementations or RestTemplate/WebClient clients referenced directly from application services"
-      recommendedTools:
-        - "ArchUnit"
-      notes:
-        - "Adapters should implement interfaces defined inward rather than leak repository or client implementations into business workflows."
+    verificationTemplates:
+      - templateId: "VT-AR-104-ARCHUNIT-001"
+        coverage: "partial"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          portPackages: "{{project.packageRoles.port}}"
+          adapterPackages: "{{project.packageRoles.adapter}}"
+          applicationPackages: "{{project.packageRoles.application}}"
+          domainPackages: "{{project.packageRoles.domain}}"
+  - ruleId: "AR-106"
+    verificationTemplates:
+      - templateId: "VT-AR-106-ARCHUNIT-001"
+        coverage: "heuristic"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          domainPackages: "{{project.packageRoles.domain}}"
+          applicationPackages: "{{project.packageRoles.application}}"
+          forbiddenCrossCuttingDependencies: "{{project.crossCuttingDependencies}}"

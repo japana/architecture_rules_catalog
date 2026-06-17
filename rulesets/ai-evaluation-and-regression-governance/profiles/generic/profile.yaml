@@ -1,0 +1,47 @@
+profileId: "generic"
+ruleSetId: "ai-evaluation-and-regression-governance"
+schemaVersion: "ruleset-profile-v2"
+status: "review"
+displayName: "Generic Profile for AI Evaluation Gates"
+description: "Generic review profile for AI scenario coverage, release gates, and failure feedback."
+appliesTo:
+  languages: ["generic"]
+  architectureStyles: ["ai-assisted", "agentic"]
+toolchain:
+  required:
+    - type: "manual-review"
+      version: ">=1.0.0"
+ruleMappings:
+  - ruleId: "AR-971"
+    verificationTemplates:
+      - templateId: "VT-AR-971-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          systemName: "{{system.name}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          scenarioSuitesList: "{{system.aiEvaluation.scenarioSuitesList}}"
+          releaseGateName: "{{system.aiEvaluation.releaseGateName}}"
+          knownFailureCasesList: "{{system.aiEvaluation.knownFailureCasesList}}"
+  - ruleId: "AR-972"
+    verificationTemplates:
+      - templateId: "VT-AR-971-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          systemName: "{{system.name}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          scenarioSuitesList: "{{system.aiEvaluation.scenarioSuitesList}}"
+          releaseGateName: "{{system.aiEvaluation.releaseGateName}}"
+          knownFailureCasesList: "{{system.aiEvaluation.knownFailureCasesList}}"
+  - ruleId: "AR-973"
+    verificationTemplates:
+      - templateId: "VT-AR-971-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          systemName: "{{system.name}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          scenarioSuitesList: "{{system.aiEvaluation.scenarioSuitesList}}"
+          releaseGateName: "{{system.aiEvaluation.releaseGateName}}"
+          knownFailureCasesList: "{{system.aiEvaluation.knownFailureCasesList}}"

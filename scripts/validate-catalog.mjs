@@ -55,6 +55,10 @@ function ensureArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
+function ensureObject(value) {
+  return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+}
+
 function visitStrings(value, visitor) {
   if (typeof value === "string") {
     visitor(value);
@@ -125,14 +129,23 @@ export async function validateCatalog(rootDir = defaultRootDir) {
       errors.push(`${ruleSetRef.path}: ruleSetId '${ruleset.ruleSetId}' does not match catalog id '${ruleSetRef.id}'.`);
     }
 
-    visitStrings(ruleset, (text) => {
+    visitStrings(
+      {
+        ruleSetId: ruleset.ruleSetId,
+        publisher: ruleset.publisher,
+        license: ruleset.license,
+        rules: ruleset.rules
+      },
+      (text) => {
       const marker = findForbiddenMarker(text);
       if (marker) {
         errors.push(`${ruleSetRef.path}: core catalog must not contain technology-specific marker '${marker}'.`);
       }
-    });
+      }
+    );
 
     const ruleIds = new Set();
+    const templateIds = new Map();
     for (const rule of ensureArray(ruleset.rules)) {
       if (rule.abstractionLevel === "technology-profile") {
         errors.push(`${ruleSetRef.path}: rule '${rule.id}' must not use abstractionLevel 'technology-profile' in the generic core catalog.`);
@@ -149,6 +162,31 @@ export async function validateCatalog(rootDir = defaultRootDir) {
       }
 
       ruleIds.add(rule.id);
+    }
+
+    for (const template of ensureArray(ruleset.verificationTemplates)) {
+      if (templateIds.has(template.templateId)) {
+        errors.push(`${ruleSetRef.path}: duplicate verification template id '${template.templateId}'.`);
+      } else {
+        templateIds.set(template.templateId, template);
+      }
+
+      for (const ruleId of ensureArray(template.ruleIds)) {
+        if (!ruleIds.has(ruleId)) {
+          errors.push(
+            `${ruleSetRef.path}: verification template '${template.templateId}' references unknown rule '${ruleId}'.`
+          );
+        }
+      }
+
+      const templatePath = path.join(rootDir, "rulesets", ruleSetRef.id, template.templateRef ?? "");
+      try {
+        await fs.access(templatePath);
+      } catch {
+        errors.push(
+          `${ruleSetRef.path}: verification template '${template.templateId}' references missing template artifact '${template.templateRef}'.`
+        );
+      }
     }
 
     if (ruleset.status === "published") {
@@ -194,9 +232,42 @@ export async function validateCatalog(rootDir = defaultRootDir) {
           errors.push(`${relativeProfilePath}: profileId '${profileDoc.profileId}' does not match enclosing technology directory '${technologyDir.name}'.`);
         }
 
-        for (const mapping of ensureArray(profileDoc.mappings)) {
-          if (!ruleIds.has(mapping.ruleId)) {
-            errors.push(`${relativeProfilePath}: mapping rule '${mapping.ruleId}' does not exist in ruleset '${ruleset.ruleSetId}'.`);
+        if (profileDoc.schemaVersion === "ruleset-profile-v2") {
+          for (const mapping of ensureArray(profileDoc.ruleMappings)) {
+            if (!ruleIds.has(mapping.ruleId)) {
+              errors.push(`${relativeProfilePath}: mapping rule '${mapping.ruleId}' does not exist in ruleset '${ruleset.ruleSetId}'.`);
+            }
+
+            for (const templateSelection of ensureArray(mapping.verificationTemplates)) {
+              const template = templateIds.get(templateSelection.templateId);
+              if (!template) {
+                errors.push(
+                  `${relativeProfilePath}: mapping rule '${mapping.ruleId}' references unknown verification template '${templateSelection.templateId}'.`
+                );
+                continue;
+              }
+
+              if (!ensureArray(template.ruleIds).includes(mapping.ruleId)) {
+                errors.push(
+                  `${relativeProfilePath}: verification template '${templateSelection.templateId}' does not support rule '${mapping.ruleId}'.`
+                );
+              }
+
+              const bindings = ensureObject(templateSelection.parameterBindings);
+              for (const requiredParameter of ensureArray(template.requiredParameters)) {
+                if (!(requiredParameter in bindings)) {
+                  errors.push(
+                    `${relativeProfilePath}: verification template '${templateSelection.templateId}' is missing required parameter binding '${requiredParameter}'.`
+                  );
+                }
+              }
+            }
+          }
+        } else {
+          for (const mapping of ensureArray(profileDoc.mappings)) {
+            if (!ruleIds.has(mapping.ruleId)) {
+              errors.push(`${relativeProfilePath}: mapping rule '${mapping.ruleId}' does not exist in ruleset '${ruleset.ruleSetId}'.`);
+            }
           }
         }
       }

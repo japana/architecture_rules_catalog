@@ -1,0 +1,138 @@
+ruleSetId: "performance-and-scalability-architecture"
+schemaVersion: "ruleset-catalog-v1"
+ruleSetVersion: "0.1.0"
+publisher: "APMDB Catalog Seed"
+license: "Apache-2.0"
+status: "review"
+defaultLocale: "en"
+availableLocales: ["en", "de"]
+approvals: []
+rules:
+  - id: "AR-941"
+    status: "active"
+    type: "operations"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "warning"
+    detectability: "runtime"
+    scope:
+      - dimension: "artifactType"
+        values: ["architecture-design", "runtime-operation", "test-artifact"]
+    appliesTo:
+      artifactTypes: ["architecture-design", "runtime-operation", "test-artifact"]
+      architectureElements: ["service", "application", "deployment"]
+    source:
+      type: "engineering-practice"
+      name: "Critical Path Budgets"
+      reference: "Critical execution paths should have explicit latency, capacity, or resource budgets."
+    violationSignals: ["A critical path has no budget or workload assumption.", "Performance regressions are discovered only after release.", "Resource-heavy operations are mixed into user-facing paths without limits."]
+    relationships: []
+  - id: "AR-942"
+    status: "active"
+    type: "operations"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "architecture-design", "runtime-operation"]
+    appliesTo:
+      artifactTypes: ["source-code", "architecture-design", "runtime-operation"]
+      architectureElements: ["service", "external-system", "deployment"]
+    source:
+      type: "architecture-principle"
+      name: "Backpressure and Load Shedding"
+      reference: "Bounded systems should define how they respond when demand exceeds capacity."
+    violationSignals: ["Queues or buffers can grow without bound.", "High demand turns into cascading failure instead of controlled rejection.", "Retrying callers receive no signal to slow down."]
+    relationships:
+      - target: "AR-941"
+        type: "supports"
+        rationale: "Capacity budgets inform backpressure thresholds."
+  - id: "AR-943"
+    status: "active"
+    type: "persistence"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["architecture-design", "source-code", "runtime-operation"]
+    appliesTo:
+      artifactTypes: ["architecture-design", "source-code", "runtime-operation"]
+      architectureElements: ["service", "data-store", "infrastructure"]
+    source:
+      type: "engineering-practice"
+      name: "Cache Validity Strategy"
+      reference: "Caching should define validity, invalidation, and fallback behavior."
+    violationSignals: ["Cached data has no freshness or invalidation rule.", "A cache outage changes business correctness.", "Cache keys or lifetimes are chosen without access-pattern evidence."]
+    relationships:
+      - target: "AR-941"
+        type: "relatedTo"
+        rationale: "Caching is often introduced to meet critical path budgets."
+verificationTemplates:
+  - templateId: "VT-AR-941-JUNIT-QUARKUS-001"
+    ruleIds: ["AR-941"]
+    type: "junit"
+    language: "java"
+    framework: "quarkus-test"
+    coverage: "supporting"
+    determinism: "deterministic"
+    templateRef: "templates/junit/java/quarkus-critical-path-budget-test.java.mustache"
+    description: "Integration-test template that warms up a critical endpoint, exercises it repeatedly, and asserts project-defined average, percentile, and single-call response-time budgets."
+    requiredParameters:
+      - "basePackage"
+      - "criticalPath"
+      - "iterations"
+      - "warmupIterations"
+      - "minMeasuredIterations"
+      - "maxAverageMillis"
+      - "maxPercentileMillis"
+      - "maxSingleCallMillis"
+      - "percentileRank"
+      - "expectedStatusCode"
+    verifiesViolationSignals:
+      - "A critical path has no budget or workload assumption."
+      - "Performance regressions are discovered only after release."
+    limitations:
+      - "Supports smoke-style regression detection in controlled test environments only."
+      - "Requires stable fixtures and realistic budget bindings; noisy shared CI environments may need wider thresholds."
+      - "Does not replace load testing, profiling, or production capacity analysis."
+    generates:
+      description: "Quarkus integration test skeleton for critical path budget regression."
+      pathTemplate: "src/test/java/{{basePackagePath}}/performance/CriticalPathBudgetTest.java"
+    toolchain:
+      - type: "junit"
+        version: ">=5.10.0"
+      - type: "rest-assured"
+        version: ">=5.4.0"
+      - type: "quarkus-test"
+        version: ">=3.0.0"
+  - templateId: "VT-AR-942-CHECKLIST-001"
+    ruleIds: ["AR-942", "AR-943"]
+    type: "checklist"
+    coverage: "supporting"
+    determinism: "manual"
+    templateRef: "templates/checklists/overload-and-cache-review.md.mustache"
+    description: "Review checklist for overload behavior, bounded queues, caller signals, cache validity, and fallback behavior."
+    requiredParameters:
+      - "serviceName"
+      - "reviewer"
+      - "reviewedAt"
+      - "loadBoundariesList"
+      - "cachesList"
+    verifiesViolationSignals:
+      - "Queues or buffers can grow without bound."
+      - "High demand turns into cascading failure instead of controlled rejection."
+      - "Cached data has no freshness or invalidation rule."
+      - "A cache outage changes business correctness."
+    limitations:
+      - "Supports architecture review evidence; it does not execute load or cache-failure tests."
+      - "Requires project-specific identification of load boundaries and caches."
+    generates:
+      description: "Overload and cache validity review checklist."
+      pathTemplate: "docs/architecture/{{serviceName}}-overload-cache-review.md"
+    toolchain:
+      - type: "manual-review"
+        version: ">=1.0.0"

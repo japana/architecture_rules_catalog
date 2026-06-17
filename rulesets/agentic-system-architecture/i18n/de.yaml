@@ -1,0 +1,43 @@
+ruleSetId: "agentic-system-architecture"
+locale: "de"
+name: "Agentische Systemarchitektur"
+description: "Regeln für autonome Tool-Nutzung, Übergabe bei hoher Auswirkung und Auditierbarkeit."
+category: "Architektur"
+tags: ["agentisch", "tools", "audit"]
+rules:
+  - id: "AR-951"
+    title: "Agentische Seiteneffekte laufen über Policy-Grenzen"
+    summary: "Autonome Schreib-, Lösch-, Deployment-, Kauf- oder Nachrichtenaktionen sollten explizite Tool- und Policy-Grenzen nutzen."
+    content: "Eine autonome Komponente darf keine Seiteneffekte über freie Ausführungspfade durchführen, die Autorisierung, Bestätigung oder Policy-Prüfung umgehen."
+    rationale: "Seiteneffektkontrolle macht Agentenverhalten zu prüfbarem Systemverhalten."
+    reviewQuestions: ["Welche Tools können externen Zustand ändern?", "Wo wird Autorisierung geprüft?", "Können freie Anweisungen Seiteneffekte direkt erreichen?"]
+    positiveExamples: ["Seiteneffekt-Tools benötigen ein Policy-Entscheidungsobjekt.", "Riskante Operationen laufen durch einen Freigabefluss."]
+    negativeExamples: ["Ein Agent kann einen Schreibadapter direkt aufrufen.", "Prompt-Text wählt destruktives Verhalten ohne Policy-Validierung."]
+    exceptions: ["Read-only-Tools dürfen leichtere Policy nutzen, wenn Datenzugriff bereits autorisiert ist."]
+    remediation: ["Führe eine Policy-Grenze ein.", "Typisiere Eingaben von Seiteneffekt-Tools.", "Blockiere direkten Zugriff von Agentenorchestrierung auf Seiteneffektadapter."]
+    tags: ["agent-tools", "policy"]
+    keywords: ["agent", "tool", "seiteneffekt"]
+  - id: "AR-952"
+    title: "Irreversible Aktionen haben Übergabe"
+    summary: "Autonome Aktionen mit hoher Auswirkung sollten Bestätigung, Eskalation oder Rollback definieren."
+    content: "Ein System sollte Aktionen identifizieren, die vor Ausführung menschliche Prüfung oder explizite Eskalation benötigen."
+    rationale: "Übergabe hält Unsicherheit und hohe Auswirkung unter verantwortbarer Kontrolle."
+    reviewQuestions: ["Welche Aktionen sind irreversibel?", "Welche Schwelle für Vertrauen oder Policy löst Übergabe aus?", "Können Betreiber vor Ausführung eingreifen?"]
+    positiveExamples: ["Ein Lösch-Tool benötigt Freigabe, wenn der Scope eine Schwelle überschreitet.", "Niedriges Vertrauen geht in eine menschliche Queue."]
+    negativeExamples: ["Eine Aktion mit hoher Auswirkung läuft nach unsicherer Begründung.", "Niemand kann eine autonome Entscheidung pausieren oder übersteuern."]
+    exceptions: ["Niedrig wirkende reversible Aktionen dürfen automatisch laufen, wenn sie auditiert werden."]
+    remediation: ["Definiere Übergabekriterien.", "Ergänze Bestätigung oder Rollback-Pfad.", "Mache ausstehende Aktionen mit hoher Auswirkung sichtbar."]
+    tags: ["uebergabe", "freigabe"]
+    keywords: ["irreversibel", "bestaetigung", "eskalation"]
+  - id: "AR-953"
+    title: "Agentenentscheidungen sind auditierbar"
+    summary: "Autonome Aktionen sollten genug Evidenz zu Eingabe, Kontext, Tool Calls, Policy-Entscheidungen und Ergebnis aufzeichnen."
+    content: "Auditdaten sollten erklären, was getan wurde und warum, ohne unnötig sensible Inhalte zu speichern."
+    rationale: "Auditierbarkeit ermöglicht Incident-Analyse, Regressionsfälle und Verantwortlichkeit."
+    reviewQuestions: ["Kann eine Aktion von Eingabe bis Ergebnis verfolgt werden?", "Werden Policy-Entscheidungen aufgezeichnet?", "Werden sensible Inhalte minimiert?"]
+    positiveExamples: ["Tool Calls enthalten Korrelation und Policy-Ergebnis.", "Auditdaten speichern Referenzen statt vollständiger privater Payloads."]
+    negativeExamples: ["Eine abgeschlossene Aktion lässt sich keiner Anfrage zuordnen.", "Prompt-Inhalte werden vollständig geloggt."]
+    exceptions: ["Hochsensible Flows dürfen minimale Metadaten plus gesicherte Evidenzreferenzen speichern."]
+    remediation: ["Ergänze strukturierte Auditereignisse.", "Zeichne Policy-Ergebnisse auf.", "Minimiere gespeicherte Prompt- und Kontextinhalte."]
+    tags: ["audit", "nachvollziehbarkeit"]
+    keywords: ["audit", "tool call", "policy"]

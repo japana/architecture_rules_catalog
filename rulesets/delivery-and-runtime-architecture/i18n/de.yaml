@@ -1,0 +1,43 @@
+ruleSetId: "delivery-and-runtime-architecture"
+locale: "de"
+name: "Delivery- und Laufzeitarchitektur"
+description: "Regeln für deploybares Laufzeitverhalten, Konfiguration, Bereitschaft und Laufzeitschalter."
+category: "Betrieb"
+tags: ["delivery", "laufzeit", "konfiguration"]
+rules:
+  - id: "AR-931"
+    title: "Laufzeitkonfiguration wird validiert"
+    summary: "Kritische Laufzeitkonfiguration sollte extern, validiert und je Umgebung nachvollziehbar sein."
+    content: "Ein Service sollte klar fehlschlagen, wenn erforderliche Konfiguration fehlt, falsch geformt, unsicher oder widersprüchlich ist."
+    rationale: "Konfigurationsfehler sind Architekturfehler, wenn sie Laufzeitverhalten ändern können."
+    reviewQuestions: ["Welche Konfiguration ist kritisch?", "Wie wird sie beim Start validiert?", "Sind Umgebungsunterschiede dokumentiert?"]
+    positiveExamples: ["Der Start scheitert mit klarer Meldung bei fehlenden Pflichtwerten.", "Konfigurationsowner und Defaults sind dokumentiert."]
+    negativeExamples: ["Unsichere Defaults werden still akzeptiert.", "Produktionsverhalten hängt von undokumentierten lokalen Werten ab."]
+    exceptions: ["Unkritische kosmetische Einstellungen dürfen großzügige Defaults nutzen."]
+    remediation: ["Ergänze Startvalidierung.", "Dokumentiere Pflichtwerte und Defaults.", "Lagere umgebungsspezifische Werte aus Quellartefakten aus."]
+    tags: ["konfiguration", "start"]
+    keywords: ["config", "validierung", "umgebung"]
+  - id: "AR-932"
+    title: "Readiness spiegelt echte Dienstfähigkeit"
+    summary: "Health- und Readiness-Signale sollten alive, ready und degraded unterscheiden."
+    content: "Operative Bereitschaft sollte zeigen, ob Abhängigkeiten, Konfiguration und Migrationen sicheren Betrieb erlauben."
+    rationale: "Falsche Readiness leitet Traffic auf Services, die nicht korrekt arbeiten können."
+    reviewQuestions: ["Was beweist Readiness?", "Welche Abhängigkeiten sind zum Bedienen erforderlich?", "Wie wird degradierter Zustand dargestellt?"]
+    positiveExamples: ["Readiness scheitert, wenn ein erforderlicher Datenspeicher fehlt.", "Liveness und Readiness haben unterschiedliche Bedeutung."]
+    negativeExamples: ["Readiness ist nach Prozessstart immer erfolgreich.", "Migrationsfehler sind nur in Logs sichtbar."]
+    exceptions: ["Optionale Abhängigkeitsfehler dürfen als degraded statt not ready erscheinen."]
+    remediation: ["Trenne Liveness und Readiness.", "Ergänze Abhängigkeits- und Migrationschecks.", "Dokumentiere degradiertes Verhalten."]
+    tags: ["readiness", "health"]
+    keywords: ["ready", "liveness", "degraded"]
+  - id: "AR-933"
+    title: "Laufzeitschalter haben Lebenszyklus"
+    summary: "Feature- und Laufzeitschalter sollten Owner, Defaults, Review-Auslöser und Entfernungsplan besitzen."
+    content: "Ein Laufzeitschalter darf nicht ohne Ownership und Lebenszyklussteuerung zu versteckter permanenter Architektur werden."
+    rationale: "Unverwaltete Schalter erzeugen ungetestete Verhaltenskombinationen und schwächen Release-Vertrauen."
+    reviewQuestions: ["Wer besitzt den Schalter?", "Was ist der sichere Default?", "Wann wird er entfernt oder reviewed?"]
+    positiveExamples: ["Ein riskanter Schalter benötigt explizite Aktivierung und Owner-Freigabe.", "Temporäre Schalter haben Ablaufkriterien."]
+    negativeExamples: ["Ein Schalter bleibt ohne Owner aktiv.", "Mehrere Schalter kombinieren sich zu ungetestetem Verhalten."]
+    exceptions: ["Dauerhafte Betriebskontrollen dürfen bleiben, wenn sie als unterstütztes Laufzeitverhalten dokumentiert sind."]
+    remediation: ["Dokumentiere Owner und Default.", "Ergänze Review-Datum oder Entfernungsaufgabe.", "Teste wichtige Schalterkombinationen."]
+    tags: ["feature-toggle", "lebenszyklus"]
+    keywords: ["toggle", "schalter", "default"]

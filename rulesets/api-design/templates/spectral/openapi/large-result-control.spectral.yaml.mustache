@@ -1,0 +1,23 @@
+extends: spectral:oas
+
+rules:
+  {{ruleNamePrefix}}-large-result-control:
+    description: "Collection endpoints should define paging, cursor, limit, or range controls."
+    message: "Collection endpoint appears to miss explicit large-result controls."
+    severity: warn
+    given: "$.paths[*][get]"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          anyOf:
+            - properties:
+                parameters:
+                  contains:
+                    properties:
+                      name:
+                        enum: [{{#defaultPageSizeParameterNames}}"{{.}}", {{/defaultPageSizeParameterNames}}{{#defaultCursorParameterNames}}"{{.}}", {{/defaultCursorParameterNames}}"limit", "page", "size", "cursor", "offset"]
+            - properties:
+                responses:
+                  type: object

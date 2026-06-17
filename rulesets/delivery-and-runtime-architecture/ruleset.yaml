@@ -1,0 +1,102 @@
+ruleSetId: "delivery-and-runtime-architecture"
+schemaVersion: "ruleset-catalog-v1"
+ruleSetVersion: "0.1.0"
+publisher: "APMDB Catalog Seed"
+license: "Apache-2.0"
+status: "review"
+defaultLocale: "en"
+availableLocales: ["en", "de"]
+approvals: []
+rules:
+  - id: "AR-931"
+    status: "active"
+    type: "operations"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["configuration", "runtime-operation", "documentation"]
+    appliesTo:
+      artifactTypes: ["configuration", "runtime-operation", "documentation"]
+      architectureElements: ["deployment", "service", "infrastructure"]
+    source:
+      type: "engineering-practice"
+      name: "Validated Runtime Configuration"
+      reference: "Runtime configuration should be externalized, validated, and understandable per environment."
+    violationSignals: ["A service starts with missing or malformed critical configuration.", "Configuration differences between environments are undocumented.", "Unsafe values are accepted silently."]
+    relationships: []
+  - id: "AR-932"
+    status: "active"
+    type: "operations"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "blocking"
+    detectability: "runtime"
+    scope:
+      - dimension: "artifactType"
+        values: ["runtime-operation", "configuration", "test-artifact"]
+    appliesTo:
+      artifactTypes: ["runtime-operation", "configuration", "test-artifact"]
+      architectureElements: ["deployment", "service", "infrastructure"]
+    source:
+      type: "engineering-practice"
+      name: "Operational Readiness Signals"
+      reference: "Deployed services should expose signals that reflect actual ability to serve."
+    violationSignals: ["Readiness succeeds while required dependencies are unavailable.", "A failed startup path is only visible in logs.", "Health signals do not distinguish alive, ready, and degraded states."]
+    relationships:
+      - target: "AR-931"
+        type: "supports"
+        rationale: "Validated configuration improves readiness accuracy."
+  - id: "AR-933"
+    status: "active"
+    type: "operations"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["configuration", "runtime-operation", "documentation"]
+    appliesTo:
+      artifactTypes: ["configuration", "runtime-operation", "documentation"]
+      architectureElements: ["deployment", "service"]
+    source:
+      type: "governance-guideline"
+      name: "Feature Toggle Lifecycle"
+      reference: "Runtime switches should have ownership, default state, and removal strategy."
+    violationSignals: ["A temporary switch remains active without owner or expiry.", "Risky behavior can be enabled without review.", "Toggle combinations create untested behavior."]
+    relationships:
+      - target: "AR-931"
+        type: "relatedTo"
+        rationale: "Runtime switches are part of operational configuration."
+verificationTemplates:
+  - templateId: "VT-AR-932-CHECKLIST-001"
+    ruleIds: ["AR-931", "AR-932", "AR-933"]
+    type: "checklist"
+    coverage: "supporting"
+    determinism: "manual"
+    templateRef: "templates/checklists/runtime-readiness-review.md.mustache"
+    description: "Runtime review checklist covering configuration validation, health signals, and runtime switch lifecycle."
+    requiredParameters:
+      - "serviceName"
+      - "reviewer"
+      - "reviewedAt"
+      - "runtimeEnvironmentsList"
+      - "criticalConfigurationItemsList"
+      - "readinessSignalsList"
+      - "runtimeSwitchesList"
+    verifiesViolationSignals:
+      - "A service starts with missing or malformed critical configuration."
+      - "Readiness succeeds while required dependencies are unavailable."
+      - "A temporary switch remains active without owner or expiry."
+    limitations:
+      - "Supports operational review evidence; it does not execute runtime probes."
+      - "Signal accuracy still requires environment-specific tests."
+    generates:
+      description: "Runtime readiness and delivery architecture checklist."
+      pathTemplate: "docs/operations/{{serviceName}}-runtime-readiness.md"
+    toolchain:
+      - type: "manual-review"
+        version: ">=1.0.0"

@@ -1,0 +1,21 @@
+package {{basePackage}}.architecture;
+
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
+
+@AnalyzeClasses(packages = "{{basePackage}}", importOptions = ImportOption.DoNotIncludeTests.class)
+class QuarkusDerivedDataIntegrityRuleTest {
+
+  @ArchTest
+  static final ArchRule projections_should_not_depend_on_selected_source_of_truth_mutation_paths =
+      noClasses()
+          .that()
+          .resideInAnyPackage({{{projectionPackagePatterns}}})
+          .should()
+          .dependOnClassesThat()
+          .resideInAnyPackage({{{sourceOfTruthMutatorPackagePatterns}}});
+}

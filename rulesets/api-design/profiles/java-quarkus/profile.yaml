@@ -1,38 +1,80 @@
 profileId: "java-quarkus"
 ruleSetId: "api-design"
-schemaVersion: "ruleset-profile-v1"
+schemaVersion: "ruleset-profile-v2"
 status: "published"
-displayName: "Java Quarkus Profile for API Design"
-description: "Quarkus-specific detection hints for the api-design ruleset."
-technology:
-  language: "java"
-  framework: "quarkus"
-  runtime: "jvm"
-mappings:
-  - ruleId: "AR-401"
-    detectionHints:
-      indicativeAnnotations: ["@Path", "@GET", "@POST", "@PUT", "@DELETE"]
-      recommendedTools: ["OpenAPI contract validation", "REST-assured tests"]
-      notes: ["Check whether resource behavior is represented by an explicit API contract."]
+displayName: "Java Quarkus Verification Profile for API Design"
+description: "Quarkus-specific verification profile for API design rules with JAX-RS and Quarkus test tooling."
+appliesTo:
+  languages: ["java"]
+  frameworks: ["quarkus"]
+  architectureStyles: ["layered", "modular-monolith", "distributed-system"]
+  runtimes: ["jvm"]
+toolchain:
+  required:
+    - type: "archunit"
+      version: ">=1.3.0"
+    - type: "junit"
+      version: ">=5.10.0"
+    - type: "quarkus-test"
+      version: ">=3.0.0"
+    - type: "rest-assured"
+      version: ">=5.4.0"
+ruleMappings:
   - ruleId: "AR-402"
-    detectionHints:
-      indicativeBaseTypes: ["ExceptionMapper"]
-      indicativeAnnotations: ["@Provider"]
-      recommendedTools: ["REST-assured tests", "API error contract tests"]
+    verificationTemplates:
+      - templateId: "VT-AR-402-JUNIT-QUARKUS-002"
+        coverage: "heuristic"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          firstErrorPath: "{{project.api.errorContract.firstPath}}"
+          secondErrorPath: "{{project.api.errorContract.secondPath}}"
+          expectedStatusCode: "{{project.api.errorContract.expectedStatusCode}}"
+          expectedContentType: "{{project.api.errorContract.expectedContentType}}"
+          expectedErrorCodeField: "{{project.api.errorContract.expectedErrorCodeField}}"
+          expectedErrorCode: "{{project.api.errorContract.expectedErrorCode}}"
+          expectedErrorMeaningField: "{{project.api.errorContract.expectedErrorMeaningField}}"
+          expectedErrorMeaning: "{{project.api.errorContract.expectedErrorMeaning}}"
   - ruleId: "AR-403"
-    detectionHints:
-      indicativeAnnotations: ["@Entity", "@Table", "@Path"]
-      concreteComponentPatterns: ["Persistence entity returned directly from resource", "Panache entity used as request or response model"]
-      recommendedTools: ["ArchUnit", "API review"]
-  - ruleId: "AR-404"
-    detectionHints:
-      recommendedTools: ["OpenAPI diff", "contract tests"]
-      notes: ["Compare generated or maintained OpenAPI descriptions for breaking changes."]
+    verificationTemplates:
+      - templateId: "VT-AR-403-ARCHUNIT-QUARKUS-002"
+        coverage: "partial"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          apiRepresentationPackagePatterns: "{{project.packagePatterns.apiRepresentationCsv}}"
+          persistenceAndPanachePackagePatterns: "{{project.packagePatterns.persistenceAndPanacheCsv}}"
   - ruleId: "AR-405"
-    detectionHints:
-      concreteComponentPatterns: ["Command endpoint without duplicate handling", "Retryable command without idempotency key"]
-      recommendedTools: ["REST-assured integration tests"]
+    verificationTemplates:
+      - templateId: "VT-AR-405-JUNIT-QUARKUS-002"
+        coverage: "heuristic"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          commandPath: "{{project.api.commandPath}}"
+          idempotencyHeaderName: "{{project.api.idempotency.headerName}}"
+          idempotencyKeyValue: "{{project.api.idempotency.keyValue}}"
+          requestFixtureExpression: "{{project.api.idempotency.requestFixtureExpression}}"
+          expectedInitialStatusCode: "{{project.api.idempotency.expectedInitialStatusCode}}"
+          expectedReplayStatusCode: "{{project.api.idempotency.expectedReplayStatusCode}}"
+          stableResponseField: "{{project.api.idempotency.stableResponseField}}"
+          replayIndicatorField: "{{project.api.idempotency.replayIndicatorField}}"
+          expectedReplayIndicatorValue: "{{project.api.idempotency.expectedReplayIndicatorValue}}"
+          duplicateEffectCountField: "{{project.api.idempotency.duplicateEffectCountField}}"
+          expectedDuplicateEffectCount: "{{project.api.idempotency.expectedDuplicateEffectCount}}"
   - ruleId: "AR-406"
-    detectionHints:
-      concreteComponentPatterns: ["Unbounded list endpoint", "Repository listAll exposed through resource"]
-      recommendedTools: ["REST-assured tests", "performance smoke tests"]
+    verificationTemplates:
+      - templateId: "VT-AR-406-JUNIT-QUARKUS-002"
+        coverage: "heuristic"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          resourcePath: "{{project.api.listResourcePath}}"
+          pageSizeParameterName: "{{project.api.pagination.pageSizeParameter}}"
+          pageParameterName: "{{project.api.pagination.pageParameter}}"
+          maxPageSize: "{{project.api.pagination.maxPageSize}}"
+          minimumDatasetSize: "{{project.api.pagination.minimumDatasetSize}}"
+          maxUnpagedResultThreshold: "{{project.api.pagination.maxUnpagedResultThreshold}}"
+          responseCollectionSizePath: "{{project.api.pagination.responseCollectionSizePath}}"
+          pagedControlEchoPath: "{{project.api.pagination.pagedControlEchoPath}}"
+          expectedPagedControlEchoValue: "{{project.api.pagination.expectedPagedControlEchoValue}}"

@@ -1,6 +1,6 @@
 ruleSetId: "clean-architecture"
 schemaVersion: "ruleset-catalog-v1"
-ruleSetVersion: "1.1.0"
+ruleSetVersion: "1.2.0"
 publisher: "APMDB Catalog Seed"
 license: "Apache-2.0"
 status: "published"
@@ -170,3 +170,261 @@ rules:
       - target: "AR-101"
         type: "supports"
         rationale: "Keeping cross-cutting concerns out of the business core preserves business independence."
+verificationTemplates:
+  - templateId: "VT-AR-101-ARCHUNIT-001"
+    ruleIds: ["AR-101"]
+    type: "archunit"
+    language: "java"
+    framework: "archunit"
+    coverage: "partial"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/clean-architecture-dependency-rule.java.mustache"
+    description: "ArchUnit template that checks whether inner business packages depend on outer technical packages."
+    requiredParameters:
+      - "basePackage"
+      - "domainPackages"
+      - "applicationPackages"
+      - "adapterPackages"
+      - "infrastructurePackages"
+    verifiesViolationSignals:
+      - "Business core logic depends on user-interface, persistence, messaging, web, framework, or infrastructure concepts."
+      - "Technical annotations, lifecycle assumptions, or base concepts shape the business model."
+    limitations:
+      - "Checks package-level dependencies only."
+      - "Does not prove whether code contains business logic."
+      - "Requires package role conventions or imports that can be mapped to the expected roles."
+    generates:
+      description: "JUnit 5 ArchUnit test class for dependency rule enforcement."
+      pathTemplate: "src/test/java/{{basePackagePath}}/architecture/CleanArchitectureDependencyRuleTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"
+  - templateId: "VT-AR-101-ARCHUNIT-QUARKUS-002"
+    ruleIds: ["AR-101"]
+    type: "archunit"
+    language: "java"
+    framework: "quarkus"
+    coverage: "partial"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/quarkus-clean-architecture-dependency-rule.java.mustache"
+    description: "Quarkus-focused ArchUnit template that prevents domain and application code from depending on CDI, JAX-RS, ORM, or Panache concerns."
+    requiredParameters:
+      - "basePackage"
+      - "businessCorePackagePatterns"
+      - "forbiddenFrameworkDependencyPatterns"
+    verifiesViolationSignals:
+      - "Business core logic depends on user-interface, persistence, messaging, web, framework, or infrastructure concepts."
+      - "Technical annotations, lifecycle assumptions, or base concepts shape the business model."
+    limitations:
+      - "Checks imports and type dependencies only."
+      - "Does not prove whether runtime wiring leaks technical concerns indirectly."
+    generates:
+      description: "JUnit 5 ArchUnit test class for Quarkus dependency-rule enforcement."
+      pathTemplate: "src/test/java/{{basePackagePath}}/architecture/QuarkusDependencyRuleTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"
+  - templateId: "VT-AR-102-ARCHUNIT-001"
+    ruleIds: ["AR-102"]
+    type: "archunit"
+    language: "java"
+    framework: "archunit"
+    coverage: "partial"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/clean-architecture-dependency-direction-rule.java.mustache"
+    description: "ArchUnit template that encodes allowed inward dependency direction between clean-architecture package roles."
+    requiredParameters:
+      - "basePackage"
+      - "domainPackages"
+      - "applicationPackages"
+      - "adapterPackages"
+      - "infrastructurePackages"
+    verifiesViolationSignals:
+      - "Inner business layers depend on outer technical layers."
+      - "Stable business concepts reference volatile technical details."
+    limitations:
+      - "Assumes package structure reflects architectural boundaries."
+      - "Cannot validate runtime wiring or reflection-driven dependencies."
+    generates:
+      description: "JUnit 5 ArchUnit test class for dependency direction checks."
+      pathTemplate: "src/test/java/{{basePackagePath}}/architecture/CleanArchitectureDependencyDirectionTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"
+  - templateId: "VT-AR-104-ARCHUNIT-001"
+    ruleIds: ["AR-104"]
+    type: "archunit"
+    language: "java"
+    framework: "archunit"
+    coverage: "partial"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/ports-and-adapters-rule.java.mustache"
+    description: "ArchUnit template that verifies ports are declared inward and concrete adapters stay at the edge."
+    requiredParameters:
+      - "basePackage"
+      - "portPackages"
+      - "adapterPackages"
+      - "applicationPackages"
+      - "domainPackages"
+    verifiesViolationSignals:
+      - "Business or application layers know concrete infrastructure adapters."
+      - "Adapters define the business-facing interface instead of implementing it."
+    limitations:
+      - "Verifies structural port usage, not the semantic quality of abstractions."
+      - "Cannot prove whether every integration path goes through a declared port."
+    generates:
+      description: "JUnit 5 ArchUnit test class for ports and adapters boundaries."
+      pathTemplate: "src/test/java/{{basePackagePath}}/architecture/PortsAndAdaptersRuleTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"
+  - templateId: "VT-AR-104-ARCHUNIT-QUARKUS-002"
+    ruleIds: ["AR-104"]
+    type: "archunit"
+    language: "java"
+    framework: "quarkus"
+    coverage: "partial"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/quarkus-ports-and-adapters-rule.java.mustache"
+    description: "Quarkus-focused ArchUnit template that checks selected outbound adapter implementation classes stay behind inward-facing ports and that inner layers avoid direct Panache or adapter dependencies."
+    requiredParameters:
+      - "basePackage"
+      - "innerLayerPackagePatterns"
+      - "adapterAndPanachePackagePatterns"
+      - "outboundAdapterImplementationPackagePatterns"
+      - "portPackagePatterns"
+    verifiesViolationSignals:
+      - "Business or application layers know concrete infrastructure adapters."
+      - "Technical integrations bypass declared ports or interfaces."
+    limitations:
+      - "Relies on package-role conventions."
+      - "Only classes included in outboundAdapterImplementationPackagePatterns are expected to implement ports."
+      - "Bind outboundAdapterImplementationPackagePatterns narrowly to outbound adapter implementations, not broad adapter packages."
+      - "Misconfigured package bindings can reintroduce false positives for inbound resources, mappers, or config classes."
+      - "Does not verify semantic completeness of port abstractions."
+    generates:
+      description: "JUnit 5 ArchUnit test class for Quarkus ports-and-adapters boundaries."
+      pathTemplate: "src/test/java/{{basePackagePath}}/architecture/QuarkusPortsAndAdaptersRuleTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"
+  - templateId: "VT-AR-105-ARCHUNIT-QUARKUS-002"
+    ruleIds: ["AR-105"]
+    type: "archunit"
+    language: "java"
+    framework: "quarkus"
+    coverage: "partial"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/quarkus-interface-adapters-rule.java.mustache"
+    description: "Quarkus-focused ArchUnit template that structurally guards selected interface-adapter packages from direct dependencies on persistence details and selected domain implementation packages."
+    requiredParameters:
+      - "basePackage"
+      - "interfaceAdapterPackagePatterns"
+      - "domainAndPersistencePackagePatterns"
+    verifiesViolationSignals:
+      - "Controllers, presenters, UI adapters, or API adapters make business decisions."
+    limitations:
+      - "Structural dependency checks cannot prove where business decisions semantically happen."
+      - "Does not inspect method bodies for mapping complexity or branching logic."
+    generates:
+      description: "JUnit 5 ArchUnit test class for Quarkus interface-adapter boundaries."
+      pathTemplate: "src/test/java/{{basePackagePath}}/architecture/QuarkusInterfaceAdaptersRuleTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"
+  - templateId: "VT-AR-102-ARCHUNIT-QUARKUS-002"
+    ruleIds: ["AR-102"]
+    type: "archunit"
+    language: "java"
+    framework: "quarkus"
+    coverage: "partial"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/quarkus-dependency-direction-rule.java.mustache"
+    description: "Quarkus-focused ArchUnit template that enforces inward dependency direction between domain, application, adapters, and Quarkus-facing infrastructure."
+    requiredParameters:
+      - "basePackage"
+      - "domainPackagePatterns"
+      - "applicationPackagePatterns"
+      - "outerLayerPackagePatterns"
+      - "technicalBoundaryPackagePatterns"
+    verifiesViolationSignals:
+      - "Inner business layers depend on outer technical layers."
+      - "Stable business concepts reference volatile technical details."
+    limitations:
+      - "Assumes package structure reflects the intended architecture."
+      - "Does not detect reflective, generated, or runtime-only dependencies."
+    generates:
+      description: "JUnit 5 ArchUnit test class for Quarkus dependency-direction checks."
+      pathTemplate: "src/test/java/{{basePackagePath}}/architecture/QuarkusDependencyDirectionRuleTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"
+  - templateId: "VT-AR-106-ARCHUNIT-001"
+    ruleIds: ["AR-106"]
+    type: "archunit"
+    language: "java"
+    framework: "archunit"
+    coverage: "heuristic"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/cross-cutting-concern-placement-rule.java.mustache"
+    description: "ArchUnit template that detects direct dependencies from business core packages to configured cross-cutting frameworks."
+    requiredParameters:
+      - "basePackage"
+      - "domainPackages"
+      - "applicationPackages"
+      - "forbiddenCrossCuttingDependencies"
+    verifiesViolationSignals:
+      - "Business objects depend on technical cross-cutting services to fulfill their core purpose."
+      - "Technical policies are hard to distinguish from business rules."
+    limitations:
+      - "Heuristic only: dependency absence does not prove concerns are cleanly separated."
+      - "Does not detect business logic hidden inside cross-cutting aspects or annotations."
+    generates:
+      description: "JUnit 5 ArchUnit test class for cross-cutting dependency placement."
+      pathTemplate: "src/test/java/{{basePackagePath}}/architecture/CrossCuttingConcernPlacementRuleTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"
+  - templateId: "VT-AR-106-ARCHUNIT-QUARKUS-002"
+    ruleIds: ["AR-106"]
+    type: "archunit"
+    language: "java"
+    framework: "quarkus"
+    coverage: "heuristic"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/quarkus-cross-cutting-concern-placement-rule.java.mustache"
+    description: "Quarkus-focused ArchUnit template that keeps transactions, security, caching, and telemetry dependencies out of domain and use-case code."
+    requiredParameters:
+      - "basePackage"
+      - "businessCorePackagePatterns"
+      - "forbiddenCrossCuttingDependencyPatterns"
+    verifiesViolationSignals:
+      - "Logging, tracing, security enforcement, caching, or transaction control dominate business core logic."
+      - "Business objects depend on technical cross-cutting services to fulfill their core purpose."
+    limitations:
+      - "Heuristic only: absence of direct dependencies does not prove clean separation."
+      - "Does not detect cross-cutting behavior introduced indirectly through annotations or interceptors."
+    generates:
+      description: "JUnit 5 ArchUnit test class for Quarkus cross-cutting concern placement."
+      pathTemplate: "src/test/java/{{basePackagePath}}/architecture/QuarkusCrossCuttingConcernPlacementRuleTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"

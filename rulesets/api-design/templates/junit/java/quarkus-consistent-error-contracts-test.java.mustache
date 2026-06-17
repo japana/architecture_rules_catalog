@@ -1,0 +1,32 @@
+package {{basePackage}}.api;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+
+import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.Test;
+
+@QuarkusTest
+class ConsistentErrorContractsTest {
+
+  @Test
+  void equivalent_failures_should_return_consistent_error_contracts() {
+    given()
+        .when()
+        .get("{{firstErrorPath}}")
+        .then()
+        .statusCode({{expectedStatusCode}})
+        .contentType("{{expectedContentType}}")
+        .body("{{expectedErrorCodeField}}", equalTo("{{expectedErrorCode}}"))
+        .body("{{expectedErrorMeaningField}}", equalTo("{{expectedErrorMeaning}}"));
+
+    given()
+        .when()
+        .get("{{secondErrorPath}}")
+        .then()
+        .statusCode({{expectedStatusCode}})
+        .contentType("{{expectedContentType}}")
+        .body("{{expectedErrorCodeField}}", equalTo("{{expectedErrorCode}}"))
+        .body("{{expectedErrorMeaningField}}", equalTo("{{expectedErrorMeaning}}"));
+  }
+}

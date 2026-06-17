@@ -1,0 +1,47 @@
+package {{basePackage}}.api;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+
+import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.response.Response;
+import org.junit.jupiter.api.Test;
+
+@QuarkusTest
+class LargeResultControlResourceTest {
+
+  @Test
+  void list_endpoint_should_support_explicit_result_controls() {
+    Response pagedResponse =
+        given()
+        .queryParam("{{pageParameterName}}", 0)
+        .queryParam("{{pageSizeParameterName}}", {{maxPageSize}})
+        .when()
+        .get("{{resourcePath}}")
+        .then()
+        .statusCode(200)
+        .body("{{responseCollectionSizePath}}", lessThanOrEqualTo({{maxPageSize}}))
+        .body("{{pagedControlEchoPath}}", org.hamcrest.Matchers.equalTo({{expectedPagedControlEchoValue}}))
+        .extract()
+        .response();
+
+    int pagedResultSize = pagedResponse.path("{{responseCollectionSizePath}}");
+
+    Response unpagedResponse =
+        given()
+        .when()
+        .get("{{resourcePath}}")
+        .then()
+        .statusCode(200)
+        .body("{{responseCollectionSizePath}}", greaterThanOrEqualTo({{minimumDatasetSize}}))
+        .body("{{responseCollectionSizePath}}", lessThanOrEqualTo({{maxUnpagedResultThreshold}}))
+        .extract()
+        .response();
+
+    int unpagedResultSize = unpagedResponse.path("{{responseCollectionSizePath}}");
+    assertThat("Paged result must be smaller than the comparable unpaged result.", unpagedResultSize, greaterThan(pagedResultSize));
+  }
+}

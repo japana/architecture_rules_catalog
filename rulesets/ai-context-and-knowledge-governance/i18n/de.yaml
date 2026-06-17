@@ -1,0 +1,43 @@
+ruleSetId: "ai-context-and-knowledge-governance"
+locale: "de"
+name: "AI-Kontext- und Wissenssteuerung"
+description: "Regeln für vertrauenswürdige Kontextquellen, Minimierung sensiblen Kontextes und Evidenztrennung."
+category: "Governance"
+tags: ["ai", "kontext", "wissen"]
+rules:
+  - id: "AR-961"
+    title: "Kontextquellen haben Vertrauensmetadaten"
+    summary: "Maschinell genutzter Kontext sollte Quelle, Owner, Aktualität und Vorrang erkennen lassen."
+    content: "Kontext für generierte Entscheidungen sollte genug Metadaten tragen, um Aktualität, Berechtigung und Autorität zu beurteilen."
+    rationale: "Schlechter Kontext verursacht oft schlechtes Verhalten, auch wenn die generierte Antwort plausibel wirkt."
+    reviewQuestions: ["Woher stammt dieser Kontext?", "Wer besitzt Aktualisierungen?", "Was passiert bei widersprüchlichen Quellen?"]
+    positiveExamples: ["Abgerufene Fakten enthalten Quelle und Aktualität.", "Widersprüchliche Quellen haben dokumentierte Vorrangregeln."]
+    negativeExamples: ["Alte Dokumentation wird als aktuell abgerufen.", "Generiertes Verhalten hängt von unbekanntem Kontext ab."]
+    exceptions: ["Flüchtiger lokaler Kontext darf Session-Scope nutzen, wenn er die Session nicht überlebt."]
+    remediation: ["Ergänze Quellen- und Aktualitätsmetadaten.", "Definiere Kontextvorrang.", "Weise Ownership für gepflegtes Wissen zu."]
+    tags: ["kontext", "vertrauen"]
+    keywords: ["quelle", "aktualitaet", "owner"]
+  - id: "AR-962"
+    title: "Sensibler Kontext wird minimiert"
+    summary: "Kontextaufbau sollte sensible Daten filtern und Berechtigungsgrenzen respektieren."
+    content: "Prompts, abgerufener Kontext, Memory und Logs sollten nur sensible Daten enthalten, die für Aufgabe und Akteur erlaubt und nötig sind."
+    rationale: "AI-Kontextpfade können sensible Daten in Orte kopieren, die später schwerer zu kontrollieren sind."
+    reviewQuestions: ["Welche sensiblen Felder dürfen in Kontext gelangen?", "Wo werden Berechtigungen geprüft?", "Was wird nach der Generierung gespeichert?"]
+    positiveExamples: ["Kontextbuilder nutzen Redaction vor Prompt-Aufbau.", "Retrieval beachtet Tenant- und Nutzerrechte."]
+    negativeExamples: ["Vollständige private Datensätze werden gesendet, obwohl eine Zusammenfassung reicht.", "Prompt-Logs enthalten unnötige Kennungen."]
+    exceptions: ["Explizit freigegebene Diagnosesessions dürfen breiteren Kontext mit Retention-Kontrollen nutzen."]
+    remediation: ["Ergänze Redaction oder Zusammenfassung.", "Prüfe Berechtigung vor Retrieval.", "Minimiere Prompt- und Kontextlogs."]
+    tags: ["privacy", "security"]
+    keywords: ["sensibel", "redaction", "berechtigung"]
+  - id: "AR-963"
+    title: "Evidenz und Annahmen sind getrennt"
+    summary: "Generierte Ergebnisse sollten belegte Fakten, abgeleitete Schlüsse und Annahmen unterscheiden."
+    content: "Eine generierte Entscheidung sollte klar machen, welche Aussagen auf Evidenz beruhen und welche abgeleitet oder angenommen sind."
+    rationale: "Reviewer und Agenten müssen erkennen, wann Vertrauen von unausgesprochenen Annahmen abhängt."
+    reviewQuestions: ["Welche Aussagen sind belegt?", "Welche Teile sind Annahmen?", "Kann die Evidenz geprüft werden?"]
+    positiveExamples: ["Ein generiertes Review trennt Quellbelege von Empfehlungen.", "Annahmen sind zur Bestätigung markiert."]
+    negativeExamples: ["Eine erratene Einschränkung wird als Fakt dargestellt.", "Evidenzlinks fehlen bei kontextabhängigen Aussagen."]
+    exceptions: ["Kleine deterministische Transformationen brauchen nicht immer explizite Evidenzabschnitte."]
+    remediation: ["Trenne Fakten, Schlüsse und Annahmen.", "Hänge Evidenzreferenzen an.", "Fordere Bestätigung an, wenn Annahmen Aktionen steuern."]
+    tags: ["evidenz", "annahmen"]
+    keywords: ["fakt", "annahme", "beleg"]

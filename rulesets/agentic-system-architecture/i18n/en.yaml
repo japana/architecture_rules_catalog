@@ -1,0 +1,43 @@
+ruleSetId: "agentic-system-architecture"
+locale: "en"
+name: "Agentic System Architecture"
+description: "Rules for autonomous tool use, high-impact handoff, and auditability."
+category: "Architecture"
+tags: ["agentic", "tools", "audit"]
+rules:
+  - id: "AR-951"
+    title: "Agent side effects pass through policy boundaries"
+    summary: "Autonomous writes, deletes, deployments, purchases, or messages should use explicit tool and policy boundaries."
+    content: "An autonomous component must not perform side effects through free-form execution paths that bypass authorization, confirmation, or policy checks."
+    rationale: "Side-effect control turns agent behavior into reviewable system behavior."
+    reviewQuestions: ["Which tools can change external state?", "Where is authorization checked?", "Can free-form instructions reach side effects directly?"]
+    positiveExamples: ["Side-effect tools require a policy decision object.", "Dangerous operations are routed through approval flow."]
+    negativeExamples: ["An agent can call a write adapter directly.", "Prompt text selects destructive behavior without policy validation."]
+    exceptions: ["Read-only tools may use lighter policy when data access is already authorized."]
+    remediation: ["Introduce a policy boundary.", "Type side-effect tool inputs.", "Block direct access from agent orchestration to side-effect adapters."]
+    tags: ["agent-tools", "policy"]
+    keywords: ["agent", "tool", "side effect"]
+  - id: "AR-952"
+    title: "Irreversible actions have handoff"
+    summary: "High-impact or irreversible autonomous actions should define confirmation, escalation, or rollback."
+    content: "A system should identify actions that require human review or explicit escalation before execution."
+    rationale: "Handoff keeps uncertainty and high impact under accountable control."
+    reviewQuestions: ["Which actions are irreversible?", "What confidence or policy threshold triggers handoff?", "Can operators intervene before execution?"]
+    positiveExamples: ["A deletion tool requires approval when scope exceeds a threshold.", "Low confidence routes to a human queue."]
+    negativeExamples: ["A high-impact action executes after uncertain reasoning.", "No one can pause or override an autonomous decision."]
+    exceptions: ["Low-impact reversible actions may proceed automatically when audited."]
+    remediation: ["Define handoff criteria.", "Add confirmation or rollback path.", "Expose pending high-impact actions for review."]
+    tags: ["handoff", "approval"]
+    keywords: ["irreversible", "confirmation", "escalation"]
+  - id: "AR-953"
+    title: "Agent decisions are auditable"
+    summary: "Autonomous actions should record enough evidence to explain input, context, tool calls, policy decisions, and outcome."
+    content: "Audit records should explain what was done and why without storing unnecessary sensitive content."
+    rationale: "Auditability enables incident analysis, regression cases, and accountability."
+    reviewQuestions: ["Can an action be traced from input to result?", "Are policy decisions recorded?", "Is sensitive content minimized?"]
+    positiveExamples: ["Tool calls include correlation and policy result.", "Audit records store references instead of full private payloads."]
+    negativeExamples: ["A completed action cannot be tied to a request.", "Prompt contents are logged wholesale."]
+    exceptions: ["Highly sensitive flows may store minimal metadata plus secured evidence references."]
+    remediation: ["Add structured audit events.", "Record policy outcomes.", "Minimize stored prompt and context content."]
+    tags: ["audit", "traceability"]
+    keywords: ["audit", "tool call", "policy"]

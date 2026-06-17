@@ -1,21 +1,70 @@
 profileId: "java-quarkus"
 ruleSetId: "security-baseline"
-schemaVersion: "ruleset-profile-v1"
+schemaVersion: "ruleset-profile-v2"
 status: "published"
-displayName: "Java Quarkus Profile for Security Baseline"
-description: "Quarkus-specific interpretation hints for the security-baseline ruleset."
-technology:
-  language: "java"
-  framework: "quarkus"
-  runtime: "jvm"
-mappings:
+displayName: "Java Quarkus Verification Profile for Security Baseline"
+description: "Quarkus-specific verification profile for security rules around boundary identity handling and authorization separation."
+appliesTo:
+  languages: ["java"]
+  frameworks: ["quarkus"]
+  architectureStyles: ["layered", "modular-monolith", "distributed-system"]
+  runtimes: ["jvm"]
+toolchain:
+  required:
+    - type: "gitleaks"
+      version: ">=8.18.0"
+    - type: "archunit"
+      version: ">=1.3.0"
+    - type: "junit"
+      version: ">=5.10.0"
+    - type: "semgrep"
+      version: ">=1.75.0"
+ruleMappings:
+  - ruleId: "AR-301"
+    verificationTemplates:
+      - templateId: "VT-AR-301-GITLEAKS-QUARKUS-002"
+        coverage: "partial"
+        parameterBindings:
+          configTitle: "{{project.id}}-secret-protection"
+          quarkusConfigPathRegex: "{{project.quarkus.configPathRegex}}"
+          additionalSecretRulesToml: "{{project.security.additionalSecretRulesToml}}"
+          allowlistsToml: "{{project.security.allowlistsToml}}"
+  - ruleId: "AR-302"
+    verificationTemplates:
+      - templateId: "VT-AR-302-ARCHUNIT-QUARKUS-002"
+        coverage: "heuristic"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          businessServicePackagePatterns: "{{project.packagePatterns.applicationCsv}}"
+          identityBoundaryPackagePatterns: "{{project.packagePatterns.identityBoundaryCsv}}"
+          authorizationPackagePatterns: "{{project.packagePatterns.authorizationCsv}}"
   - ruleId: "AR-303"
-    detectionHints:
-      indicativeAnnotations:
-        - "@Path parameter or request body types reaching business logic without validation"
-        - "@Valid missing on boundary DTOs where bean validation is expected"
-      recommendedTools:
-        - "REST-assured"
-        - "Bean Validation"
-      notes:
-        - "Validate and normalize JAX-RS boundary models before they reach application or domain services."
+    verificationTemplates:
+      - templateId: "VT-AR-303-SEMGREP-QUARKUS-002"
+        coverage: "heuristic"
+        parameterBindings:
+          boundaryDtoTypeRegex: "{{project.api.boundaryDtoTypeRegex}}"
+          validationAnnotationName: "{{project.quarkus.validationAnnotationName}}"
+  - ruleId: "AR-304"
+    verificationTemplates:
+      - templateId: "VT-AR-304-CHECKLIST-QUARKUS-002"
+        coverage: "supporting"
+        parameterBindings:
+          serviceName: "{{project.id}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.reviewedAt}}"
+          runtimeIdentities: "{{project.security.runtimeIdentities}}"
+          datasourceNames: "{{project.dataManagement.datasourceNames}}"
+          externalSystems: "{{project.integrations.externalSystems}}"
+  - ruleId: "AR-306"
+    verificationTemplates:
+      - templateId: "VT-AR-306-CHECKLIST-QUARKUS-002"
+        coverage: "supporting"
+        parameterBindings:
+          serviceName: "{{project.id}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.reviewedAt}}"
+          configFiles: "{{project.quarkus.configPaths}}"
+          publicEndpoints: "{{project.api.publicEndpoints}}"
+          sensitiveFeatures: "{{project.security.sensitiveFeatures}}"

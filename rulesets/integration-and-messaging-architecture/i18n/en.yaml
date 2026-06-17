@@ -1,0 +1,43 @@
+ruleSetId: "integration-and-messaging-architecture"
+locale: "en"
+name: "Integration and Messaging Architecture"
+description: "Rules for asynchronous contracts, duplicate delivery, and delayed message behavior."
+category: "Architecture"
+tags: ["integration", "messaging", "contracts"]
+rules:
+  - id: "AR-921"
+    title: "Messages have owned contracts"
+    summary: "Asynchronous messages should have explicit owners, meaning, and compatibility expectations."
+    content: "Message contracts should describe meaning, required fields, compatibility rules, and the owner responsible for change."
+    rationale: "Owned contracts let producers and consumers evolve independently."
+    reviewQuestions: ["Who owns the message meaning?", "Where is compatibility documented?", "Can consumers rely on stable identifiers and required fields?"]
+    positiveExamples: ["Events are documented as business facts.", "Compatibility rules are reviewed before field changes."]
+    negativeExamples: ["Consumers deserialize producer internals.", "Message changes are inferred from code diffs only."]
+    exceptions: ["Short-lived internal test messages may use lighter documentation."]
+    remediation: ["Document message owner and schema.", "Separate external message shape from internal models.", "Add compatibility review to changes."]
+    tags: ["message-contract", "ownership"]
+    keywords: ["message", "event", "contract"]
+  - id: "AR-922"
+    title: "Duplicate delivery is safe"
+    summary: "Message consumers should define and test behavior when the same message is delivered more than once."
+    content: "Consumers must avoid duplicate business effects by using message identity, idempotent handling, or explicit replay semantics."
+    rationale: "Duplicate delivery is normal in many asynchronous systems and should not corrupt business state."
+    reviewQuestions: ["Which field identifies a message?", "What happens on replay?", "Is duplicate effect prevention tested?"]
+    positiveExamples: ["A repeated message returns the same resulting state.", "Effect counters stay stable after duplicate delivery."]
+    negativeExamples: ["Replaying a payment event charges twice.", "The consumer writes state before checking message identity."]
+    exceptions: ["Purely observational consumers may accept duplicates when downstream effects are also observational."]
+    remediation: ["Introduce message identity tracking.", "Make handling idempotent.", "Add duplicate-delivery regression tests."]
+    tags: ["idempotency", "messaging"]
+    keywords: ["duplicate", "replay", "consumer"]
+  - id: "AR-923"
+    title: "Ordering and delay expectations are explicit"
+    summary: "Asynchronous flows should state how ordering, late arrival, and delay are handled."
+    content: "A flow should not rely on message order unless that order is guaranteed and verified at the boundary."
+    rationale: "Late or out-of-order messages can silently overwrite correct state."
+    reviewQuestions: ["Does correctness depend on order?", "What happens to late messages?", "How can operators see delayed processing?"]
+    positiveExamples: ["Consumers compare version or timestamp before updating state.", "Delay is visible in status and metrics."]
+    negativeExamples: ["A late update overwrites newer business state.", "Operators cannot distinguish delay from failure."]
+    exceptions: ["Single-process local queues may rely on local order when the boundary is explicit."]
+    remediation: ["Add ordering keys or version checks.", "Define late-message handling.", "Expose delay and backlog signals."]
+    tags: ["ordering", "delay"]
+    keywords: ["late message", "ordering", "backlog"]

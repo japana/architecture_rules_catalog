@@ -1,0 +1,21 @@
+package {{basePackage}}.architecture;
+
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
+
+@AnalyzeClasses(packages = "{{basePackage}}", importOptions = ImportOption.DoNotIncludeTests.class)
+class RepresentationEncapsulationRuleTest {
+
+  @ArchTest
+  static final ArchRule api_and_dto_packages_should_not_depend_on_persistence =
+      noClasses()
+          .that()
+          .resideInAnyPackage({{#apiPackages}}"{{.}}", {{/apiPackages}}{{#dtoPackages}}"{{.}}", {{/dtoPackages}})
+          .should()
+          .dependOnClassesThat()
+          .resideInAnyPackage({{#persistencePackages}}"{{.}}", {{/persistencePackages}});
+}

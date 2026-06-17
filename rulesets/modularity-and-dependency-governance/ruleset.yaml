@@ -1,0 +1,103 @@
+ruleSetId: "modularity-and-dependency-governance"
+schemaVersion: "ruleset-catalog-v1"
+ruleSetVersion: "0.1.0"
+publisher: "APMDB Catalog Seed"
+license: "Apache-2.0"
+status: "review"
+defaultLocale: "en"
+availableLocales: ["en", "de"]
+approvals: []
+rules:
+  - id: "AR-901"
+    status: "active"
+    type: "module-boundary"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "blocking"
+    detectability: "static-analysis"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "module-structure", "architecture-design"]
+    appliesTo:
+      artifactTypes: ["source-code", "module-structure", "architecture-design"]
+      architectureElements: ["module", "service", "application"]
+    source:
+      type: "architecture-principle"
+      name: "Explicit Module Boundaries"
+      reference: "Modules should expose intentional public surfaces and hide internal implementation details."
+    violationSignals: ["A module is consumed through internal types or implementation packages.", "Changes inside one module force unrelated modules to change.", "Public module entry points are indistinguishable from internal helpers."]
+    relationships: []
+  - id: "AR-902"
+    status: "active"
+    type: "dependency"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "blocking"
+    detectability: "static-analysis"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "module-structure"]
+    appliesTo:
+      artifactTypes: ["source-code", "module-structure"]
+      architectureElements: ["module", "application", "service"]
+    source:
+      type: "engineering-practice"
+      name: "Acyclic Module Dependencies"
+      reference: "Module dependency graphs should stay directed and understandable."
+    violationSignals: ["Two modules require each other to compile or deploy.", "Dependency cycles force unrelated code to be released together.", "Tests need broad bootstrapping because module boundaries are cyclic."]
+    relationships:
+      - target: "AR-901"
+        type: "supports"
+        rationale: "Acyclic dependencies make module boundaries enforceable."
+  - id: "AR-903"
+    status: "active"
+    type: "governance"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["module-structure", "architecture-design", "documentation"]
+    appliesTo:
+      artifactTypes: ["module-structure", "architecture-design", "documentation"]
+      architectureElements: ["module", "service"]
+    source:
+      type: "governance-guideline"
+      name: "Module Ownership"
+      reference: "Modules should have visible responsibility for meaning, change, and review."
+    violationSignals: ["No owner can explain a module's purpose or allowed dependencies.", "Shared modules accumulate unrelated behavior.", "Review responsibility is inferred from recent edits only."]
+    relationships:
+      - target: "AR-901"
+        type: "supports"
+        rationale: "Clear ownership keeps public module surfaces intentional."
+verificationTemplates:
+  - templateId: "VT-AR-901-ARCHUNIT-QUARKUS-001"
+    ruleIds: ["AR-901", "AR-902"]
+    type: "archunit"
+    language: "java"
+    framework: "quarkus"
+    coverage: "partial"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/quarkus-module-boundary-rule.java.mustache"
+    description: "ArchUnit template that checks selected module internals are protected by a configured caller whitelist and that selected module slices are acyclic."
+    requiredParameters:
+      - "basePackage"
+      - "moduleSlicePattern"
+      - "moduleInternalPackagePatterns"
+      - "allowedInternalAccessPackagePatterns"
+    verifiesViolationSignals:
+      - "A module is consumed through internal types or implementation packages."
+      - "Two modules require each other to compile or deploy."
+    limitations:
+      - "Checks package and dependency structure only; it cannot prove semantic ownership."
+      - "The module slice pattern must match the project's intended module layout."
+      - "The internal-access rule uses a configured caller whitelist; broad whitelist patterns can permit unintended cross-module access."
+    generates:
+      description: "JUnit 5 ArchUnit test class for module boundaries and cycles."
+      pathTemplate: "src/test/java/{{basePackagePath}}/architecture/ModuleBoundaryRuleTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"

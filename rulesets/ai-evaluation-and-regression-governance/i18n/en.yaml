@@ -1,0 +1,43 @@
+ruleSetId: "ai-evaluation-and-regression-governance"
+locale: "en"
+name: "AI Evaluation and Regression Governance"
+description: "Rules for AI evaluation scenarios, release gates, and failure feedback."
+category: "Quality"
+tags: ["ai", "evaluation", "regression"]
+rules:
+  - id: "AR-971"
+    title: "AI behavior has representative evaluations"
+    summary: "AI-assisted behavior should be covered by realistic happy-path, edge-case, and risk scenarios."
+    content: "Evaluation scenarios should represent the tasks, users, tools, and failure modes that matter for release confidence."
+    rationale: "Model and prompt changes need behavior-level checks because exact outputs can vary."
+    reviewQuestions: ["Which behavior is critical?", "Do scenarios cover risky inputs?", "Are known failures preserved?"]
+    positiveExamples: ["The evaluation suite includes ambiguous requests and tool failures.", "A known hallucination has a regression case."]
+    negativeExamples: ["Only simple happy paths are evaluated.", "A prompt change ships with no scenario run."]
+    exceptions: ["Exploratory prototypes may use manual scenario review before automated gates exist."]
+    remediation: ["Add representative scenarios.", "Include risk and edge cases.", "Preserve known failures as regression cases."]
+    tags: ["evaluation", "scenarios"]
+    keywords: ["eval", "scenario", "risk"]
+  - id: "AR-972"
+    title: "AI changes pass regression gates"
+    summary: "Critical prompts, tools, policies, and model settings should pass release gates before shipping."
+    content: "A release process should define evaluation thresholds, review rules, and acceptable variance for AI behavior."
+    rationale: "Non-determinism requires explicit gates rather than informal confidence."
+    reviewQuestions: ["Which changes trigger the gate?", "What threshold must pass?", "How is variance handled?"]
+    positiveExamples: ["Prompt changes run a scenario suite in the build pipeline.", "Threshold changes require review."]
+    negativeExamples: ["A tool policy changes without evaluation.", "A single lucky run is treated as proof."]
+    exceptions: ["Emergency mitigations may ship first when follow-up evaluation is mandatory."]
+    remediation: ["Define release gate triggers.", "Set thresholds and review rules.", "Run evaluations repeatedly where variance matters."]
+    tags: ["quality-gate", "regression"]
+    keywords: ["gate", "threshold", "variance"]
+  - id: "AR-973"
+    title: "Failures become regression scenarios"
+    summary: "Observed AI failures should be converted into focused evaluation cases."
+    content: "When an AI behavior defect is reproduced, the project should add a scenario that would catch the regression."
+    rationale: "Feedback keeps evaluations aligned with real system risk."
+    reviewQuestions: ["Was the failure reproducible?", "Which scenario now covers it?", "Does the gate prevent recurrence?"]
+    positiveExamples: ["An incident creates a new scenario and threshold.", "The scenario records expected safe refusal or escalation."]
+    negativeExamples: ["A prompt is edited after an incident with no new test.", "The same failure recurs under a different wording."]
+    exceptions: ["One-off external outages may be documented without new AI behavior scenarios."]
+    remediation: ["Create a regression scenario.", "Link it to the incident or defect.", "Adjust gates if the scenario is critical."]
+    tags: ["feedback", "regression"]
+    keywords: ["failure", "incident", "regression"]

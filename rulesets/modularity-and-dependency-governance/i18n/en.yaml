@@ -1,0 +1,43 @@
+ruleSetId: "modularity-and-dependency-governance"
+locale: "en"
+name: "Modularity and Dependency Governance"
+description: "Rules for enforceable module boundaries, directed dependencies, and visible module ownership."
+category: "Architecture"
+tags: ["modularity", "dependencies", "ownership"]
+rules:
+  - id: "AR-901"
+    title: "Modules expose intentional public surfaces"
+    summary: "Modules should be consumed through explicit entry points, not through internal implementation details."
+    content: "A module must make its supported surface clear and keep internal types, helpers, and storage details private to the module."
+    rationale: "Stable public surfaces reduce accidental coupling and make local change possible."
+    reviewQuestions: ["Which types or functions are meant for other modules?", "Can internal implementation details be referenced from outside?", "Is the public surface small enough to review?"]
+    positiveExamples: ["Consumers depend on a module API package only.", "Internal packages are blocked by architecture tests."]
+    negativeExamples: ["Other modules import implementation classes directly.", "A shared utility module exposes unrelated internals as public helpers."]
+    exceptions: ["Temporary migration adapters may cross internals when tracked with an expiry date."]
+    remediation: ["Introduce a narrow module entry point.", "Move internal types behind the module surface.", "Add structural tests for internal package access."]
+    tags: ["module-boundary", "encapsulation"]
+    keywords: ["module", "boundary", "public surface"]
+  - id: "AR-902"
+    title: "Module dependencies stay acyclic"
+    summary: "Module dependency graphs should stay directed and free of compile-time or release-time cycles."
+    content: "Modules must not depend on each other in cycles unless the cycle is explicitly broken by a stable contract or extracted shared responsibility."
+    rationale: "Cycles make change impact harder to predict and force unrelated modules to move together."
+    reviewQuestions: ["Does the dependency graph contain cycles?", "Is shared behavior extracted for the right reason?", "Can each module be tested without bootstrapping the whole system?"]
+    positiveExamples: ["A use-case module depends on a stable port owned by another module.", "Architecture tests fail when a new cycle appears."]
+    negativeExamples: ["Two modules import each other's services.", "A common module exists only to hide a cycle."]
+    exceptions: ["Very small deployable units may accept local cycles during initial extraction when tracked as debt."]
+    remediation: ["Extract a stable contract.", "Move shared behavior to the owning module.", "Invert one dependency through a port."]
+    tags: ["dependency", "acyclic"]
+    keywords: ["cycle", "dependency graph", "module"]
+  - id: "AR-903"
+    title: "Modules have visible ownership"
+    summary: "Each meaningful module should have clear responsibility for purpose, change, and review."
+    content: "A module should state its purpose, allowed dependencies, and review owner so changes can be judged against intent."
+    rationale: "Ownership prevents shared areas from becoming unmanaged coupling points."
+    reviewQuestions: ["Who reviews changes to this module?", "What responsibility does the module own?", "Which dependencies are allowed or forbidden?"]
+    positiveExamples: ["Module documentation lists purpose and owner.", "Review routing follows module ownership."]
+    negativeExamples: ["Nobody can explain why a module exists.", "Shared modules collect unrelated helpers."]
+    exceptions: ["Experimental modules may use lightweight ownership while their purpose is still being validated."]
+    remediation: ["Document owner and module purpose.", "Split unrelated responsibilities.", "Add dependency guidance near the module."]
+    tags: ["ownership", "governance"]
+    keywords: ["owner", "responsibility", "review"]

@@ -1,0 +1,43 @@
+ruleSetId: "architecture-decision-governance"
+locale: "de"
+name: "Steuerung von Architekturentscheidungen"
+description: "Regeln zum Dokumentieren, Prüfen und Ablösen wichtiger Architekturentscheidungen."
+category: "Governance"
+tags: ["entscheidungen", "adr", "governance"]
+rules:
+  - id: "AR-911"
+    title: "Wichtige Architekturentscheidungen werden festgehalten"
+    summary: "Schwer umkehrbare Entscheidungen sollten einen auffindbaren Entscheidungsnachweis haben."
+    content: "Ein Entscheidungsnachweis sollte existieren, wenn eine Wahl Struktur, Betrieb, Sicherheitslage oder langfristige Lieferkosten verändert."
+    rationale: "Dokumentierte Entscheidungen helfen Entwicklern und Agenten, Absicht zu bewahren, statt Einschränkungen neu zu erraten."
+    reviewQuestions: ["Ist diese Wahl schwer umkehrbar?", "Wo liegt der Entscheidungsnachweis?", "Nennt der Nachweis die betroffenen Systemteile?"]
+    positiveExamples: ["Eine Wahl zur Dateneigentümerschaft ist mit einem Nachweis verlinkt.", "Eine verworfene Deployment-Option ist dokumentiert."]
+    negativeExamples: ["Eine große Abhängigkeit wird ohne Begründung ergänzt.", "Ein Design widerspricht still einer alten Entscheidung."]
+    exceptions: ["Kleine lokale Implementierungsentscheidungen brauchen keinen Entscheidungsnachweis."]
+    remediation: ["Erstelle einen knappen Entscheidungsnachweis.", "Verlinke ihn aus Änderung oder Design.", "Dokumentiere Folgen und betroffene Grenzen."]
+    tags: ["entscheidungsnachweis", "governance"]
+    keywords: ["entscheidung", "nachweis", "begruendung"]
+  - id: "AR-912"
+    title: "Entscheidungen enthalten Trade-offs"
+    summary: "Entscheidungsnachweise sollten Alternativen, Annahmen, akzeptierte Kosten und Folgen zeigen."
+    content: "Ein nützlicher Entscheidungsnachweis erklärt, warum die gewählte Option gewählt wurde und welche Kosten akzeptiert werden."
+    rationale: "Trade-off-Details verhindern, dass künftige Änderungen Einschränkungen als Zufall behandeln."
+    reviewQuestions: ["Welche Alternativen wurden betrachtet?", "Welche Annahmen könnten sich ändern?", "Welche Kosten werden akzeptiert?"]
+    positiveExamples: ["Ein Nachweis vergleicht synchrone und asynchrone Integration.", "Bekannte Migrationskosten werden genannt."]
+    negativeExamples: ["Der Nachweis sagt nur, was gewählt wurde.", "Annahmen stecken nur in Chats oder Tickets."]
+    exceptions: ["Notfallentscheidungen dürfen Trade-offs nach Stabilisierung ergänzen."]
+    remediation: ["Ergänze verworfene Alternativen.", "Dokumentiere Annahmen und Folgen.", "Notiere Review-Auslöser für geänderte Annahmen."]
+    tags: ["tradeoffs", "review"]
+    keywords: ["alternative", "annahme", "folge"]
+  - id: "AR-913"
+    title: "Entscheidungsstatus bleibt aktuell"
+    summary: "Architekturentscheidungen sollten aktuell, abgelöst oder ausdrücklich abgelaufen sein."
+    content: "Ein Entscheidungsnachweis sollte einen klaren Status haben, und temporäre Ausnahmen sollten Review-Auslöser besitzen."
+    rationale: "Veraltete Entscheidungen erzeugen falsche Grenzen und führen automatisierte Änderungsagenten in die Irre."
+    reviewQuestions: ["Ist die Entscheidung noch aktuell?", "Wurde sie durch eine andere Entscheidung ersetzt?", "Haben Ausnahmen Review-Termine?"]
+    positiveExamples: ["Eine abgelöste Entscheidung verweist auf den Ersatz.", "Eine temporäre Ausnahme hat Owner und Review-Datum."]
+    negativeExamples: ["Alte Entscheidungen bleiben aktiv, obwohl das System geändert wurde.", "Ausnahmen werden ohne Review dauerhaft."]
+    exceptions: ["Historische Nachweise dürfen archiviert bleiben, wenn sie klar markiert sind."]
+    remediation: ["Markiere veraltete Entscheidungen als abgelöst.", "Ergänze Review-Termine für Ausnahmen.", "Verlinke Ersatzentscheidungen."]
+    tags: ["lebenszyklus", "status"]
+    keywords: ["abgeloest", "abgelaufen", "aktuell"]

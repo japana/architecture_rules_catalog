@@ -1,0 +1,36 @@
+# AI Evaluation Gate Review: {{systemName}}
+
+Reviewer: {{reviewer}}
+Reviewed at: {{reviewedAt}}
+Release gate: {{releaseGateName}}
+
+## Scenario Suites
+
+{{#scenarioSuitesList}}
+- [ ] {{.}} ran with recorded inputs, outputs, and verdicts.
+{{/scenarioSuitesList}}
+
+## Known Failure Cases
+
+{{#knownFailureCasesList}}
+- [ ] {{.}} is covered by a regression scenario or explicitly waived.
+{{/knownFailureCasesList}}
+
+## Gate Checks
+
+- [ ] Critical prompt, policy, tool, and model-setting changes trigger this gate.
+- [ ] Pass thresholds and acceptable variance are documented.
+- [ ] Failures route to review with actionable diagnostics.
+
+## Evidence
+
+- Evidence link:
+- Finding:
+- Owner:
+- Follow-up due:
+- Waiver reason:
+- Waiver expires:
+
+Overall decision: TBD
+
+Notes:

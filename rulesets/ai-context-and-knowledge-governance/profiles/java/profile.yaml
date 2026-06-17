@@ -1,0 +1,44 @@
+profileId: "java"
+ruleSetId: "ai-context-and-knowledge-governance"
+schemaVersion: "ruleset-profile-v2"
+status: "review"
+displayName: "Java Profile for AI Context Governance"
+description: "Java Semgrep profile for heuristic sensitive-context assembly checks with explicit sanitizer call pattern exclusions."
+appliesTo:
+  languages: ["java"]
+  architectureStyles: ["ai-assisted", "agentic"]
+toolchain:
+  required:
+    - type: "semgrep"
+      version: ">=1.70.0"
+    - type: "manual-review"
+      version: ">=1.0.0"
+ruleMappings:
+  - ruleId: "AR-961"
+    verificationTemplates:
+      - templateId: "VT-AR-961-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          systemName: "{{project.name}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          contextSourcesList: "{{project.aiContext.contextSourcesList}}"
+          generatedOutputsList: "{{project.aiContext.generatedOutputsList}}"
+  - ruleId: "AR-962"
+    verificationTemplates:
+      - templateId: "VT-AR-962-SEMGREP-JAVA-001"
+        coverage: "heuristic"
+        parameterBindings:
+          sensitiveFieldRegex: "{{project.aiContext.sensitiveFieldRegex}}"
+          contextBuilderTypeRegex: "{{project.aiContext.contextBuilderTypeRegex}}"
+          sanitizerMethodPatterns: "{{project.aiContext.sanitizerMethodPatterns}}"
+  - ruleId: "AR-963"
+    verificationTemplates:
+      - templateId: "VT-AR-961-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          systemName: "{{project.name}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          contextSourcesList: "{{project.aiContext.contextSourcesList}}"
+          generatedOutputsList: "{{project.aiContext.generatedOutputsList}}"

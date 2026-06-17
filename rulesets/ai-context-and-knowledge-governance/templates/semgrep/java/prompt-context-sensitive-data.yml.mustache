@@ -1,0 +1,29 @@
+rules:
+  - id: ai-context-sensitive-data-assembly
+    message: Sensitive data appears to be assembled into AI context without an allowed sanitizer.
+    severity: WARNING
+    languages:
+      - java
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $BUILDER.add($VALUE)
+          - pattern: |
+              $BUILDER.append($VALUE)
+          - pattern: |
+              $BUILDER.put($KEY, $VALUE)
+      - pattern-not-either:
+{{#sanitizerMethodPatterns}}
+          - pattern: |
+              $BUILDER.add({{.}})
+          - pattern: |
+              $BUILDER.append({{.}})
+          - pattern: |
+              $BUILDER.put($KEY, {{.}})
+{{/sanitizerMethodPatterns}}
+      - metavariable-regex:
+          metavariable: $BUILDER
+          regex: "{{contextBuilderTypeRegex}}"
+      - metavariable-regex:
+          metavariable: $VALUE
+          regex: "{{sensitiveFieldRegex}}"

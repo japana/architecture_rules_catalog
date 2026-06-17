@@ -1,0 +1,30 @@
+package {{basePackage}}.security;
+
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
+
+@AnalyzeClasses(packages = "{{basePackage}}", importOptions = ImportOption.DoNotIncludeTests.class)
+class QuarkusAuthenticationAuthorizationSeparationRuleTest {
+
+  @ArchTest
+  static final ArchRule business_services_should_not_depend_on_identity_boundary =
+      noClasses()
+          .that()
+          .resideInAnyPackage({{{businessServicePackagePatterns}}})
+          .should()
+          .dependOnClassesThat()
+          .resideInAnyPackage({{{identityBoundaryPackagePatterns}}});
+
+  @ArchTest
+  static final ArchRule authorization_components_should_not_live_in_identity_boundary =
+      noClasses()
+          .that()
+          .resideInAnyPackage({{{authorizationPackagePatterns}}})
+          .should()
+          .dependOnClassesThat()
+          .resideInAnyPackage({{{identityBoundaryPackagePatterns}}});
+}

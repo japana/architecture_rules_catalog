@@ -1,0 +1,126 @@
+ruleSetId: "ai-context-and-knowledge-governance"
+schemaVersion: "ruleset-catalog-v1"
+ruleSetVersion: "0.1.0"
+publisher: "APMDB Catalog Seed"
+license: "Apache-2.0"
+status: "review"
+defaultLocale: "en"
+availableLocales: ["en", "de"]
+approvals: []
+rules:
+  - id: "AR-961"
+    status: "active"
+    type: "governance"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["architecture-design", "documentation", "runtime-operation"]
+    appliesTo:
+      artifactTypes: ["architecture-design", "documentation", "runtime-operation"]
+      architectureElements: ["application", "service", "data-store"]
+    source:
+      type: "governance-guideline"
+      name: "Context Source Trust"
+      reference: "Machine-consumed context should declare source, ownership, freshness, and trust expectations."
+    violationSignals: ["Generated behavior depends on context whose source or freshness is unknown.", "Conflicting knowledge sources have no precedence rule.", "Context ownership is unclear when facts change."]
+    relationships: []
+  - id: "AR-962"
+    status: "active"
+    type: "security"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "blocking"
+    detectability: "static-analysis"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "configuration", "runtime-operation"]
+    appliesTo:
+      artifactTypes: ["source-code", "configuration", "runtime-operation"]
+      architectureElements: ["application", "service", "data-store"]
+    source:
+      type: "security-principle"
+      name: "Sensitive Context Minimization"
+      reference: "Context assembly should minimize sensitive data and preserve authorization boundaries."
+    violationSignals: ["Sensitive records are added to prompts or stored context without filtering.", "Context retrieval ignores user or tenant permissions.", "Prompt or retrieval logs contain unnecessary private data."]
+    relationships:
+      - target: "AR-961"
+        type: "supports"
+        rationale: "Trustworthy context requires controlled sensitive-data handling."
+  - id: "AR-963"
+    status: "active"
+    type: "governance"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["documentation", "runtime-operation", "test-artifact"]
+    appliesTo:
+      artifactTypes: ["documentation", "runtime-operation", "test-artifact"]
+      architectureElements: ["application", "service"]
+    source:
+      type: "engineering-practice"
+      name: "Assumption and Evidence Separation"
+      reference: "Generated outputs should distinguish cited facts, derived conclusions, and assumptions."
+    violationSignals: ["A generated decision presents assumptions as verified facts.", "Evidence references are missing for context-dependent claims.", "Reviewers cannot tell which output parts came from retrieved material."]
+    relationships:
+      - target: "AR-961"
+        type: "supports"
+        rationale: "Source trust is only useful when evidence and assumptions remain visible."
+verificationTemplates:
+  - templateId: "VT-AR-962-SEMGREP-JAVA-001"
+    ruleIds: ["AR-962"]
+    type: "semgrep"
+    language: "java"
+    framework: "semgrep"
+    coverage: "heuristic"
+    determinism: "heuristic"
+    templateRef: "templates/semgrep/java/prompt-context-sensitive-data.yml.mustache"
+    description: "Semgrep template that flags direct assembly of selected sensitive field names into prompt or context builder calls, with explicit sanitizer call patterns excluded."
+    requiredParameters:
+      - "sensitiveFieldRegex"
+      - "contextBuilderTypeRegex"
+      - "sanitizerMethodPatterns"
+    verifiesViolationSignals:
+      - "Sensitive records are added to prompts or stored context without filtering."
+      - "Prompt or retrieval logs contain unnecessary private data."
+    limitations:
+      - "Heuristic pattern matching can miss indirect flows and can flag safe code when sanitizer call patterns are incomplete."
+      - "Requires project-specific sensitive field patterns and explicit sanitizer method call patterns such as redact(...)."
+    generates:
+      description: "Semgrep rule for sensitive context assembly review."
+      pathTemplate: "semgrep/ai-context-sensitive-data.yml"
+    toolchain:
+      - type: "semgrep"
+        version: ">=1.70.0"
+  - templateId: "VT-AR-961-CHECKLIST-001"
+    ruleIds: ["AR-961", "AR-963"]
+    type: "checklist"
+    coverage: "supporting"
+    determinism: "manual"
+    templateRef: "templates/checklists/context-source-evidence-review.md.mustache"
+    description: "Review checklist for context source trust metadata and separation of evidence, conclusions, and assumptions."
+    requiredParameters:
+      - "systemName"
+      - "reviewer"
+      - "reviewedAt"
+      - "contextSourcesList"
+      - "generatedOutputsList"
+    verifiesViolationSignals:
+      - "Generated behavior depends on context whose source or freshness is unknown."
+      - "Conflicting knowledge sources have no precedence rule."
+      - "A generated decision presents assumptions as verified facts."
+      - "Evidence references are missing for context-dependent claims."
+    limitations:
+      - "Supports review evidence only; it does not inspect runtime retrieval quality."
+      - "Requires representative context sources and generated outputs selected by the project."
+    generates:
+      description: "AI context trust and evidence-separation review checklist."
+      pathTemplate: "docs/architecture/{{systemName}}-context-evidence-review.md"
+    toolchain:
+      - type: "manual-review"
+        version: ">=1.0.0"

@@ -1,0 +1,56 @@
+package {{basePackage}}.integration;
+
+import static org.awaitility.Awaitility.await;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+
+import io.quarkus.test.junit.QuarkusTest;
+import java.time.Duration;
+import org.junit.jupiter.api.Test;
+
+@QuarkusTest
+class DuplicateMessageSafetyTest {
+
+  @Test
+  void duplicate_delivery_should_not_duplicate_business_effects() {
+    String messageBody = {{{messageBodyExpression}}};
+
+    given()
+        .header("{{messageIdHeaderName}}", "{{messageIdValue}}")
+        .contentType("application/json")
+        .body(messageBody)
+        .when()
+        .post("{{messageEndpointPath}}")
+        .then()
+        .statusCode({{expectedStatusCode}});
+
+    given()
+        .header("{{messageIdHeaderName}}", "{{messageIdValue}}")
+        .contentType("application/json")
+        .body(messageBody)
+        .when()
+        .post("{{messageEndpointPath}}")
+        .then()
+        .statusCode({{expectedStatusCode}});
+
+    given()
+        .when()
+        .get("{{stableResultProbePath}}")
+        .then()
+        .statusCode(200)
+        .body("{{stableResultField}}", equalTo({{{expectedStableResultValueExpression}}}));
+
+    // stableResultProbePath should expose stable replay semantics; effectCountProbePath should expose the business effect count.
+    await()
+        .atMost(Duration.ofSeconds({{assertEventuallyTimeoutSeconds}}))
+        .pollInterval(Duration.ofMillis({{assertPollIntervalMillis}}))
+        .untilAsserted(() -> {
+          given()
+              .when()
+              .get("{{effectCountProbePath}}")
+              .then()
+              .statusCode(200)
+              .body("effectCount", equalTo({{expectedEffectCount}}));
+        });
+  }
+}

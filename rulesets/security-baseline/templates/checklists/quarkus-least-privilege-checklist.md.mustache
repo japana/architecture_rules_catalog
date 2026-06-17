@@ -1,0 +1,40 @@
+# Least Privilege Review for {{serviceName}}
+
+Supported rule: `AR-304`
+
+Coverage: `supporting`
+
+Toolchain: manual review
+
+Reviewer: {{reviewer}}
+Reviewed at: {{reviewedAt}}
+
+Runtime identities to review:
+{{#runtimeIdentities}}
+- {{.}}
+{{/runtimeIdentities}}
+
+Datasources to review:
+{{#datasourceNames}}
+- {{.}}
+{{/datasourceNames}}
+
+External systems to review:
+{{#externalSystems}}
+- {{.}}
+{{/externalSystems}}
+
+Checklist:
+| Check | Decision | Evidence | Risk / Follow-up |
+| --- | --- | --- | --- |
+| Does each Quarkus runtime identity have only the minimum required access? | TBD | TBD | TBD |
+| Are datasource users separated by runtime role or environment where appropriate? | TBD | TBD | TBD |
+| Are admin or migration permissions kept out of the normal request-serving identity? | TBD | TBD | TBD |
+| Is every external-system credential mapped to a clear least-privilege rationale? | TBD | TBD | TBD |
+| Are privileged dev/test settings prevented from leaking into production defaults? | TBD | TBD | TBD |
+
+Limitations:
+- Manual checklist only.
+- Validate answers against actual IAM, DB, and platform policy state.
+
+Overall decision: TBD

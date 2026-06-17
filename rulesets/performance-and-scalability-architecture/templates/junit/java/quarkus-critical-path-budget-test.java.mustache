@@ -1,0 +1,58 @@
+package {{basePackage}}.performance;
+
+import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import io.quarkus.test.junit.QuarkusTest;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+
+@QuarkusTest
+class CriticalPathBudgetTest {
+
+  @Test
+  void critical_path_should_stay_within_budget() {
+    List<Long> durations = new ArrayList<>();
+
+    assertTrue({{iterations}} >= {{minMeasuredIterations}}, "Measured iterations must satisfy the template fixture contract.");
+
+    // warmupIterations are excluded from the measured budget to reduce startup and lazy initialization noise.
+    for (int index = 0; index < {{warmupIterations}}; index += 1) {
+      given()
+          .when()
+          .get("{{criticalPath}}")
+          .then()
+          .statusCode({{expectedStatusCode}});
+    }
+
+    for (int index = 0; index < {{iterations}}; index += 1) {
+      long startedAt = System.nanoTime();
+      given()
+          .when()
+          .get("{{criticalPath}}")
+          .then()
+          .statusCode({{expectedStatusCode}});
+      durations.add((System.nanoTime() - startedAt) / 1_000_000L);
+    }
+
+    Collections.sort(durations);
+    long maxDuration = durations.stream().mapToLong(Long::longValue).max().orElseThrow();
+    double averageDuration = durations.stream().mapToLong(Long::longValue).average().orElseThrow();
+    int percentileIndex = Math.min(
+        durations.size() - 1,
+        Math.max(0, (int) Math.ceil(({{percentileRank}} / 100.0d) * durations.size()) - 1));
+    long percentileDuration = durations.get(percentileIndex);
+
+    assertTrue(
+        maxDuration <= {{maxSingleCallMillis}},
+        "critical path exceeded single-call budget: " + maxDuration + "ms");
+    assertTrue(
+        percentileDuration <= {{maxPercentileMillis}},
+        "critical path exceeded p{{percentileRank}} budget: " + percentileDuration + "ms");
+    assertTrue(
+        averageDuration <= {{maxAverageMillis}},
+        "critical path exceeded average budget: " + averageDuration + "ms");
+  }
+}

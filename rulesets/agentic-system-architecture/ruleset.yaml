@@ -1,0 +1,129 @@
+ruleSetId: "agentic-system-architecture"
+schemaVersion: "ruleset-catalog-v1"
+ruleSetVersion: "0.1.0"
+publisher: "APMDB Catalog Seed"
+license: "Apache-2.0"
+status: "review"
+defaultLocale: "en"
+availableLocales: ["en", "de"]
+approvals: []
+rules:
+  - id: "AR-951"
+    status: "active"
+    type: "security"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "blocking"
+    detectability: "static-analysis"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "architecture-design", "runtime-operation"]
+    appliesTo:
+      artifactTypes: ["source-code", "architecture-design", "runtime-operation"]
+      architectureElements: ["application", "service", "external-system"]
+    source:
+      type: "security-principle"
+      name: "Controlled Agent Side Effects"
+      reference: "Autonomous actions with side effects should pass through explicit tool and policy boundaries."
+    violationSignals: ["An autonomous component writes, deletes, deploys, or purchases without a policy gate.", "Side-effect operations are reachable through untyped free-form instructions.", "Tool execution bypasses authorization or confirmation rules."]
+    relationships: []
+  - id: "AR-952"
+    status: "active"
+    type: "governance"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "blocking"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["architecture-design", "runtime-operation", "documentation"]
+    appliesTo:
+      artifactTypes: ["architecture-design", "runtime-operation", "documentation"]
+      architectureElements: ["application", "service", "external-system"]
+    source:
+      type: "governance-guideline"
+      name: "Human Handoff for Irreversible Actions"
+      reference: "Irreversible or high-impact autonomous decisions should define review, confirmation, or escalation."
+    violationSignals: ["An irreversible action has no confirmation or rollback path.", "Escalation criteria are missing for uncertain outcomes.", "Operators cannot intervene before high-impact action is taken."]
+    relationships:
+      - target: "AR-951"
+        type: "supports"
+        rationale: "Human handoff is one policy boundary for sensitive side effects."
+  - id: "AR-953"
+    status: "active"
+    type: "operations"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "runtime"
+    scope:
+      - dimension: "artifactType"
+        values: ["runtime-operation", "documentation", "source-code"]
+    appliesTo:
+      artifactTypes: ["runtime-operation", "documentation", "source-code"]
+      architectureElements: ["application", "service", "external-system"]
+    source:
+      type: "engineering-practice"
+      name: "Agent Decision Auditability"
+      reference: "Autonomous decisions should leave enough evidence to explain inputs, tool calls, and outcomes."
+    violationSignals: ["A completed autonomous action cannot be traced to input, context, or tool call.", "Audit records omit policy decisions or override reasons.", "Sensitive prompts are logged without minimization."]
+    relationships:
+      - target: "AR-951"
+        type: "supports"
+        rationale: "Auditable execution helps verify side-effect control."
+verificationTemplates:
+  - templateId: "VT-AR-951-ARCHUNIT-QUARKUS-001"
+    ruleIds: ["AR-951"]
+    type: "archunit"
+    language: "java"
+    framework: "quarkus"
+    coverage: "partial"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/quarkus-agent-tool-policy-boundary-rule.java.mustache"
+    description: "ArchUnit template that requires selected side-effect tool packages to depend on policy boundary packages and blocks direct dependencies from those tools to side-effect adapter packages."
+    requiredParameters:
+      - "basePackage"
+      - "sideEffectAgentToolPackagePatterns"
+      - "policyBoundaryPackagePatterns"
+      - "sideEffectAdapterPackagePatterns"
+    verifiesViolationSignals:
+      - "An autonomous component writes, deletes, deploys, or purchases without a policy gate."
+      - "Tool execution bypasses authorization or confirmation rules."
+    limitations:
+      - "Checks structural dependencies only; it cannot prove policy correctness or runtime authorization decisions."
+      - "Projects must bind sideEffectAgentToolPackagePatterns and sideEffectAdapterPackagePatterns narrowly; read-only tools should not be included."
+    generates:
+      description: "JUnit 5 ArchUnit test class for selected side-effect agent tool policy boundaries."
+      pathTemplate: "src/test/java/{{basePackagePath}}/architecture/AgentToolPolicyBoundaryRuleTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"
+  - templateId: "VT-AR-952-CHECKLIST-001"
+    ruleIds: ["AR-952", "AR-953"]
+    type: "checklist"
+    coverage: "supporting"
+    determinism: "manual"
+    templateRef: "templates/checklists/agentic-handoff-audit-review.md.mustache"
+    description: "Review checklist for high-impact autonomous action handoff, intervention, rollback, and audit evidence."
+    requiredParameters:
+      - "systemName"
+      - "reviewer"
+      - "reviewedAt"
+      - "highImpactActionsList"
+      - "auditEventsList"
+    verifiesViolationSignals:
+      - "An irreversible action has no confirmation or rollback path."
+      - "Operators cannot intervene before high-impact action is taken."
+      - "A completed autonomous action cannot be traced to input, context, or tool call."
+      - "Audit records omit policy decisions or override reasons."
+    limitations:
+      - "Supports review evidence only; it does not prove runtime audit completeness."
+      - "Requires project-specific identification of high-impact actions and audit events."
+    generates:
+      description: "Agentic handoff and auditability review checklist."
+      pathTemplate: "docs/architecture/{{systemName}}-agentic-handoff-audit.md"
+    toolchain:
+      - type: "manual-review"
+        version: ">=1.0.0"

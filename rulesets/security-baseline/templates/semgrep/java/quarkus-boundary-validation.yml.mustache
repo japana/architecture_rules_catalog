@@ -1,0 +1,78 @@
+rules:
+  - id: quarkus-boundary-validation-missing-validation
+    languages: [java]
+    message: "Quarkus boundary appears to pass request data inward without expected validation."
+    severity: WARNING
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              @Path(...)
+              class $RESOURCE { ... }
+          - pattern-inside: |
+              class $RESOURCE {
+                ...
+                @Path(...)
+                public $RET $METHOD(..., $DTO $BODY, ...) { ... }
+                ...
+              }
+          - pattern-inside: |
+              class $RESOURCE {
+                ...
+                @POST
+                public $RET $METHOD(..., $DTO $BODY, ...) { ... }
+                ...
+              }
+          - pattern-inside: |
+              class $RESOURCE {
+                ...
+                @PUT
+                public $RET $METHOD(..., $DTO $BODY, ...) { ... }
+                ...
+              }
+          - pattern-inside: |
+              class $RESOURCE {
+                ...
+                @PATCH
+                public $RET $METHOD(..., $DTO $BODY, ...) { ... }
+                ...
+              }
+          - pattern-inside: |
+              class $RESOURCE {
+                ...
+                @GET
+                public $RET $METHOD(..., $DTO $BODY, ...) { ... }
+                ...
+              }
+          - pattern-inside: |
+              class $RESOURCE {
+                ...
+                @DELETE
+                public $RET $METHOD(..., $DTO $BODY, ...) { ... }
+                ...
+              }
+      - pattern-either:
+          - pattern: |
+              public $RET $METHOD(..., $DTO $BODY, ...) {
+                ...
+                $SERVICE.$CALL(..., $BODY, ...);
+                ...
+              }
+          - pattern: |
+              public $RET $METHOD(..., $DTO $BODY, ...) {
+                ...
+                $NORMALIZED = $MAPPER.$MAP(..., $BODY, ...);
+                ...
+                $SERVICE.$CALL(..., $NORMALIZED, ...);
+                ...
+              }
+      - metavariable-regex:
+          metavariable: $DTO
+          regex: "{{boundaryDtoTypeRegex}}"
+      - pattern-not-inside: |
+          public $RET $METHOD(..., @{{validationAnnotationName}} $DTO $BODY, ...) {
+            ...
+          }
+    metadata:
+      technology: quarkus
+      rule: AR-303
+      expectedValidationAnnotation: "{{validationAnnotationName}}"

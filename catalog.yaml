@@ -45,3 +45,43 @@ ruleSets:
     locales:
       - "en"
       - "de"
+  - id: "modularity-and-dependency-governance"
+    path: "rulesets/modularity-and-dependency-governance/ruleset.yaml"
+    locales:
+      - "en"
+      - "de"
+  - id: "architecture-decision-governance"
+    path: "rulesets/architecture-decision-governance/ruleset.yaml"
+    locales:
+      - "en"
+      - "de"
+  - id: "integration-and-messaging-architecture"
+    path: "rulesets/integration-and-messaging-architecture/ruleset.yaml"
+    locales:
+      - "en"
+      - "de"
+  - id: "delivery-and-runtime-architecture"
+    path: "rulesets/delivery-and-runtime-architecture/ruleset.yaml"
+    locales:
+      - "en"
+      - "de"
+  - id: "performance-and-scalability-architecture"
+    path: "rulesets/performance-and-scalability-architecture/ruleset.yaml"
+    locales:
+      - "en"
+      - "de"
+  - id: "agentic-system-architecture"
+    path: "rulesets/agentic-system-architecture/ruleset.yaml"
+    locales:
+      - "en"
+      - "de"
+  - id: "ai-context-and-knowledge-governance"
+    path: "rulesets/ai-context-and-knowledge-governance/ruleset.yaml"
+    locales:
+      - "en"
+      - "de"
+  - id: "ai-evaluation-and-regression-governance"
+    path: "rulesets/ai-evaluation-and-regression-governance/ruleset.yaml"
+    locales:
+      - "en"
+      - "de"

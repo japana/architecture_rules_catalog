@@ -45,6 +45,29 @@ test("catalog fixture validates successfully", async () => {
   });
 });
 
+test("catalog includes developer and agentic architecture governance rulesets", async () => {
+  await withCatalogFixture(async (tempDir) => {
+    const catalog = await fs.readFile(path.join(tempDir, "catalog.yaml"), "utf8");
+
+    for (const ruleSetId of [
+      "modularity-and-dependency-governance",
+      "architecture-decision-governance",
+      "integration-and-messaging-architecture",
+      "delivery-and-runtime-architecture",
+      "performance-and-scalability-architecture",
+      "agentic-system-architecture",
+      "ai-context-and-knowledge-governance",
+      "ai-evaluation-and-regression-governance"
+    ]) {
+      assert.match(catalog, new RegExp(`id: "${ruleSetId}"`, "u"));
+
+      const rulesetPath = path.join(tempDir, "rulesets", ruleSetId, "ruleset.yaml");
+      const ruleset = await fs.readFile(rulesetPath, "utf8");
+      assert.match(ruleset, /verificationTemplates:/u, `${ruleSetId} should expose verification templates`);
+    }
+  });
+});
+
 test("validator rejects placeholder approval references", async () => {
   await withCatalogFixture(async (tempDir) => {
     const rulesetPath = path.join(tempDir, "rulesets", "clean-code", "ruleset.yaml");
@@ -139,5 +162,116 @@ test("validator rejects profile mappings that reference unknown rules", async ()
 
     const errors = await validateCatalog(tempDir);
     assert.ok(errors.some((error) => error.includes("mapping rule 'AR-999' does not exist")));
+  });
+});
+
+test("validator rejects duplicate verification template ids", async () => {
+  await withCatalogFixture(async (tempDir) => {
+    const rulesetPath = path.join(tempDir, "rulesets", "clean-architecture", "ruleset.yaml");
+    const content = await fs.readFile(rulesetPath, "utf8");
+    const duplicateTemplate = [
+      "  - templateId: \"VT-AR-101-ARCHUNIT-001\"",
+      "    ruleIds: [\"AR-102\"]",
+      "    type: \"archunit\"",
+      "    language: \"java\"",
+      "    framework: \"archunit\"",
+      "    coverage: \"partial\"",
+      "    determinism: \"deterministic\"",
+      "    templateRef: \"templates/archunit/java/clean-architecture-dependency-direction-rule.java.mustache\"",
+      "    description: \"Duplicate test template.\"",
+      "    requiredParameters: [\"basePackage\"]",
+      "    verifiesViolationSignals:",
+      "      - \"Inner business layers depend on outer technical layers.\"",
+      "    limitations:",
+      "      - \"Checks package-level dependencies only.\"",
+      "    generates:",
+      "      description: \"Duplicate output.\"",
+      "      pathTemplate: \"src/test/java/example/Duplicate.java\"",
+      "    toolchain:",
+      "      - type: \"archunit\"",
+      "        version: \">=1.3.0\""
+    ].join("\n");
+    const mutated = `${content}\n${duplicateTemplate}\n`;
+    await fs.writeFile(rulesetPath, mutated, "utf8");
+
+    const errors = await validateCatalog(tempDir);
+    assert.ok(errors.some((error) => error.includes("duplicate verification template id 'VT-AR-101-ARCHUNIT-001'")));
+  });
+});
+
+test("validator rejects verification templates that reference unknown rules", async () => {
+  await withCatalogFixture(async (tempDir) => {
+    const rulesetPath = path.join(tempDir, "rulesets", "clean-architecture", "ruleset.yaml");
+    const content = await fs.readFile(rulesetPath, "utf8");
+    const mutated = content.replace('ruleIds: ["AR-101"]', 'ruleIds: ["AR-999"]');
+    await fs.writeFile(rulesetPath, mutated, "utf8");
+
+    const errors = await validateCatalog(tempDir);
+    assert.ok(errors.some((error) => error.includes("verification template 'VT-AR-101-ARCHUNIT-001' references unknown rule 'AR-999'")));
+  });
+});
+
+test("validator rejects verification templates with missing template artifacts", async () => {
+  await withCatalogFixture(async (tempDir) => {
+    const rulesetPath = path.join(tempDir, "rulesets", "clean-architecture", "ruleset.yaml");
+    const content = await fs.readFile(rulesetPath, "utf8");
+    const mutated = content.replace(
+      'templateRef: "templates/archunit/java/clean-architecture-dependency-rule.java.mustache"',
+      'templateRef: "templates/archunit/java/missing-template.java.mustache"'
+    );
+    await fs.writeFile(rulesetPath, mutated, "utf8");
+
+    const errors = await validateCatalog(tempDir);
+    assert.ok(errors.some((error) => error.includes("references missing template artifact")));
+  });
+});
+
+test("validator rejects invalid verification template coverage values", async () => {
+  await withCatalogFixture(async (tempDir) => {
+    const rulesetPath = path.join(tempDir, "rulesets", "security-baseline", "ruleset.yaml");
+    const content = await fs.readFile(rulesetPath, "utf8");
+    const mutated = content.replace('coverage: "partial"', 'coverage: "complete"');
+    await fs.writeFile(rulesetPath, mutated, "utf8");
+
+    const errors = await validateCatalog(tempDir);
+    assert.ok(errors.some((error) => error.includes("/verificationTemplates/0/coverage must be equal to one of the allowed values")));
+  });
+});
+
+test("validator rejects v2 profile mappings with unknown template ids", async () => {
+  await withCatalogFixture(async (tempDir) => {
+    const profilePath = path.join(
+      tempDir,
+      "rulesets",
+      "clean-architecture",
+      "profiles",
+      "java-spring-boot",
+      "profile.yaml"
+    );
+    const content = await fs.readFile(profilePath, "utf8");
+    const mutated = content.replace('templateId: "VT-AR-101-ARCHUNIT-001"', 'templateId: "VT-AR-999-ARCHUNIT-001"');
+    await fs.writeFile(profilePath, mutated, "utf8");
+
+    const errors = await validateCatalog(tempDir);
+    assert.ok(errors.some((error) => error.includes("references unknown verification template 'VT-AR-999-ARCHUNIT-001'")));
+  });
+});
+
+test("validator rejects v2 profile mappings with missing required parameter bindings", async () => {
+  await withCatalogFixture(async (tempDir) => {
+    const profilePath = path.join(
+      tempDir,
+      "rulesets",
+      "clean-architecture",
+      "profiles",
+      "java-spring-boot",
+      "profile.yaml"
+    );
+    const content = await fs.readFile(profilePath, "utf8");
+    const mutated = content.replace(/^\s*adapterPackages:.*\r?\n/m, "");
+    await fs.writeFile(profilePath, mutated, "utf8");
+
+    const errors = await validateCatalog(tempDir);
+    assert.ok(errors.some((error) => error.includes("missing required parameter binding 'adapterPackages'")));
   });
 });

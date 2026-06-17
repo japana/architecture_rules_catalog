@@ -1,0 +1,50 @@
+profileId: "generic"
+ruleSetId: "delivery-and-runtime-architecture"
+schemaVersion: "ruleset-profile-v2"
+status: "review"
+displayName: "Generic Profile for Runtime Readiness"
+description: "Generic runtime readiness review profile for configuration, readiness, and runtime switches."
+appliesTo:
+  languages: ["generic"]
+  architectureStyles: ["any"]
+toolchain:
+  required:
+    - type: "manual-review"
+      version: ">=1.0.0"
+ruleMappings:
+  - ruleId: "AR-931"
+    verificationTemplates:
+      - templateId: "VT-AR-932-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          serviceName: "{{service.name}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          runtimeEnvironmentsList: "{{service.runtime.environmentsList}}"
+          criticalConfigurationItemsList: "{{service.runtime.criticalConfigurationItemsList}}"
+          readinessSignalsList: "{{service.runtime.readinessSignalsList}}"
+          runtimeSwitchesList: "{{service.runtime.switchesList}}"
+  - ruleId: "AR-932"
+    verificationTemplates:
+      - templateId: "VT-AR-932-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          serviceName: "{{service.name}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          runtimeEnvironmentsList: "{{service.runtime.environmentsList}}"
+          criticalConfigurationItemsList: "{{service.runtime.criticalConfigurationItemsList}}"
+          readinessSignalsList: "{{service.runtime.readinessSignalsList}}"
+          runtimeSwitchesList: "{{service.runtime.switchesList}}"
+  - ruleId: "AR-933"
+    verificationTemplates:
+      - templateId: "VT-AR-932-CHECKLIST-001"
+        coverage: "supporting"
+        parameterBindings:
+          serviceName: "{{service.name}}"
+          reviewer: "{{review.reviewer}}"
+          reviewedAt: "{{review.date}}"
+          runtimeEnvironmentsList: "{{service.runtime.environmentsList}}"
+          criticalConfigurationItemsList: "{{service.runtime.criticalConfigurationItemsList}}"
+          readinessSignalsList: "{{service.runtime.readinessSignalsList}}"
+          runtimeSwitchesList: "{{service.runtime.switchesList}}"

@@ -1,6 +1,6 @@
 ruleSetId: "security-baseline"
 schemaVersion: "ruleset-catalog-v1"
-ruleSetVersion: "1.1.0"
+ruleSetVersion: "1.2.0"
 publisher: "APMDB Catalog Seed"
 license: "Apache-2.0"
 status: "published"
@@ -164,3 +164,193 @@ rules:
       - target: "AR-301"
         type: "supports"
         rationale: "Safe defaults reduce the chance of accidental exposure of sensitive access data."
+verificationTemplates:
+  - templateId: "VT-AR-301-GITLEAKS-001"
+    ruleIds: ["AR-301"]
+    type: "gitleaks"
+    language: "text"
+    framework: "gitleaks"
+    coverage: "partial"
+    determinism: "deterministic"
+    templateRef: "templates/gitleaks/secret-protection-gitleaks.toml.mustache"
+    description: "Gitleaks configuration template for high-signal secret detection in versioned source and config files."
+    requiredParameters:
+      - "configTitle"
+      - "additionalSecretPatterns"
+      - "allowedTestSecretPatterns"
+    verifiesViolationSignals:
+      - "Passwords, API keys, tokens, or private keys are present in versioned files."
+      - "Sample configurations contain real or realistic secrets."
+    limitations:
+      - "Secret scanners can miss unknown formats and can flag false positives."
+      - "Does not cover secrets exposed only at runtime, in logs, or in generated artifacts."
+    generates:
+      description: "Project-specific gitleaks configuration."
+      pathTemplate: "security/gitleaks/{{configTitle}}.toml"
+    toolchain:
+      - type: "gitleaks"
+        version: ">=8.18.0"
+  - templateId: "VT-AR-301-GITLEAKS-QUARKUS-002"
+    ruleIds: ["AR-301"]
+    type: "gitleaks"
+    language: "text"
+    framework: "quarkus"
+    coverage: "partial"
+    determinism: "deterministic"
+    templateRef: "templates/gitleaks/quarkus-secret-protection-gitleaks.toml.mustache"
+    description: "Quarkus-focused gitleaks template with emphasis on application.properties, profile-specific config, and dev-service leakage patterns."
+    requiredParameters:
+      - "configTitle"
+      - "quarkusConfigPathRegex"
+      - "additionalSecretRulesToml"
+      - "allowlistsToml"
+    verifiesViolationSignals:
+      - "Passwords, API keys, tokens, or private keys are present in versioned files."
+      - "Sample configurations contain real or realistic secrets."
+    limitations:
+      - "Pattern-based secret scanners can miss unknown formats and produce false positives."
+      - "Does not cover secrets injected only at runtime or leaked via logs."
+      - "additionalSecretRulesToml and allowlistsToml must be supplied as prevalidated TOML fragments."
+    generates:
+      description: "Quarkus-specific gitleaks configuration."
+      pathTemplate: "security/gitleaks/{{configTitle}}-quarkus.toml"
+    toolchain:
+      - type: "gitleaks"
+        version: ">=8.18.0"
+  - templateId: "VT-AR-302-ARCHUNIT-001"
+    ruleIds: ["AR-302"]
+    type: "archunit"
+    language: "java"
+    framework: "archunit"
+    coverage: "heuristic"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/authentication-authorization-separation-rule.java.mustache"
+    description: "ArchUnit template that checks whether authorization components stay distinct from authentication boundary components."
+    requiredParameters:
+      - "basePackage"
+      - "authenticationPackages"
+      - "authorizationPackages"
+      - "businessServicePackages"
+    verifiesViolationSignals:
+      - "Authentication state is confused with authorization."
+      - "Roles, entitlements, or tenant access are not checked explicitly."
+    limitations:
+      - "Structural separation does not prove effective permission checks."
+      - "Cannot verify runtime policy decisions, token contents, or tenant scoping."
+    generates:
+      description: "JUnit 5 ArchUnit test class for authn/authz separation."
+      pathTemplate: "src/test/java/{{basePackagePath}}/security/AuthenticationAuthorizationSeparationRuleTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"
+  - templateId: "VT-AR-302-ARCHUNIT-QUARKUS-002"
+    ruleIds: ["AR-302"]
+    type: "archunit"
+    language: "java"
+    framework: "quarkus"
+    coverage: "heuristic"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/quarkus-authentication-authorization-separation-rule.java.mustache"
+    description: "Quarkus-focused ArchUnit template that separates JAX-RS or identity boundary packages from application-side authorization decisions."
+    requiredParameters:
+      - "basePackage"
+      - "businessServicePackagePatterns"
+      - "identityBoundaryPackagePatterns"
+      - "authorizationPackagePatterns"
+    verifiesViolationSignals:
+      - "Authentication state is confused with authorization."
+      - "Roles, entitlements, or tenant access are not checked explicitly."
+    limitations:
+      - "Structural separation is only supporting evidence for correct authorization."
+      - "Does not evaluate MicroProfile JWT claims, tenant scoping, or policy logic correctness."
+    generates:
+      description: "JUnit 5 ArchUnit test class for Quarkus authn/authz separation."
+      pathTemplate: "src/test/java/{{basePackagePath}}/security/QuarkusAuthenticationAuthorizationSeparationRuleTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"
+  - templateId: "VT-AR-303-SEMGREP-QUARKUS-002"
+    ruleIds: ["AR-303"]
+    type: "semgrep"
+    language: "java"
+    framework: "quarkus"
+    coverage: "heuristic"
+    determinism: "deterministic"
+    templateRef: "templates/semgrep/java/quarkus-boundary-validation.yml.mustache"
+    description: "Quarkus-focused Semgrep template that detects a direct JAX-RS-to-service delegation pattern where a boundary DTO parameter lacks the expected validation annotation."
+    requiredParameters:
+      - "boundaryDtoTypeRegex"
+      - "validationAnnotationName"
+    verifiesViolationSignals:
+      - "Unchecked external input reaches business logic or persistence."
+      - "Validation happens inconsistently across inner layers."
+    limitations:
+      - "Heuristic only: matches selected class-level or method-level JAX-RS boundary shapes and does not prove end-to-end validation semantics."
+      - "Detects direct delegation or a single mapper-hop pattern only."
+      - "May miss programmatic validation, custom normalization layers, or validation performed before service delegation."
+    generates:
+      description: "Semgrep ruleset for Quarkus boundary validation review."
+      pathTemplate: "governance/semgrep/quarkus-boundary-validation.yml"
+    toolchain:
+      - type: "semgrep"
+        version: ">=1.75.0"
+  - templateId: "VT-AR-304-CHECKLIST-QUARKUS-002"
+    ruleIds: ["AR-304"]
+    type: "checklist"
+    language: "text"
+    framework: "quarkus"
+    coverage: "supporting"
+    determinism: "manual"
+    templateRef: "templates/checklists/quarkus-least-privilege-checklist.md.mustache"
+    description: "Quarkus deployment and runtime review checklist for least-privilege decisions across service accounts, datasource users, and identity providers."
+    requiredParameters:
+      - "serviceName"
+      - "reviewer"
+      - "reviewedAt"
+      - "runtimeIdentities"
+      - "datasourceNames"
+      - "externalSystems"
+    verifiesViolationSignals:
+      - "Technical identities have global or persistently elevated permissions."
+      - "Permissions are granted more broadly than necessary for convenience."
+    limitations:
+      - "Manual review aid only."
+      - "Does not verify actual cloud, database, or IAM policy state automatically."
+    generates:
+      description: "Manual review checklist for Quarkus least-privilege assessment."
+      pathTemplate: "governance/checklists/{{serviceName}}-least-privilege-review.md"
+    toolchain:
+      - type: "markdown"
+        version: ">=1.0.0"
+  - templateId: "VT-AR-306-CHECKLIST-QUARKUS-002"
+    ruleIds: ["AR-306"]
+    type: "checklist"
+    language: "text"
+    framework: "quarkus"
+    coverage: "supporting"
+    determinism: "manual"
+    templateRef: "templates/checklists/quarkus-secure-defaults-checklist.md.mustache"
+    description: "Quarkus configuration review checklist for secure defaults across profiles, dev services, exposed endpoints, and feature toggles."
+    requiredParameters:
+      - "serviceName"
+      - "reviewer"
+      - "reviewedAt"
+      - "configFiles"
+      - "publicEndpoints"
+      - "sensitiveFeatures"
+    verifiesViolationSignals:
+      - "Debug, test, or bypass capabilities are enabled by default."
+      - "Unsafe operating modes are easier to use than safer ones."
+    limitations:
+      - "Manual review aid only."
+      - "Does not prove deployment-time overrides or cluster-wide defaults."
+    generates:
+      description: "Manual review checklist for Quarkus secure defaults."
+      pathTemplate: "governance/checklists/{{serviceName}}-secure-defaults-review.md"
+    toolchain:
+      - type: "markdown"
+        version: ">=1.0.0"

@@ -1,0 +1,41 @@
+profileId: "java-quarkus"
+ruleSetId: "integration-and-messaging-architecture"
+schemaVersion: "ruleset-profile-v2"
+status: "review"
+displayName: "Java Quarkus Verification Profile for Messaging"
+description: "Quarkus integration-test profile for duplicate message delivery safety."
+appliesTo:
+  languages: ["java"]
+  frameworks: ["quarkus"]
+  architectureStyles: ["event-driven", "clean-architecture"]
+  runtimes: ["jvm"]
+toolchain:
+  required:
+    - type: "junit"
+      version: ">=5.10.0"
+    - type: "rest-assured"
+      version: ">=5.4.0"
+    - type: "quarkus-test"
+      version: ">=3.0.0"
+    - type: "awaitility"
+      version: ">=4.2.0"
+ruleMappings:
+  - ruleId: "AR-922"
+    verificationTemplates:
+      - templateId: "VT-AR-922-JUNIT-QUARKUS-001"
+        coverage: "supporting"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          messageEndpointPath: "{{project.messaging.duplicateDelivery.messageEndpointPath}}"
+          messageIdHeaderName: "{{project.messaging.duplicateDelivery.messageIdHeaderName}}"
+          messageIdValue: "{{project.messaging.duplicateDelivery.messageIdValue}}"
+          messageBodyExpression: "{{project.messaging.duplicateDelivery.messageBodyExpression}}"
+          expectedStatusCode: "{{project.messaging.duplicateDelivery.expectedStatusCode}}"
+          effectCountProbePath: "{{project.messaging.duplicateDelivery.effectCountProbePath}}"
+          expectedEffectCount: "{{project.messaging.duplicateDelivery.expectedEffectCount}}"
+          stableResultProbePath: "{{project.messaging.duplicateDelivery.stableResultProbePath}}"
+          stableResultField: "{{project.messaging.duplicateDelivery.stableResultField}}"
+          expectedStableResultValueExpression: "{{project.messaging.duplicateDelivery.expectedStableResultValueExpression}}"
+          assertEventuallyTimeoutSeconds: "{{project.messaging.duplicateDelivery.assertEventuallyTimeoutSeconds}}"
+          assertPollIntervalMillis: "{{project.messaging.duplicateDelivery.assertPollIntervalMillis}}"

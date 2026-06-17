@@ -1,0 +1,116 @@
+ruleSetId: "integration-and-messaging-architecture"
+schemaVersion: "ruleset-catalog-v1"
+ruleSetVersion: "0.1.0"
+publisher: "APMDB Catalog Seed"
+license: "Apache-2.0"
+status: "review"
+defaultLocale: "en"
+availableLocales: ["en", "de"]
+approvals: []
+rules:
+  - id: "AR-921"
+    status: "active"
+    type: "api"
+    abstractionLevel: "principle"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["api-contract", "architecture-design", "source-code"]
+    appliesTo:
+      artifactTypes: ["api-contract", "architecture-design", "source-code"]
+      architectureElements: ["service", "external-system", "interface"]
+    source:
+      type: "architecture-principle"
+      name: "Message Contract Ownership"
+      reference: "Asynchronous integrations should define owned message contracts and compatibility expectations."
+    violationSignals: ["A consumer infers message shape from producer internals.", "Message fields change without compatibility guidance.", "No owner is responsible for event meaning."]
+    relationships: []
+  - id: "AR-922"
+    status: "active"
+    type: "api"
+    abstractionLevel: "practice"
+    strength: "must"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["source-code", "test-artifact", "architecture-design"]
+    appliesTo:
+      artifactTypes: ["source-code", "test-artifact", "architecture-design"]
+      architectureElements: ["service", "external-system", "application"]
+    source:
+      type: "engineering-practice"
+      name: "Duplicate Delivery Safety"
+      reference: "Message consumers should define behavior for duplicate delivery and replay."
+    violationSignals: ["Reprocessing the same message creates duplicate business effects.", "Replay behavior is undefined for operational recovery.", "Consumer state changes before message identity is checked."]
+    relationships:
+      - target: "AR-921"
+        type: "supports"
+        rationale: "Stable message identity and contract ownership enable duplicate safety."
+  - id: "AR-923"
+    status: "active"
+    type: "api"
+    abstractionLevel: "practice"
+    strength: "should"
+    decisionImpact: "warning"
+    detectability: "ai-assisted"
+    scope:
+      - dimension: "artifactType"
+        values: ["architecture-design", "runtime-operation", "documentation"]
+    appliesTo:
+      artifactTypes: ["architecture-design", "runtime-operation", "documentation"]
+      architectureElements: ["service", "external-system", "deployment"]
+    source:
+      type: "engineering-practice"
+      name: "Message Ordering and Delay Expectations"
+      reference: "Asynchronous flows should state expectations for ordering, delay, and late arrival."
+    violationSignals: ["Correctness depends on ordering that the integration does not promise.", "Late messages overwrite newer business state.", "Operators cannot distinguish delayed processing from failure."]
+    relationships:
+      - target: "AR-922"
+        type: "relatedTo"
+        rationale: "Duplicate and delayed delivery are often verified together."
+verificationTemplates:
+  - templateId: "VT-AR-922-JUNIT-QUARKUS-001"
+    ruleIds: ["AR-922"]
+    type: "junit"
+    language: "java"
+    framework: "quarkus-test"
+    coverage: "supporting"
+    determinism: "deterministic"
+    templateRef: "templates/junit/java/quarkus-duplicate-message-safety-test.java.mustache"
+    description: "Integration-test template that delivers the same message twice, asserts stable replay result semantics, and eventually verifies business effect counts through project-provided probes."
+    requiredParameters:
+      - "basePackage"
+      - "messageEndpointPath"
+      - "messageIdHeaderName"
+      - "messageIdValue"
+      - "messageBodyExpression"
+      - "expectedStatusCode"
+      - "effectCountProbePath"
+      - "expectedEffectCount"
+      - "stableResultProbePath"
+      - "stableResultField"
+      - "expectedStableResultValueExpression"
+      - "assertEventuallyTimeoutSeconds"
+      - "assertPollIntervalMillis"
+    verifiesViolationSignals:
+      - "Reprocessing the same message creates duplicate business effects."
+      - "Consumer state changes before message identity is checked."
+    limitations:
+      - "Requires a test-accessible message ingress or adapter boundary."
+      - "Requires project-provided stable-result and effect-count probes that represent the business effect under test."
+      - "The eventual assertion reduces race conditions but still depends on realistic timeout and polling bindings."
+    generates:
+      description: "Quarkus integration test skeleton for duplicate message delivery safety."
+      pathTemplate: "src/test/java/{{basePackagePath}}/integration/DuplicateMessageSafetyTest.java"
+    toolchain:
+      - type: "junit"
+        version: ">=5.10.0"
+      - type: "rest-assured"
+        version: ">=5.4.0"
+      - type: "quarkus-test"
+        version: ">=3.0.0"
+      - type: "awaitility"
+        version: ">=4.2.0"

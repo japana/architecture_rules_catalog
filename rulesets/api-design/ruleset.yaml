@@ -1,6 +1,6 @@
 ruleSetId: "api-design"
 schemaVersion: "ruleset-catalog-v1"
-ruleSetVersion: "0.1.0"
+ruleSetVersion: "0.2.0"
 publisher: "APMDB Catalog Seed"
 license: "Apache-2.0"
 status: "published"
@@ -149,3 +149,194 @@ rules:
       - "Paging, filtering, sorting, or streaming behavior is missing for growing datasets."
       - "Client-visible performance depends on accidental database or in-memory behavior."
     relationships: []
+verificationTemplates:
+  - templateId: "VT-AR-403-ARCHUNIT-001"
+    ruleIds: ["AR-403"]
+    type: "archunit"
+    language: "java"
+    framework: "archunit"
+    coverage: "partial"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/representation-encapsulation-rule.java.mustache"
+    description: "ArchUnit template that prevents API-facing DTO or controller packages from depending on persistence entity packages."
+    requiredParameters:
+      - "basePackage"
+      - "apiPackages"
+      - "dtoPackages"
+      - "persistencePackages"
+    verifiesViolationSignals:
+      - "External consumers depend on database table shapes, internal entity structures, or implementation-only fields."
+      - "Sensitive or irrelevant internal fields are exposed through convenience mapping."
+    limitations:
+      - "Detects structural dependencies only."
+      - "Does not prove field-level exposure or serialization behavior."
+    generates:
+      description: "JUnit 5 ArchUnit test class for DTO/entity dependency separation."
+      pathTemplate: "src/test/java/{{basePackagePath}}/architecture/RepresentationEncapsulationRuleTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"
+  - templateId: "VT-AR-403-ARCHUNIT-QUARKUS-002"
+    ruleIds: ["AR-403"]
+    type: "archunit"
+    language: "java"
+    framework: "quarkus"
+    coverage: "partial"
+    determinism: "deterministic"
+    templateRef: "templates/archunit/java/quarkus-representation-encapsulation-rule.java.mustache"
+    description: "Quarkus-focused ArchUnit template that prevents JAX-RS resources and DTO packages from depending on JPA or Panache entities."
+    requiredParameters:
+      - "basePackage"
+      - "apiRepresentationPackagePatterns"
+      - "persistenceAndPanachePackagePatterns"
+    verifiesViolationSignals:
+      - "External consumers depend on database table shapes, internal entity structures, or implementation-only fields."
+      - "Sensitive or irrelevant internal fields are exposed through convenience mapping."
+    limitations:
+      - "Detects structural dependencies, not serialized field exposure."
+      - "Does not validate mapping logic or OpenAPI schemas."
+    generates:
+      description: "JUnit 5 ArchUnit test class for Quarkus representation encapsulation."
+      pathTemplate: "src/test/java/{{basePackagePath}}/architecture/QuarkusRepresentationEncapsulationRuleTest.java"
+    toolchain:
+      - type: "archunit"
+        version: ">=1.3.0"
+      - type: "junit"
+        version: ">=5.10.0"
+  - templateId: "VT-AR-402-JUNIT-QUARKUS-002"
+    ruleIds: ["AR-402"]
+    type: "junit"
+    language: "java"
+    framework: "quarkus-test"
+    coverage: "heuristic"
+    determinism: "deterministic"
+    templateRef: "templates/junit/java/quarkus-consistent-error-contracts-test.java.mustache"
+    description: "Quarkus integration-test template that compares equivalent failure cases across endpoints for status code, content type, and selected stable error semantics."
+    requiredParameters:
+      - "basePackage"
+      - "firstErrorPath"
+      - "secondErrorPath"
+      - "expectedStatusCode"
+      - "expectedContentType"
+      - "expectedErrorCodeField"
+      - "expectedErrorCode"
+      - "expectedErrorMeaningField"
+      - "expectedErrorMeaning"
+    verifiesViolationSignals:
+      - "Different endpoints or operations represent equivalent failures in incompatible ways."
+      - "Clients cannot reliably distinguish validation, authorization, conflict, and system failures."
+    limitations:
+      - "Requires representative failing scenarios and domain-specific expected values."
+      - "Checks selected fields, not full payload equality or complete API-wide consistency."
+    generates:
+      description: "Quarkus integration test skeleton for consistent error contracts."
+      pathTemplate: "src/test/java/{{basePackagePath}}/api/ConsistentErrorContractsTest.java"
+    toolchain:
+      - type: "junit"
+        version: ">=5.10.0"
+      - type: "rest-assured"
+        version: ">=5.4.0"
+      - type: "quarkus-test"
+        version: ">=3.0.0"
+  - templateId: "VT-AR-405-JUNIT-QUARKUS-002"
+    ruleIds: ["AR-405"]
+    type: "junit"
+    language: "java"
+    framework: "quarkus-test"
+    coverage: "heuristic"
+    determinism: "deterministic"
+    templateRef: "templates/junit/java/quarkus-idempotency-awareness-test.java.mustache"
+    description: "Quarkus integration-test template that replays the same command request and checks stable identity, an explicit replay indicator, and a project-defined duplicate-effect signal."
+    requiredParameters:
+      - "basePackage"
+      - "commandPath"
+      - "idempotencyHeaderName"
+      - "idempotencyKeyValue"
+      - "requestFixtureExpression"
+      - "expectedInitialStatusCode"
+      - "expectedReplayStatusCode"
+      - "stableResponseField"
+      - "replayIndicatorField"
+      - "expectedReplayIndicatorValue"
+      - "duplicateEffectCountField"
+      - "expectedDuplicateEffectCount"
+    verifiesViolationSignals:
+      - "A retry can create duplicate business effects without detection or documentation."
+      - "Duplicate commands are handled inconsistently across similar operations."
+    limitations:
+      - "Requires project-specific replay and effect signals in the response contract."
+      - "Does not prove idempotency across all storage and messaging paths."
+    generates:
+      description: "Quarkus integration test skeleton for idempotency awareness."
+      pathTemplate: "src/test/java/{{basePackagePath}}/api/IdempotencyAwarenessTest.java"
+    toolchain:
+      - type: "junit"
+        version: ">=5.10.0"
+      - type: "rest-assured"
+        version: ">=5.4.0"
+      - type: "quarkus-test"
+        version: ">=3.0.0"
+  - templateId: "VT-AR-406-SPECTRAL-001"
+    ruleIds: ["AR-406"]
+    type: "spectral"
+    language: "openapi"
+    framework: "spectral"
+    coverage: "heuristic"
+    determinism: "deterministic"
+    templateRef: "templates/spectral/openapi/large-result-control.spectral.yaml.mustache"
+    description: "Spectral ruleset template that flags collection endpoints without pagination, limit, cursor, or range controls."
+    requiredParameters:
+      - "ruleNamePrefix"
+      - "defaultPageSizeParameterNames"
+      - "defaultCursorParameterNames"
+    verifiesViolationSignals:
+      - "An operation can return unbounded data to a client."
+      - "Paging, filtering, sorting, or streaming behavior is missing for growing datasets."
+    limitations:
+      - "Heuristic only: infers collection semantics from OpenAPI structure and naming."
+      - "Cannot prove backend-enforced limits or runtime query efficiency."
+    generates:
+      description: "Reusable Spectral ruleset file for OpenAPI collection endpoint review."
+      pathTemplate: "governance/spectral/{{ruleNamePrefix}}-large-result-control.yaml"
+    toolchain:
+      - type: "spectral"
+        version: ">=6.11.0"
+  - templateId: "VT-AR-406-JUNIT-QUARKUS-002"
+    ruleIds: ["AR-406"]
+    type: "junit"
+    language: "java"
+    framework: "quarkus-test"
+    coverage: "heuristic"
+    determinism: "deterministic"
+    templateRef: "templates/junit/java/quarkus-large-result-control-test.java.mustache"
+    description: "Quarkus integration-test template using QuarkusTest and REST-assured to check that a list endpoint recognizes the requested size control and returns fewer items than the comparable unpaged call under a representative dataset."
+    requiredParameters:
+      - "basePackage"
+      - "resourcePath"
+      - "pageSizeParameterName"
+      - "pageParameterName"
+      - "maxPageSize"
+      - "minimumDatasetSize"
+      - "maxUnpagedResultThreshold"
+      - "responseCollectionSizePath"
+      - "pagedControlEchoPath"
+      - "expectedPagedControlEchoValue"
+    verifiesViolationSignals:
+      - "An operation can return unbounded data to a client."
+      - "Paging, filtering, sorting, or streaming behavior is missing for growing datasets."
+    limitations:
+      - "Requires a representative dataset whose size is at least minimumDatasetSize."
+      - "Requires a response field or envelope signal that echoes the applied paging control."
+      - "Does not prove backend-side efficiency or all filtering options."
+    generates:
+      description: "Quarkus integration test skeleton for large-result control."
+      pathTemplate: "src/test/java/{{basePackagePath}}/api/LargeResultControlResourceTest.java"
+    toolchain:
+      - type: "junit"
+        version: ">=5.10.0"
+      - type: "rest-assured"
+        version: ">=5.4.0"
+      - type: "quarkus-test"
+        version: ">=3.0.0"

@@ -1,0 +1,36 @@
+package {{basePackage}}.api;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+
+import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.Test;
+
+@QuarkusTest
+class IdempotencyAwarenessTest {
+
+  @Test
+  void duplicate_command_should_have_a_defined_outcome() {
+    Object firstStableValue =
+        given()
+        .header("{{idempotencyHeaderName}}", "{{idempotencyKeyValue}}")
+        .body({{{requestFixtureExpression}}})
+        .when()
+        .post("{{commandPath}}")
+        .then()
+        .statusCode({{expectedInitialStatusCode}})
+        .extract()
+        .path("{{stableResponseField}}");
+
+    given()
+        .header("{{idempotencyHeaderName}}", "{{idempotencyKeyValue}}")
+        .body({{{requestFixtureExpression}}})
+        .when()
+        .post("{{commandPath}}")
+        .then()
+        .statusCode({{expectedReplayStatusCode}})
+        .body("{{stableResponseField}}", equalTo(firstStableValue))
+        .body("{{replayIndicatorField}}", equalTo({{{expectedReplayIndicatorValue}}}))
+        .body("{{duplicateEffectCountField}}", equalTo({{expectedDuplicateEffectCount}}));
+  }
+}

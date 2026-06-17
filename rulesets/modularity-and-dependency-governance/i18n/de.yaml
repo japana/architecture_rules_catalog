@@ -1,0 +1,43 @@
+ruleSetId: "modularity-and-dependency-governance"
+locale: "de"
+name: "Modularität und Abhängigkeitssteuerung"
+description: "Regeln für durchsetzbare Modulgrenzen, gerichtete Abhängigkeiten und sichtbare Modulverantwortung."
+category: "Architektur"
+tags: ["modularitaet", "abhaengigkeiten", "ownership"]
+rules:
+  - id: "AR-901"
+    title: "Module stellen bewusste öffentliche Oberflächen bereit"
+    summary: "Module sollten über explizite Einstiegspunkte genutzt werden, nicht über interne Implementierungsdetails."
+    content: "Ein Modul muss klar machen, welche Oberfläche unterstützt wird, und interne Typen, Helfer und Speicherdetails im Modul halten."
+    rationale: "Stabile öffentliche Oberflächen reduzieren unbeabsichtigte Kopplung und ermöglichen lokale Änderung."
+    reviewQuestions: ["Welche Typen oder Funktionen sind für andere Module gedacht?", "Können interne Implementierungsdetails von außen referenziert werden?", "Ist die öffentliche Oberfläche klein genug für Reviews?"]
+    positiveExamples: ["Konsumenten hängen nur von einer Modul-API ab.", "Architekturtests blockieren Zugriffe auf interne Bereiche."]
+    negativeExamples: ["Andere Module importieren Implementierungsklassen direkt.", "Ein geteiltes Hilfsmodul legt fachfremde Interna offen."]
+    exceptions: ["Temporäre Migrationsadapter dürfen Interna kreuzen, wenn sie mit Ablaufdatum verfolgt werden."]
+    remediation: ["Führe einen schmalen Moduleinstieg ein.", "Verschiebe interne Typen hinter die Moduloberfläche.", "Ergänze strukturelle Tests gegen interne Zugriffe."]
+    tags: ["modulgrenze", "kapselung"]
+    keywords: ["modul", "grenze", "oberflaeche"]
+  - id: "AR-902"
+    title: "Modulabhängigkeiten bleiben azyklisch"
+    summary: "Modulgraphen sollten gerichtet und frei von Build- oder Release-Zyklen bleiben."
+    content: "Module dürfen nicht zyklisch voneinander abhängen, außer der Zyklus wird bewusst durch einen stabilen Vertrag oder eine extrahierte Verantwortung gebrochen."
+    rationale: "Zyklen machen Änderungsfolgen schwer vorhersehbar und zwingen unabhängige Module zu gemeinsamer Änderung."
+    reviewQuestions: ["Enthält der Abhängigkeitsgraph Zyklen?", "Wurde geteiltes Verhalten aus dem richtigen Grund extrahiert?", "Kann jedes Modul ohne das Gesamtsystem getestet werden?"]
+    positiveExamples: ["Ein Use Case hängt von einem stabilen Port eines anderen Moduls ab.", "Architekturtests schlagen bei neuen Zyklen fehl."]
+    negativeExamples: ["Zwei Module importieren gegenseitig ihre Services.", "Ein Common-Modul versteckt nur einen Zyklus."]
+    exceptions: ["Sehr kleine Deployables dürfen lokale Zyklen während einer Extraktion befristet akzeptieren."]
+    remediation: ["Extrahiere einen stabilen Vertrag.", "Verschiebe geteiltes Verhalten zum Eigentümer.", "Invertiere eine Abhängigkeit über einen Port."]
+    tags: ["abhaengigkeit", "azyklisch"]
+    keywords: ["zyklus", "abhängigkeitsgraph", "modul"]
+  - id: "AR-903"
+    title: "Module haben sichtbare Verantwortung"
+    summary: "Jedes relevante Modul sollte klare Verantwortung für Zweck, Änderung und Review besitzen."
+    content: "Ein Modul sollte Zweck, erlaubte Abhängigkeiten und Review-Verantwortung benennen, damit Änderungen gegen die Absicht geprüft werden können."
+    rationale: "Ownership verhindert, dass geteilte Bereiche zu unkontrollierten Kopplungspunkten werden."
+    reviewQuestions: ["Wer reviewed Änderungen an diesem Modul?", "Welche Verantwortung besitzt das Modul?", "Welche Abhängigkeiten sind erlaubt oder verboten?"]
+    positiveExamples: ["Moduldokumentation nennt Zweck und Owner.", "Review-Zuordnung folgt der Modulverantwortung."]
+    negativeExamples: ["Niemand kann erklären, warum ein Modul existiert.", "Geteilte Module sammeln fachfremde Helfer."]
+    exceptions: ["Experimentelle Module dürfen leichte Ownership nutzen, solange ihr Zweck validiert wird."]
+    remediation: ["Dokumentiere Owner und Modulzweck.", "Trenne unabhängige Verantwortungen.", "Ergänze Abhängigkeitsregeln nahe am Modul."]
+    tags: ["ownership", "governance"]
+    keywords: ["owner", "verantwortung", "review"]

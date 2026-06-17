@@ -1,0 +1,35 @@
+package {{basePackage}}.data;
+
+import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+
+import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.response.Response;
+import org.junit.jupiter.api.Test;
+
+@QuarkusTest
+class AccessPathAwarenessTest {
+
+  @Test
+  void read_path_should_stay_within_expected_result_and_query_budget() {
+    Response response = given()
+        .when()
+        .get("{{resourcePath}}");
+
+    response.then()
+        .statusCode(200)
+        .body("{{responseCollectionSizePath}}", lessThanOrEqualTo({{maxExpectedItems}}));
+
+    String rawQueryCountHeader = response.getHeader("{{queryCountHeaderName}}");
+    assertNotNull(
+        rawQueryCountHeader,
+        "Missing query-count instrumentation header '{{queryCountHeaderName}}'. Provide project-specific test support before relying on this template.");
+    int queryCount = assertDoesNotThrow(
+        () -> Integer.parseInt(rawQueryCountHeader),
+        "Query-count instrumentation header '{{queryCountHeaderName}}' must contain an integer value.");
+    assertThat("{{queryBudgetProbeDescription}}", queryCount, lessThanOrEqualTo({{expectedQueryBudget}}));
+  }
+}

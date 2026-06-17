@@ -1,37 +1,44 @@
 profileId: "java-quarkus"
 ruleSetId: "data-management"
-schemaVersion: "ruleset-profile-v1"
+schemaVersion: "ruleset-profile-v2"
 status: "published"
-displayName: "Java Quarkus Profile for Data Management"
-description: "Quarkus-specific detection hints for the data-management ruleset."
-technology:
-  language: "java"
-  framework: "quarkus"
-  runtime: "jvm"
-mappings:
-  - ruleId: "AR-501"
-    detectionHints:
-      concreteComponentPatterns: ["Multiple resources or services write the same table", "Persistence access shared across unrelated modules"]
-      recommendedTools: ["ArchUnit", "module dependency review"]
-  - ruleId: "AR-502"
-    detectionHints:
-      indicativeAnnotations: ["@Entity", "@Transactional"]
-      concreteComponentPatterns: ["Invariant enforced only in resource", "Entity permits invalid state through public setters or fields"]
-      recommendedTools: ["domain tests", "persistence tests"]
-  - ruleId: "AR-503"
-    detectionHints:
-      concreteComponentPatterns: ["Schema generated implicitly in production", "Migration missing for entity change"]
-      recommendedTools: ["Flyway", "Liquibase", "migration smoke tests"]
-  - ruleId: "AR-504"
-    detectionHints:
-      indicativeAnnotations: ["@Transactional"]
-      concreteComponentPatterns: ["External call inside transaction without failure strategy", "Transaction boundary unclear in application service"]
-      recommendedTools: ["integration tests", "transaction review"]
+displayName: "Java Quarkus Verification Profile for Data Management"
+description: "Quarkus-specific verification profile for derived-data integrity with Panache-aware mutation boundaries."
+appliesTo:
+  languages: ["java"]
+  frameworks: ["quarkus"]
+  architectureStyles: ["event-driven", "modular-monolith", "clean-architecture"]
+  runtimes: ["jvm"]
+toolchain:
+  required:
+    - type: "archunit"
+      version: ">=1.3.0"
+    - type: "junit"
+      version: ">=5.10.0"
+    - type: "rest-assured"
+      version: ">=5.4.0"
+    - type: "quarkus-test"
+      version: ">=3.0.0"
+ruleMappings:
   - ruleId: "AR-505"
-    detectionHints:
-      concreteComponentPatterns: ["Projection table or cache without refresh strategy", "Read model updated without reconciliation path"]
-      recommendedTools: ["cache tests", "projection rebuild tests"]
+    verificationTemplates:
+      - templateId: "VT-AR-505-ARCHUNIT-QUARKUS-002"
+        coverage: "partial"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          projectionPackagePatterns: "{{project.packagePatterns.projectionCsv}}"
+          sourceOfTruthMutatorPackagePatterns: "{{project.packagePatterns.sourceOfTruthMutatorCsv}}"
   - ruleId: "AR-506"
-    detectionHints:
-      concreteComponentPatterns: ["Panache listAll in request path", "Lazy loading causes N+1 behavior"]
-      recommendedTools: ["SQL logging", "performance smoke tests"]
+    verificationTemplates:
+      - templateId: "VT-AR-506-JUNIT-QUARKUS-002"
+        coverage: "supporting"
+        parameterBindings:
+          basePackage: "{{project.basePackage}}"
+          basePackagePath: "{{project.basePackagePath}}"
+          resourcePath: "{{project.dataManagement.readPath.resourcePath}}"
+          maxExpectedItems: "{{project.dataManagement.readPath.maxExpectedItems}}"
+          responseCollectionSizePath: "{{project.dataManagement.readPath.responseCollectionSizePath}}"
+          queryCountHeaderName: "{{project.dataManagement.readPath.queryCountHeaderName}}"
+          expectedQueryBudget: "{{project.dataManagement.readPath.expectedQueryBudget}}"
+          queryBudgetProbeDescription: "{{project.dataManagement.readPath.queryBudgetProbeDescription}}"
